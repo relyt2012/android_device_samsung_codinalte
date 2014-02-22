@@ -94,7 +94,7 @@ BOARD_NO_APSME_ATTR := true
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/codinatmo/bluetooth
-BOARD_BLUEDROID_VENDOR_CONF := device/samsung/codinatmo/bluetooth/btvendor_codinatmo.txt
+#BOARD_BLUEDROID_VENDOR_CONF := device/samsung/codinatmo/bluetooth/btvendor_codinatmo.txt
 
 # RIL
 BOARD_RIL_CLASS := ../../../device/samsung/codinatmo/ril/
@@ -106,6 +106,7 @@ ENABLE_WEBGL := true
 BOARD_USES_ALSA_AUDIO := true
 COMMON_GLOBAL_CFLAGS += -DMR0_AUDIO_BLOB -DMR1_AUDIO_BLOB
 BOARD_HAVE_PRE_KITKAT_AUDIO_BLOB := true
+AUDIO_FEATURE_DISABLED_DS1_DOLBY_DDP := true
 
 # Vold
 BOARD_VOLD_MAX_PARTITIONS := 25
