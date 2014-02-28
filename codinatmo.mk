@@ -84,6 +84,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ste.video.dec.recycle.delay=1 \
     ste.omx.ctx=0
 
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/bin/usbid_init.sh:system/bin/usbid_init.sh \
+
+
 # Screen
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.sf.lcd_density=240 \

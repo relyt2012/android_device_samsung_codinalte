@@ -490,6 +490,11 @@ service at_distributor /system/bin/at_distributor
     user root
     group radio log
 
+service usbid_init /system/bin/usbid_init.sh
+    class main
+    oneshot
+
+
 # We must to setup two different services for p2p and wpa supplicants on bcm4334
 service wpa_supplicant /system/bin/wpa_supplicant \
 
