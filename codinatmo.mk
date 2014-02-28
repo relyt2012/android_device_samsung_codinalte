@@ -39,10 +39,12 @@ PRODUCT_COPY_FILES += \
 # Recovery ramdisk, libraries and modules.
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/rootdir/init.recovery.samsungcodina.rc:root/init.recovery.samsungcodina.rc \
-    $(LOCAL_PATH)/recovery/rootdir/etc/twrp.fstab:recovery/root/etc/twrp.fstab \
+    $(LOCAL_PATH)/recovery/rootdir/etc/recovery.fstab:recovery/root/etc/recovery.fstab \
     $(LOCAL_PATH)/recovery/rootdir/sbin/libkeyutils.so:recovery/root/sbin/libkeyutils.so \
     $(LOCAL_PATH)/recovery/rootdir/sbin/libsec_km.so:recovery/root/sbin/libsec_km.so \
-    $(LOCAL_PATH)/recovery/rootdir/sbin/libsec_ecryptfs.so:recovery/root/sbin/libsec_ecryptfs.so
+    $(LOCAL_PATH)/recovery/rootdir/sbin/libsec_ecryptfs.so:recovery/root/sbin/libsec_ecryptfs.so \
+    $(TARGET_PRODUCT_OUT)/system/lib/modules/j4fs.ko:recovery/root/system/lib/modules/j4fs.ko \
+    $(TARGET_PRODUCT_OUT)/system/lib/modules/param.ko:recovery/root/system/lib/modules/param.ko
 
 # Inputs
 PRODUCT_COPY_FILES += \

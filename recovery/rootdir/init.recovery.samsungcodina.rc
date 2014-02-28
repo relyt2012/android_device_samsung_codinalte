@@ -1,23 +1,20 @@
 on init
-    mkdir /efs
-    mkdir /mnt
-    mkdir /mnt/.lfs
-    mkdir /sdcard
-    mkdir /external_sd
 
-    write /sys/devices/platform/mcde_fb/graphics/fb0/bits_per_pixel 16
-
-    # USB initialization
-    write /sys/class/android_usb/android0/idVendor 04E8
-    write /sys/class/android_usb/android0/idProduct 685D
-    write /sys/class/android_usb/android0/bDeviceClass 0
+    write /sys/devices/platform/ab8505-i2c.0/ab8500-usb.0/boot_time_device 1
 
 on early-fs
 
-    mount ext4 /dev/block/mmcblk0p22 /system noatime wait
-    mount ext4 /dev/block/mmcblk0p11 /efs nosuid nodev noatime wait
+    # J4FS(lfs) mount points.
+    mkdir /mnt 0775 root root
+    mkdir /mnt/.lfs 0755 root root
+
+    # EFS
+    mkdir /efs
 
     # Install Kernel Module
     insmod /system/lib/modules/j4fs.ko
-    mount j4fs /dev/block/mmcblk0p19 /mnt/.lfs wait rw
+    mount j4fs /dev/block/mmcblk0p19 /mnt/.lfs wait
     insmod /system/lib/modules/param.ko
+
+    mount ext4 /dev/block/mmcblk0p22 /system noatime wait
+    mount ext4 /dev/block/mmcblk0p11 /efs nosuid nodev noatime wait
