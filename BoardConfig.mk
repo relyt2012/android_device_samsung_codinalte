@@ -156,3 +156,10 @@ TW_CRYPTO_MNT_POINT := "/data"
 TW_CRYPTO_FS_OPTIONS := "noatime,nosuid,nodev,discard,noauto_da_alloc,journal_async_commit,errors=panic    wait,check"
 TW_CRYPTO_FS_FLAGS := "0x00000406"
 TW_CRYPTO_KEY_LOC := "footer"
+
+# SELinux
+BOARD_SEPOLICY_DIRS += \
+	device/samsung/codinatmo/sepolicy
+
+BOARD_SEPOLICY_UNION += \
+	file_contexts \
