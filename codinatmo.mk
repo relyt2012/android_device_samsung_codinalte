@@ -42,9 +42,7 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/rootdir/etc/recovery.fstab:recovery/root/etc/recovery.fstab \
     $(LOCAL_PATH)/recovery/rootdir/sbin/libkeyutils.so:recovery/root/sbin/libkeyutils.so \
     $(LOCAL_PATH)/recovery/rootdir/sbin/libsec_km.so:recovery/root/sbin/libsec_km.so \
-    $(LOCAL_PATH)/recovery/rootdir/sbin/libsec_ecryptfs.so:recovery/root/sbin/libsec_ecryptfs.so \
-    $(TARGET_PRODUCT_OUT)/system/lib/modules/j4fs.ko:recovery/root/system/lib/modules/j4fs.ko \
-    $(TARGET_PRODUCT_OUT)/system/lib/modules/param.ko:recovery/root/system/lib/modules/param.ko
+    $(LOCAL_PATH)/recovery/rootdir/sbin/libsec_ecryptfs.so:recovery/root/sbin/libsec_ecryptfs.so 
 
 # Inputs
 PRODUCT_COPY_FILES += \

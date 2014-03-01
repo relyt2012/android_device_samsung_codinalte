@@ -4,6 +4,9 @@ on init
 
 on early-fs
 
+    mount ext4 /dev/block/mmcblk0p22 /system noatime wait
+    mount ext4 /dev/block/mmcblk0p11 /efs nosuid nodev noatime wait
+
     # J4FS(lfs) mount points.
     mkdir /mnt 0775 root root
     mkdir /mnt/.lfs 0755 root root
@@ -16,5 +19,3 @@ on early-fs
     mount j4fs /dev/block/mmcblk0p19 /mnt/.lfs wait
     insmod /system/lib/modules/param.ko
 
-    mount ext4 /dev/block/mmcblk0p22 /system noatime wait
-    mount ext4 /dev/block/mmcblk0p11 /efs nosuid nodev noatime wait
