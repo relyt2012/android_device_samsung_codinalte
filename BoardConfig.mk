@@ -49,7 +49,7 @@ TARGET_USERIMAGES_USE_EXT4 := true
 
 # Kernel
 TARGET_KERNEL_CONFIG := cyanogenmod_codinanewcotmo_defconfig
-TARGET_KERNEL_SOURCE := kernel/samsung/codina-common
+TARGET_KERNEL_SOURCE := kernel/samsung/codina
 BOARD_CUSTOM_BOOTIMG_MK := device/samsung/codina/shbootimg.mk
 BOARD_KERNEL_CMDLINE := "androidboot.selinux=permissive"
 TARGET_USE_ST_ERICSSON_KERNEL := true
