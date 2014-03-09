@@ -16,4 +16,4 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/full_codinatmo.mk
+    $(LOCAL_DIR)/full_codina.mk

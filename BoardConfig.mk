@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-TARGET_SPECIFIC_HEADER_PATH := device/samsung/codinatmo/include
-TARGET_OTA_ASSERT_DEVICE := codinatmo,codinaxxx,codinaMetroPCS
+TARGET_SPECIFIC_HEADER_PATH := device/samsung/codina/include
+TARGET_OTA_ASSERT_DEVICE := codinatmo,codinaxxx,codinaMetroPCS,codinavid,codinanewcotmo,codina
 
 # Board
 TARGET_BOOTLOADER_BOARD_NAME := DB8520H
@@ -48,20 +48,23 @@ BOARD_FLASH_BLOCK_SIZE := 131072
 TARGET_USERIMAGES_USE_EXT4 := true
 
 # Kernel
-TARGET_KERNEL_CONFIG := cyanogenmod_codinatmo_defconfig
-TARGET_KERNEL_SOURCE := kernel/samsung/codinatmo
-BOARD_CUSTOM_BOOTIMG_MK := device/samsung/codinatmo/shbootimg.mk
+TARGET_KERNEL_CONFIG := cyanogenmod_codinanewcotmo_defconfig
+TARGET_KERNEL_SOURCE := kernel/samsung/codina-common
+BOARD_CUSTOM_BOOTIMG_MK := device/samsung/codina/shbootimg.mk
 BOARD_KERNEL_CMDLINE := "androidboot.selinux=permissive"
 TARGET_USE_ST_ERICSSON_KERNEL := true
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_PAGESIZE := 2048
+
+# Releasetools
+TARGET_RELEASETOOLS_EXTENSIONS := device/samsung/codina
 
 # Ramdisk
 TARGET_PROVIDES_ENVIRON_RC := true
 
 # Graphics
 USE_OPENGL_RENDERER := true
-BOARD_EGL_CFG := device/samsung/codinatmo/configs/lib/egl/egl.cfg
+BOARD_EGL_CFG := device/samsung/codina/configs/lib/egl/egl.cfg
 COMMON_GLOBAL_CFLAGS += -DFORCE_SCREENSHOT_CPU_PATH
 BOARD_EGL_WORKAROUND_BUG_10194508 := true
 TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := true
@@ -94,11 +97,11 @@ BOARD_NO_APSME_ATTR := true
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/codinatmo/bluetooth
-#BOARD_BLUEDROID_VENDOR_CONF := device/samsung/codinatmo/bluetooth/btvendor_codinatmo.txt
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/codina/bluetooth
+#BOARD_BLUEDROID_VENDOR_CONF := device/samsung/codina/bluetooth/btvendor_codina.txt
 
 # RIL
-BOARD_RIL_CLASS := ../../../device/samsung/codinatmo/ril/
+BOARD_RIL_CLASS := ../../../device/samsung/codina/ril/
 
 # Browser
 ENABLE_WEBGL := true
@@ -127,16 +130,16 @@ COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
 # Recovery
 BOARD_UMS_LUNFILE := "/sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun0/file"
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun%d/file"
-TARGET_RECOVERY_FSTAB := device/samsung/codinatmo/rootdir/fstab.samsungcodina
+TARGET_RECOVERY_FSTAB := device/samsung/codina/rootdir/fstab.samsungcodina
 BOARD_HAS_NO_MISC_PARTITION := true
-BOARD_CUSTOM_GRAPHICS := ../../../device/samsung/codinatmo/recovery/graphics.c
+BOARD_CUSTOM_GRAPHICS := ../../../device/samsung/codina/recovery/graphics.c
 BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_RECOVERY_SWIPE := true
 BOARD_SUPPRESS_EMMC_WIPE := true
 RECOVERY_FSTAB_VERSION := 2
 
 # TWRP Recovery defines
-TW_BOARD_CUSTOM_GRAPHICS := ../../../device/samsung/codinatmo/recovery/twrp-graphics.c
+TW_BOARD_CUSTOM_GRAPHICS := ../../../device/samsung/codina/recovery/twrp-graphics.c
 DEVICE_RESOLUTION := 480x800
 RECOVERY_SDCARD_ON_DATA := true
 TW_INTERNAL_STORAGE_PATH := "/data/media"
@@ -160,7 +163,7 @@ TW_CRYPTO_KEY_LOC := "footer"
 
 # SELinux
 BOARD_SEPOLICY_DIRS += \
-	device/samsung/codinatmo/sepolicy
+	device/samsung/codina/sepolicy
 
 BOARD_SEPOLICY_UNION += \
 	file_contexts \
