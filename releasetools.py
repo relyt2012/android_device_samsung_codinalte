@@ -1,5 +1,6 @@
 # Copyright (C) 2012 The Android Open Source Project
 # Copyright (C) 2012 The CyanogenMod Project
+# Copyright (C) 2014 Jonathan Jason Dennis [Meticulus] (theonejohnnyd@gmail.com)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +19,7 @@
 import common
 import os
 import sys
+import time
 
 LOCAL_DIR = os.path.dirname(os.path.abspath(__file__))
 TARGET_DIR = os.getenv('OUT')
@@ -36,9 +38,33 @@ def addFolderToZip(info, directory, basedir):
 
 def FullOTA_Assertions(info):
   sys.setrecursionlimit(100000)
-  addFolderToZip(info, os.path.join(TARGET_DIR, "codinanewcotmo"),"codinanewcotmo")
-  addFolderToZip(info, os.path.join(TARGET_DIR, "codinatmo"),"codinatmo")
-  addFolderToZip(info, os.path.join(TARGET_DIR, "codinavid"),"codinavid")
+
+  int models = 0
+
+  if os.path.isdir(os.path.join(TARGET_DIR, "codinanewcotmo")):
+  	addFolderToZip(info, os.path.join(TARGET_DIR, "codinanewcotmo"),"codinanewcotmo")
+	models += 1
+  else :
+	print "Warning!: Vendor files for codinanewcotmo were not found..."
+	time.sleep(2)
+
+  if os.path.isdir(os.path.join(TARGET_DIR, "codinatmo")):
+  	addFolderToZip(info, os.path.join(TARGET_DIR, "codinatmo"),"codinatmo")
+        models += 1
+  else :
+	print "Warning!: Vendor files for codinatmo were not found..."
+        time.sleep(2)
+
+  if os.path.isdir(os.path.join(TARGET_DIR, "codinavid")):
+  	addFolderToZip(info, os.path.join(TARGET_DIR, "codinavid"),"codinavid")
+	models += 1
+  else :
+	print "Warning!: Vendor files for codinavid were not found..."
+        time.sleep(2)
+
+  if(models == 0):
+	raise Exception("You must have vendor files for at least one variant!")
+
   info.output_zip.write(os.path.join(TARGET_DIR, "blobinstaller.sh"), "blobinstaller.sh")
   info.output_zip.write(os.path.join(TARGET_DIR, "restorecon.sh"), "restorecon.sh")
 
@@ -63,6 +89,10 @@ def FullOTA_InstallEnd(info):
   info.script.AppendExtra('assert(run_program("/tmp/blobinstaller.sh") == 0);')
   info.script.AppendExtra('assert(run_program("/tmp/restorecon.sh") == 0);')
 
+# We have to reset all permissions after install blobs on system and this is the only way I could find to do it.
+# It would be better if FullOTA_InstallEnd(info) was called before system permissions are set
+# But I am unsure what "other" consequences of doing that would be.
+# NOTE: Future bring ups - check updater-script and duplicate permission setup here.
   info.script.AppendExtra('set_metadata_recursive("/system", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");')
   info.script.AppendExtra('set_metadata_recursive("/system/addon.d", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");')
   info.script.AppendExtra('set_metadata_recursive("/system/bin", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");')
