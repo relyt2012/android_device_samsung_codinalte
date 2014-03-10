@@ -39,7 +39,7 @@ def addFolderToZip(info, directory, basedir):
 def FullOTA_Assertions(info):
   sys.setrecursionlimit(100000)
 
-  int models = 0
+  models = 0
 
   if os.path.isdir(os.path.join(TARGET_DIR, "codinanewcotmo")):
   	addFolderToZip(info, os.path.join(TARGET_DIR, "codinanewcotmo"),"codinanewcotmo")
