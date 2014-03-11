@@ -30,6 +30,9 @@
 #include <hardware/hardware.h>
 #include <system/audio.h>
 #include <hardware/audio_effect.h>
+#ifdef AUDIO_LISTEN_ENABLED
+#include <listen_types.h>
+#endif
 
 __BEGIN_DECLS
 
@@ -147,6 +150,7 @@ __BEGIN_DECLS
 #define AUDIO_OFFLOAD_CODEC_WMA_ENCODE_OPTION "music_offload_wma_encode_option"
 #define AUDIO_OFFLOAD_CODEC_WMA_ENCODE_OPTION1"music_offload_wma_encode_option1"
 #define AUDIO_OFFLOAD_CODEC_WMA_ENCODE_OPTION2 "music_offload_wma_encode_option2"
+#define AUDIO_OFFLOAD_CODEC_FORMAT  "music_offload_codec_format"
 
 /* Query handle fm parameter*/
 #define AUDIO_PARAMETER_KEY_HANDLE_FM "handle_fm"
@@ -724,6 +728,27 @@ struct audio_hw_device {
      * method may leave it set to NULL.
      */
     int (*get_master_mute)(struct audio_hw_device *dev, bool *mute);
+#endif
+
+#ifdef AUDIO_LISTEN_ENABLED
+    /** This method opens the listen session and returns a handle */
+    int (*open_listen_session)(struct audio_hw_device *dev,
+                               struct listen_session** handle);
+
+    /** This method closes the listen session  */
+    int (*close_listen_session)(struct audio_hw_device *dev,
+                                struct listen_session* handle);
+
+    /** This method sets the mad observer callback  */
+    int (*set_mad_observer)(struct audio_hw_device *dev,
+                            listen_callback_t cb_func);
+
+    /*  This method is used for setting listen hal specfic parameters.
+     *  If multiple paramets are set in one call and setting any one of them
+     *  fails it will return failure.
+     */
+    int (*listen_set_parameters)(struct audio_hw_device *dev,
+                                 const char *kv_pairs);
 #endif
 };
 typedef struct audio_hw_device audio_hw_device_t;
