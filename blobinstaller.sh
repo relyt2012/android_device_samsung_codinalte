@@ -14,8 +14,8 @@
 # limitations under the License.
 #
 
-CODENAME=$(getprop ro.build.product)
-VERSION=$(getprop ro.product.model)
+CODENAME=""
+VERSION=""
 
 # ui_print by Chainfire
 OUTFD=$(/sbin/busybox ps | /sbin/busybox grep -v "grep" | /sbin/busybox grep -o -E "update_binary(.*)" | /sbin/busybox cut -d " " -f 3);
@@ -49,7 +49,7 @@ umount /modemfs
 #pars NV.DAT values and look for MODEM_SW_VER
 if echo "$NVDAT" |grep -q MODEM_SW_VER
 then
-	echo "$NVDAT" | while read LINE
+	for LINE in $NVDAT
 	do
 		PROPERTY=$(echo $LINE| awk -F'_I' '{print $1}')
 		VALUE=$(echo $LINE| awk -F'_I' '{print $2}')
