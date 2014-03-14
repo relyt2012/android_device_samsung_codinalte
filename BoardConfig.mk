@@ -16,7 +16,7 @@
 #
 
 TARGET_SPECIFIC_HEADER_PATH := device/samsung/codina/include
-TARGET_OTA_ASSERT_DEVICE := codinatmo,codinaxxx,codinaMetroPCS,codinavid,codinanewcotmo,codina
+TARGET_OTA_ASSERT_DEVICE := codinatmo,codinaxxx,codinaMetroPCS,codinavid,codinanewcotmo,codina,codinamtr
 
 # Board
 TARGET_BOOTLOADER_BOARD_NAME := DB8520H
@@ -52,7 +52,6 @@ TARGET_KERNEL_CONFIG := cyanogenmod_codinanewcotmo_defconfig
 TARGET_KERNEL_SOURCE := kernel/samsung/codina
 BOARD_CUSTOM_BOOTIMG_MK := device/samsung/codina/shbootimg.mk
 BOARD_KERNEL_CMDLINE := "androidboot.selinux=permissive"
-TARGET_USE_ST_ERICSSON_KERNEL := true
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_PAGESIZE := 2048
 
@@ -98,7 +97,6 @@ BOARD_NO_APSME_ATTR := true
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/codina/bluetooth
-#BOARD_BLUEDROID_VENDOR_CONF := device/samsung/codina/bluetooth/btvendor_codina.txt
 
 # RIL
 BOARD_RIL_CLASS := ../../../device/samsung/codina/ril/

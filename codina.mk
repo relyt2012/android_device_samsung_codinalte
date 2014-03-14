@@ -26,7 +26,7 @@ $(call inherit-product, build/target/product/languages_full.mk)
 $(call inherit-product, frameworks/native/build/phone-xhdpi-1024-dalvik-heap.mk)
 
 # Inherit the proprietary vendors blobs for all codinas.
-$(call inherit-product-if-exists, vendor/samsung/codinanewcotmo/codinanewcotmo-vendor.mk)
+$(call inherit-product-if-exists, vendor/samsung/codinamtr/codinamtr-vendor.mk)
 $(call inherit-product-if-exists, vendor/samsung/codinatmo/codinatmo-vendor.mk)
 $(call inherit-product-if-exists, vendor/samsung/codinavid/codinavid-vendor.mk)
 

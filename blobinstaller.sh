@@ -58,7 +58,7 @@ then
 			ui_print "BASEBAND = $VALUE"
 			if [[ "$VALUE" == "T599NUVAMD4" ]]
 			then
-				CODENAME="codinanewcotmo"
+				CODENAME="codinamtr"
 				VERSION="SGH-T599N"
 			elif [[ "$VALUE" == "T599UVAMB5" ]]
 			then

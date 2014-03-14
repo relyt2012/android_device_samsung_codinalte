@@ -41,11 +41,11 @@ def FullOTA_Assertions(info):
 
   models = 0
 
-  if os.path.isdir(os.path.join(TARGET_DIR, "codinanewcotmo")):
-  	addFolderToZip(info, os.path.join(TARGET_DIR, "codinanewcotmo"),"codinanewcotmo")
+  if os.path.isdir(os.path.join(TARGET_DIR, "codinamtr")):
+  	addFolderToZip(info, os.path.join(TARGET_DIR, "codinamtr"),"codinamtr")
 	models += 1
   else :
-	print "Warning!: Vendor files for codinanewcotmo were not found..."
+	print "Warning!: Vendor files for codinamtr were not found..."
 	time.sleep(2)
 
   if os.path.isdir(os.path.join(TARGET_DIR, "codinatmo")):
@@ -70,8 +70,8 @@ def FullOTA_Assertions(info):
 
 
   info.script.AppendExtra(
-        ('package_extract_dir("codinanewcotmo", "/tmp/codinanewcotmo");\n'
-         'set_perm(0, 0, 0777, "/tmp/codinanewcotmo");'))
+        ('package_extract_dir("codinamtr", "/tmp/codinamtr");\n'
+         'set_perm(0, 0, 0777, "/tmp/codinamtr");'))
   info.script.AppendExtra(
         ('package_extract_dir("codinatmo", "/tmp/codinatmo");\n'
          'set_perm(0, 0, 0777, "/tmp/codinatmo");'))
