@@ -16,7 +16,7 @@
 #
 
 TARGET_SPECIFIC_HEADER_PATH := device/samsung/codinalte/include
-TARGET_OTA_ASSERT_DEVICE := codinatmo,codinaxxx,codinaMetroPCS,codinavid,codinanewcotmo,codinamtr
+TARGET_OTA_ASSERT_DEVICE := codinalte
 
 # Board
 TARGET_BOOTLOADER_BOARD_NAME := DB8520H
