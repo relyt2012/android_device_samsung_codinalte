@@ -108,8 +108,8 @@ static int get_scaling_governor() {
 
 static void cm_power_set_interactive(struct power_module *module, int on)
 {
-    if (strncmp(governor, "ondemand", 8) == 0)
-        sysfs_write(NOTIFY_ON_MIGRATE, on ? "1" : "0");
+    //if (strncmp(governor, "ondemand", 8) == 0)
+    //    sysfs_write(NOTIFY_ON_MIGRATE, on ? "1" : "0");
 }
 
 
@@ -121,12 +121,7 @@ static void configure_governor()
         sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/up_threshold", "90");
         sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/io_is_busy", "0");
         sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/sampling_down_factor", "1");
-        sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/down_differential", "10");
-        sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/up_threshold_multi_core", "60");
-        sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/down_differential_multi_core", "3");
-        sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/optimal_freq", "918000");
-        sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/sync_freq", "1026000");
-        sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/up_threshold_any_cpu_load", "80");
+        sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/up_threshold", "60");
         sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/sampling_rate", "20000");
 
     } else if (strncmp(governor, "interactive", 11) == 0) {
