@@ -135,6 +135,12 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.sends_barcount=1 \
     ro.telephony.default_network=0
 
+
+# Low-InCall workaround app
+PRODUCT_PACKAGES += \
+  CMCallService
+
+
 # GPS
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/etc/sirfgps.conf:system/etc/sirfgps.conf \
