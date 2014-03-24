@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.BTPANHelper"
+    android:versionCode="1"
+    android:versionName="1.0"
+    android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
+
+    <uses-sdk
+        android:minSdkVersion="16"
+        android:targetSdkVersion="18" />
+    
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <receiver android:name="com.android.BTPANHelper.reciever">
+            <intent-filter>
+                <action android:name="android.bluetooth.adapter.action.CONNECTION_STATE_CHANGED" />               
+            </intent-filter>
+        </receiver>
+        <activity
+            android:name="com.android.BTPANHelper.NoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"            
+            android:theme="@style/FullscreenTheme" >                       
+        </activity>      
+    </application>
+
+</manifest>
