@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.BTPANHelper"
     android:versionCode="1"
-    android:versionName="1.0"
+    android:versionName="1.1"
     android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
 
     <uses-sdk
@@ -11,6 +11,7 @@
     
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
 
     <application
         android:allowBackup="true"
