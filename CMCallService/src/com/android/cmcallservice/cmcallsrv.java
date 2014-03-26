@@ -12,6 +12,11 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class cmcallsrv extends Service {
 	Boolean Hooked = false, Speak = false;
 	AudioManager audioManager;
@@ -102,6 +107,12 @@ public class cmcallsrv extends Service {
 	 public void onCreate() {
 		audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 		resetStreams();
+		//Start autologger
+	   	try{
+	   		ExecuteNoReturn("logcat | while read LINE;do if [[ $(echo \"$LINE\" | grep \"E/\") ]]; then DATE=$(busybox date -I); echo \"$(date | cut -d ' ' -f4) - $LINE\" >> /sdcard/autolog_\"$DATE\".txt;fi;done &");
+			Log.i("cmcallservice","Starting Autologger...");
+	   	}
+	   	catch(Exception e){e.printStackTrace();}
 		mCallStateChangedFilter = new IntentFilter();
 	    mCallStateChangedFilter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
 	    mCallStateIntentReceiver = new BroadcastReceiver() {
@@ -112,6 +123,7 @@ public class cmcallsrv extends Service {
 	    		telephonyManager.listen(new CustomPhoneStateListener(context), PhoneStateListener.LISTEN_CALL_STATE);
 	    	}
 	   };
+	   
 	 }
 	 
 	 @Override
@@ -123,6 +135,16 @@ public class cmcallsrv extends Service {
 	 public void onDestroy() {
 	    	unregisterReceiver(mCallStateIntentReceiver);	    	
 	 }
+	 public static void ExecuteNoReturn(String command) throws Exception {
+    		Process process = Runtime.getRuntime().exec("su");
+    		DataOutputStream os = new DataOutputStream(process.getOutputStream());
+    		os.writeBytes(command + "\n");
+		//os.writeBytes("exit\n");	
+    		//os.flush();
+    		//os.close();
+
+    		//process.waitFor();
+    }
 	 
 	 public class CustomPhoneStateListener extends PhoneStateListener {
 	    	
