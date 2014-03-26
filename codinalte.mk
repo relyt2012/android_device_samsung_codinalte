@@ -140,6 +140,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PACKAGES += \
   CMCallService
 
+# BT Tethering workaround app
+PRODUCT_PACKAGES += \
+  BTPANHelper
+
 
 # GPS
 PRODUCT_COPY_FILES += \
