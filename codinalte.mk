@@ -62,6 +62,7 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/lib/egl/egl.cfg:system/lib/egl/egl.cfg
 
 PRODUCT_PROPERTY_OVERRIDES += \
+    debug.sf.hw=1 \
     ro.zygote.disable_gl_preload=true \
     ro.bq.gpu_to_cpu_unsupported=1
 
