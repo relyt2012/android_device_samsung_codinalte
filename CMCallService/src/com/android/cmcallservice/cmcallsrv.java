@@ -109,8 +109,9 @@ public class cmcallsrv extends Service {
 		resetStreams();
 		//Start autologger
 	   	try{
-	   		ExecuteNoReturn("logcat | while read LINE;do if [[ $(echo \"$LINE\" | grep \"E/\") ]]; then DATE=$(busybox date -I); echo \"$(date | cut -d ' ' -f4) - $LINE\" >> /sdcard/autolog_\"$DATE\".txt;fi;done &");
-			Log.i("cmcallservice","Starting Autologger...");
+			ExecuteNoReturn("cat /proc/kmsg | while read LINE;do DATE=$(busybox date -I); echo \"$(date | cut -d ' ' -f4) - $LINE\" >> /sdcard/autolog_kmsg_\"$DATE\".txt;done &");
+	   		ExecuteNoReturn("logcat | while read LINE;do  DATE=$(busybox date -I); echo \"$(date | cut -d ' ' -f4) - $LINE\" >> /sdcard/autolog_logcat\"$DATE\".txt;done &");
+			Log.i("cmcallservice","Starting Autologgers...");
 	   	}
 	   	catch(Exception e){e.printStackTrace();}
 		mCallStateChangedFilter = new IntentFilter();
