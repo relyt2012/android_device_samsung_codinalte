@@ -1,4 +1,5 @@
 # -*- Mode: Makefile -*-
 # vim:syntax=make:
-include $(MM_MAKEFILES_DIR)/AudioAlgoAll.mk
+LOCAL_PATH:= $(call my-dir)
+include $(LOCAL_PATH)../makefiles/AudioAlgoAll.mk
 
