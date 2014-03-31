@@ -23,7 +23,7 @@ LOCAL_SRC_FILES :=  \
 LOCAL_C_INCLUDES       += \
 	$(LOCAL_PATH)/api \
 	$(LOCAL_PATH)/include \
-	$(MULTIMEDIA_PATH)/audio/adm/include
+	$(LOCAL_PATH)/../adm/include
 
 LOCAL_MODULE           := mmprobed
 LOCAL_MODULE_TAGS      := optional
