@@ -9,7 +9,7 @@ LOCAL_SRC_FILES := \
         admRequest.cpp \
         tuningServer_utils.c
 
-LOCAL_C_INCLUDES += $(MULTIMEDIA_PATH)/audio/adm/include
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/../adm/include
 
 LOCAL_MODULE           := tuning_server
 LOCAL_SHARED_LIBRARIES := libste_adm liblog
