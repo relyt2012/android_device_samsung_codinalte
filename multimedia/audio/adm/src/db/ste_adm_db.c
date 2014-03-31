@@ -427,8 +427,6 @@ static int adm_db_init_toplevel_map() {
         goto cleanup;
     }
 
-    rc = sqlite3_step(stmt_toplevel_mapping_get_all);
-
     int i = 0;
     while( (rc=sqlite3_step(stmt_toplevel_mapping_get_all)) == SQLITE_ROW && i < toplevel_map_size) {
 
