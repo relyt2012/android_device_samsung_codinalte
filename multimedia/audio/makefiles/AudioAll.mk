@@ -1,7 +1,10 @@
 # vim:syntax=make:
 # -*- Mode: Makefile -*-
 CORE=mmdsp
-include $(MM_MAKEFILES_DIR)/SharedCheck.mk
+
+LOCAL_PATH:= $(call my-dir)
+
+include $(LOCAL_PATH)../../shared/makefiles/SharedCheck.mk
 
 
 all clean realclean install uninstall:

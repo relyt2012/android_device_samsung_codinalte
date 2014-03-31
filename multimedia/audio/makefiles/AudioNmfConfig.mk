@@ -1,7 +1,8 @@
 # -*- Mode: Makefile -*-
 # vim:syntax=make:
-include $(MM_MAKEFILES_DIR)/SharedNmfConfig.mk
-include $(MM_MAKEFILES_DIR)/AudioFlags.mk
+LOCAL_PATH:= $(call my-dir)
+include $(LOCAL_PATH)/SharedNmfConfig.mk
+include $(LOCAL_PATH)/AudioFlags.mk
 
 # keep mpc path even for ARM compilation because it may be needed by composite taht contains DSP and ARM components
 SRCPATH+=$(MM_HEADER_DIR)

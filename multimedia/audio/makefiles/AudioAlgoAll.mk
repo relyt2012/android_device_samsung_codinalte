@@ -1,6 +1,9 @@
 # -*- Mode: Makefile -*-
 # vim:syntax=make:
-include $(MM_MAKEFILES_DIR)/SharedConfig.mk
+
+LOCAL_PATH:= $(call my-dir)
+
+include $(LOCAL_PATH)../../shared/makefiles/SharedConfig.mk
 
 ifeq ($(NO_STOP), 1)
 CONTINUE = -

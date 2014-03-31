@@ -1,5 +1,7 @@
 # -*- Mode: Makefile -*-
 # vim:syntax=make:
+LOCAL_PATH:= $(call my-dir)
+
 ifeq ($(findstring mmdsp,$(MMPROCESSOR)),mmdsp) # mmdsp intrinsics
    CPPFLAGS+=  -DMMDSP -DBUILD_FIXED -DUSE_24BITS_LIBBITSTREAM# BUILD_FIXED mean not float implementation name can be changed
    ifeq ($(MMCOMPILER),flexcc) # ac compilation
@@ -12,7 +14,7 @@ ifeq ($(findstring mmdsp,$(MMPROCESSOR)),mmdsp) # mmdsp intrinsics
       CPPFLAGS+= -D_REENTRANT -DUSE_LONG_LONG_BIT_TRUE -DBIT_TRUE # all these flags should be removed, need mmdsptools update. Please remove them from code!!
    endif
 else # all except mmdsp
-   CPPFLAGS+= -I$(MM_HEADER_DIR)/audiolibs/fake_dsptools
+   CPPFLAGS+= -I$(LOCAL_PATH)../audiolibs/fake_dsptools
    CFLAGS=-g -O3 
 # stl support in Android environment: fetch stlport for now
 # FIXME: maybe find another better stl location

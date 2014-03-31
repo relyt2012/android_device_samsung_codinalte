@@ -1,8 +1,12 @@
 # -*- Mode: Makefile -*-
 # vim:syntax=make:
-include $(MM_MAKEFILES_DIR)/SharedConfig.mk
-include $(MM_MAKEFILES_DIR)/AudioFlags.mk
 
+LOCAL_PATH:= $(call my-dir)
+
+include $(LOCAL_PATH)../../shared/makefiles/SharedConfig.mk
+include $(LOCAL_PATH)/AudioFlags.mk
+
+#TODO: figure out where this is or if it's needed
 CPPFLAGS+=  -I$(COMPONENT_TOP_DIR)/include -I$(COMPONENT_TOP_DIR)/common/include 
 
-CPPFLAGS+=  -I$(MM_HEADER_DIR)/audiolibs/include -I$(MM_HEADER_DIR)/audiolibs/common/include -I$(MM_HEADER_DIR)/audiolibs
+CPPFLAGS+=  -I$(LOCAL_PATH)../audiolibs/include -I$(LOCAL_PATH)../audiolibs/common/include -I$(LOCAL_PATH)../audiolibs

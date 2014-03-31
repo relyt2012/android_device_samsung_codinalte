@@ -4,10 +4,13 @@
 #-----------------------
 # List of Directory
 #-----------------------
-include $(MM_MAKEFILES_DIR)/SharedCheck.mk
+
+LOCAL_PATH:= $(call my-dir)
+
+include $(LOCAL_PATH)../../shared/makefiles/SharedCheck.mk
 
 DIRECTORIES= $(wildcard lib*) codec effect src standalone
 
-include $(MM_MAKEFILES_DIR)/SharedDispatch.mk
+include $(LOCAL_PATH)../../shared/makefiles/SharedDispatch.mk
 
 
