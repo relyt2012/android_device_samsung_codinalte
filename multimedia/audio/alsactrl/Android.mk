@@ -14,7 +14,6 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES :=  \
         alsactrl_alsa.c \
-        alsactrl_fm.c \
         alsactrl_audiocodec.c \
         alsactrl_debug.c \
         alsactrl_hwh.c \
@@ -52,6 +51,6 @@ LOCAL_C_INCLUDES := \
     $(LOCAL_PATH)/include \
     $(LOCAL_PATH)/ \
     $(TOP)/external/sqlite/dist/  \
-    $(TOP)/external/tinyalsa/include/
+    $(LOCAL_PATH)/../tinyalsa/include/
 
 include $(BUILD_SHARED_LIBRARY)

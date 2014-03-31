@@ -110,7 +110,7 @@ static void UpdateActiveD2D(hwh_d2d_next_t dev_next_d2d)
 				u8540_devices[U8540_DEV_SPEAKER].active = true;
 				u8540_d2ds[U8540_D2D_FMRX_SPEAKER].active = true;
 			}
-			(void)setup_fm_analog_out();
+			//(void)setup_fm_analog_out();
 			LOG_I("%s: found src:%s  dst:%s\n", __func__, src_name, dst_name);
 		} else if (strcmp(src_name, ALSACTRL_DEVSTR_MODEMDL) == 0) {
 			if (strcmp(dst_name, ALSACTRL_DEVSTR_HSOUT) == 0) {

@@ -549,28 +549,28 @@ AUDIO_HAL_STATUS audio_hal_set_power(uint32 channel_index, AUDIO_HAL_STATE power
 {
 	UNUSED_PAR(channel_index);
 
-	LOG_I("Enter (channel = %d).\n", channel);
+	//LOG_I("Enter (channel = %d).\n", channel);
 
-	if (channel == AUDIO_HAL_CHANNEL_FMRX) {
-		if (power_control == AUDIO_HAL_STATE_ON) {
-			if (fmrx_type == AUDIO_HAL_DIGITAL) {
-				setup_fm_rx_i2s();
-			} else {
-				int err = setup_fm_analog_out();
-				LOG_I("Setup FM chip analog out : %d\n", err);
-			}
-		}
-		else {
-			if (fmrx_type == AUDIO_HAL_DIGITAL) {
-				teardown_fm_i2s();
-			}
-		}
-	} else if (channel == AUDIO_HAL_CHANNEL_FMTX) {
-		if (power_control == AUDIO_HAL_STATE_ON)
-			setup_i2s_fm_tx();
-		else
-			teardown_fm_i2s();
-	}
+	//if (channel == AUDIO_HAL_CHANNEL_FMRX) {
+	//	if (power_control == AUDIO_HAL_STATE_ON) {
+	//		if (fmrx_type == AUDIO_HAL_DIGITAL) {
+	//			setup_fm_rx_i2s();
+	//		} else {
+	//			int err = setup_fm_analog_out();
+	//			LOG_I("Setup FM chip analog out : %d\n", err);
+	//		}
+	//	}
+	//	else {
+	//		if (fmrx_type == AUDIO_HAL_DIGITAL) {
+	//			teardown_fm_i2s();
+	//		}
+	//	}
+	//} else if (channel == AUDIO_HAL_CHANNEL_FMTX) {
+	//	if (power_control == AUDIO_HAL_STATE_ON)
+	//		setup_i2s_fm_tx();
+	//	else
+	//		teardown_fm_i2s();
+	//}
 
 	return AUDIO_HAL_STATUS_OK;
 }

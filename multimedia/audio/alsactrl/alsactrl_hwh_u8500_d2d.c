@@ -42,25 +42,25 @@ static u85xx_d2d_t u8500_d2ds[] = {
 
 static void UpdateActiveD2D(hwh_d2d_next_t dev_next_d2d)
 {
-	const char* src_name = NULL;
-	const char* dst_name = NULL;
-	u85xx_device_t* u8500_devices = Alsactrl_Hwh_U8500_Dev_GetDevs();
+	//const char* src_name = NULL;
+	//const char* dst_name = NULL;
+	//u85xx_device_t* u8500_devices = Alsactrl_Hwh_U8500_Dev_GetDevs();
 
-	while (dev_next_d2d(&src_name, &dst_name) == 0) {
-		if (strcmp(src_name, ALSACTRL_DEVSTR_FMRX) == 0) {
-			if (strcmp(dst_name, ALSACTRL_DEVSTR_HSOUT) == 0) {
-				u8500_devices[U8500_DEV_FMRX].active = true;
-				u8500_devices[U8500_DEV_HSOUT].active = true;
-				u8500_d2ds[U8500_D2D_FMRX_HSOUT].active = true;
-			} else if (strcmp(dst_name, ALSACTRL_DEVSTR_SPEAKER) == 0) {
-				u8500_devices[U8500_DEV_FMRX].active = true;
-				u8500_devices[U8500_DEV_SPEAKER].active = true;
-				u8500_d2ds[U8500_D2D_FMRX_SPEAKER].active = true;
-			}
-			(void)setup_fm_analog_out();
-			LOG_I("%s: found src:%s  dst:%s\n", __func__, src_name, dst_name);
-		}
-	}
+	//while (dev_next_d2d(&src_name, &dst_name) == 0) {
+	//	if (strcmp(src_name, ALSACTRL_DEVSTR_FMRX) == 0) {
+	//		if (strcmp(dst_name, ALSACTRL_DEVSTR_HSOUT) == 0) {
+	//			u8500_devices[U8500_DEV_FMRX].active = true;
+	//			u8500_devices[U8500_DEV_HSOUT].active = true;
+	//			u8500_d2ds[U8500_D2D_FMRX_HSOUT].active = true;
+	//		} else if (strcmp(dst_name, ALSACTRL_DEVSTR_SPEAKER) == 0) {
+	//			u8500_devices[U8500_DEV_FMRX].active = true;
+	//			u8500_devices[U8500_DEV_SPEAKER].active = true;
+	//			u8500_d2ds[U8500_D2D_FMRX_SPEAKER].active = true;
+	//		}
+	//		(void)setup_fm_analog_out();
+	//		LOG_I("%s: found src:%s  dst:%s\n", __func__, src_name, dst_name);
+	//	}
+	//}
 }
 
 static void ClearActiveD2Ds(void)
