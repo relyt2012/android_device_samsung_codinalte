@@ -174,83 +174,46 @@ cleanup:
     return idx_data;
 }
 
-static int GetDeviceDataIndex(sqlite3* db_p, const char* dev_top)
-{
-    int rc = SQLITE_OK;
-    sqlite3_stmt *stmt = NULL;
-    int idx_data = -1;
-    char* command = malloc(1024 * sizeof(char));
+char* GetData(sqlite3* db_p, const char* dev){
 
-    memset((void*)command, 0, 1024);
-    strcat(command, "SELECT Idx_Data FROM HW_Settings_Device "
-                    "WHERE Device = '");
-    strcat(command,     dev_top);
-    strcat(command,  "'");
-    ALOG_INFO("Query: %s", command);
+	int rc = SQLITE_OK;
+	sqlite3_stmt *stmt = NULL;
+	char* command = malloc(1024 * sizeof(char));
+	const unsigned char* data = NULL;
+	char* data_ret = NULL;
 
-    rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
-    if (rc != SQLITE_OK) {
-        ALOG_ERR("%s: ERROR: Unable to prepare SQL-statement!", __func__);
-        goto cleanup;
-    }
+	memset((void*)command, 0, 1024);
+	sprintf(command, "SELECT Data FROM HW_Settings WHERE Dev1 = %s", dev);
+	LOG_I("Query: %s", command);
 
-    if (sqlite3_step(stmt) != SQLITE_ROW)
-        goto cleanup;
+	rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
+	if (rc != SQLITE_OK) {
+		LOG_E("ERROR: Unable to prepare SQL-statement!");
+		goto cleanup;
+	}
 
-    ALOG_INFO("%s: Found matching HW-settings for device '%s'.", __func__, dev_top);
+	if (sqlite3_step(stmt) != SQLITE_ROW)
+		goto cleanup;
 
-    idx_data = sqlite3_column_int(stmt, 0);
+	data = sqlite3_column_text(stmt, 0);
+	if (data == NULL) {
+		LOG_E("ERROR: Data not found (dev = %s)!\n", dev);
+		goto cleanup;
+	}
 
-cleanup:
-    if (command != NULL) free(command);
-    if (stmt != NULL) {
-        sqlite3_finalize(stmt);
-        stmt = NULL;
-    }
-
-    return idx_data;
-}
-
-static char* GetData(sqlite3* db_p, int idx_data)
-{
-    int rc = SQLITE_OK;
-    sqlite3_stmt *stmt = NULL;
-    char* command = malloc(1024 * sizeof(char));
-    const unsigned char* data = NULL;
-    char* data_ret = NULL;
-
-    memset((void*)command, 0, 1024);
-    sprintf(command, "SELECT Data FROM HW_Settings_Data WHERE Idx = %u", idx_data);
-    ALOG_INFO("Query: %s", command);
-
-    rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
-    if (rc != SQLITE_OK) {
-        ALOG_ERR("%s: ERROR: Unable to prepare SQL-statement!", __func__);
-        goto cleanup;
-    }
-
-    if (sqlite3_step(stmt) != SQLITE_ROW)
-        goto cleanup;
-
-    data = sqlite3_column_text(stmt, 0);
-    if (data == NULL) {
-        ALOG_ERR("%s: ERROR: Data not found (idx_data = %d)!\n", __func__, idx_data);
-        goto cleanup;
-    }
-
-    data_ret = strdup((const char*)data);
-    if (!data_ret) {
-        ALOG_ERR("%s: ERROR: strdup() failed\n", __func__);
-    }
+	data_ret = strdup((const char*)data);
+	if (!data_ret) {
+		LOG_E("ERROR: strdup() failed\n");
+	}
 
 cleanup:
-    if (command != NULL) free(command);
-    if (stmt != NULL) {
-        sqlite3_finalize(stmt);
-        stmt = NULL;
-    }
+	if (command != NULL) free(command);
+	if (stmt != NULL) {
+		sqlite3_finalize(stmt);
+		stmt = NULL;
+	}
 
-    return data_ret;
+	return data_ret;
 }
 
 static int FMRX_HSETOUT_FLAG = 0;
@@ -316,8 +279,7 @@ static void AppendD2D(sqlite3* db_p, hw_handler_dev_to_dev_next_fp_t dev_next_d2
     while(dev_next_d2d_fp(&src_name, &dst_name) == 0) {
         UpdateD2DFlags(src_name, dst_name);
         memset(command, 0, 1024);
-        sprintf(command, "SELECT Data FROM HW_Settings_Data_D2D WHERE Idx=(\
-                    SELECT Idx_Data FROM HW_Settings_Combo_D2D WHERE (Codec = '%s') AND (Src='%s') AND (Dst='%s'))",
+        sprintf(command, "SELECT Data FROM HW_Settings_D2D WHERE (Src='%s') AND (Dst='%s'))",
                     codec_name_ab8500_p, src_name, dst_name);
 
         rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
@@ -350,6 +312,7 @@ cleanup:
     }
 }
 
+//TODO: Note to self: take another look at this... What does this do?
 int ste_adm_hw_handler_u8500(sqlite3* db_p, hw_handler_dev_next_fp_t dev_next_fp, hw_handler_dev_to_dev_next_fp_t dev_next_d2d_fp, fadeSpeed_t fadeSpeed)
 {
     SRV_DBG_ASSERT_IS_NOT_WORKER_THREAD;
@@ -382,15 +345,12 @@ int ste_adm_hw_handler_u8500(sqlite3* db_p, hw_handler_dev_next_fp_t dev_next_fp
     memset(command, 0, 1024);
 
     nDev_combo = 0;
+    //We don't have this table!
     strcat(command, "SELECT * FROM HW_Settings_Combo WHERE (Codec = '");
     strcat(command, codec_name_ab8500_p);
     strcat(command, "')");
     while (dev_next_fp(&name) == 0) {
-        if (strcmp(name, STE_ADM_DEVICE_STRING_FMRX) == 0) {
-            activeFMRx = true;
-        } else if (strcmp(name, STE_ADM_DEVICE_STRING_FMTX) == 0) {
-            activeFMTx = true;
-        } else if (is_asoc_device(name)) {
+        if (is_asoc_device(name)) {
             if (adm_db_io_info(name, &is_input) != STE_ADM_RES_OK) {
                 ALOG_INFO("%s: Warning: Device direction not found for device %s!", __func__, name);
             } else {
@@ -495,52 +455,6 @@ int ste_adm_hw_handler_u8500(sqlite3* db_p, hw_handler_dev_next_fp_t dev_next_fp
     /* Appending device to device connections */
     AppendD2D(db_p, dev_next_d2d_fp);
     ExecuteFlags();
-
-    /* FM-devices */
-    if (activeFMRx || activeFMTx) {
-        ALOG_INFO("%s: FM-device active!", __func__);
-
-        if (activeFMRx) {
-            configure_fm_t config;
-
-            if (FM_TYPE_DIGITAL == fmrx_type) {
-                ALOG_INFO("%s: FMRx digital active! Setting DA-from-slot and AD-to-slot mapping...", __func__);
-
-                config.type = AUDIO_HAL_DIGITAL;
-
-                audio_hal_alsa_set_control("Digital Interface AD 5 Loopback Switch", 0, 1);
-                audio_hal_alsa_set_control("Digital Interface AD 6 Loopback Switch", 0, 1);
-                audio_hal_alsa_set_control("Digital Interface AD To Slot 6 Map", 0, 4); // REG_ADSLOTSELX_AD_OUT5_TO_SLOT_EVEN
-                audio_hal_alsa_set_control("Digital Interface AD To Slot 7 Map", 0, 5); // REG_ADSLOTSELX_AD_OUT6_TO_SLOT_ODD
-                audio_hal_alsa_set_control("Digital Interface DA 7 From Slot Map", 0, 24); // Slot 24 -> DA_IN7
-                audio_hal_alsa_set_control("Digital Interface DA 8 From Slot Map", 0, 25); // Slot 25 -> DA_IN8
-            } else {
-                ALOG_INFO("%s: FMRx analog active! Setting DA-from-slot and AD-to-slot mapping...", __func__);
-
-                config.type = AUDIO_HAL_ANALOG;
-
-                audio_hal_alsa_set_control("Digital Interface AD 5 Loopback Switch", 0, 0);
-                audio_hal_alsa_set_control("Digital Interface AD 6 Loopback Switch", 0, 0);
-                audio_hal_alsa_set_control("Digital Interface AD To Slot 6 Map", 0, 0);
-                audio_hal_alsa_set_control("Digital Interface AD To Slot 7 Map", 0, 1);
-                audio_hal_alsa_set_control("AD 1 Select Capture Route", 0, 0);
-                audio_hal_alsa_set_control("AD 2 Select Capture Route", 0, 0);
-                audio_hal_alsa_set_control("Mic 2 or LINR Select Capture Route", 0, 1);
-                audio_hal_alsa_set_control("LineIn Left", 0, 1);
-                audio_hal_alsa_set_control("LineIn Right", 0, 1);
-            }
-            audio_hal_configure_channel(AUDIO_HAL_CHANNEL_FMRX, &config);
-
-        } else if (activeFMTx) {
-            ALOG_INFO("%s: FMTx active! Setting DA-from-slot and AD-to-slot mapping...", __func__);
-            audio_hal_alsa_set_control("Digital Interface AD 5 Loopback Switch", 0, 1);
-            audio_hal_alsa_set_control("Digital Interface AD 6 Loopback Switch", 0, 1);
-            audio_hal_alsa_set_control("Digital Interface AD To Slot 16 Map", 0, 4); // REG_ADSLOTSELX_AD_OUT5_TO_SLOT_EVEN
-            audio_hal_alsa_set_control("Digital Interface AD To Slot 17 Map", 0, 5); // REG_ADSLOTSELX_AD_OUT6_TO_SLOT_ODD
-            audio_hal_alsa_set_control("Digital Interface DA 7 From Slot Map", 0, 14); // Slot 14 -> DA_IN7
-            audio_hal_alsa_set_control("Digital Interface DA 8 From Slot Map", 0, 15); // Slot 15 -> DA_IN8
-        }
-    }
 
     /* Input-devices */
     if (activeInputDev) {

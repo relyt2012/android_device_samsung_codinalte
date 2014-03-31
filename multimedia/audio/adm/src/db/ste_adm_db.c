@@ -78,6 +78,7 @@ static int g_adm_db_tuningmode = 0;
 // on accidental use of multiple instances, though.
 
 
+/* No field named APFPreset but ANCPreset? */
 
 static const char* stmt_speech_apf_get_text =
     "SELECT"
@@ -179,6 +180,8 @@ static sqlite3_stmt* stmt_ioname = NULL;
 #define CID_PRE_EFFECT_EFFECT_NAME          0
 #define CID_PRE_EFFECT_OMX_NAME             1
 
+/* All Device.PreEffect = none but none is not listed in 
+Template.OMXName! */
 static const char* stmt_pre_effect_text =
             "SELECT Device.PreEffect, Template_OMXName.OMXName"
             " FROM Device, Template_OMXName"
@@ -323,6 +326,7 @@ static sqlite3_stmt* stmt_ext_delay_list_get = NULL;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+/* No keys in database */
 static const char* stmt_foreignkeys_text =
             "PRAGMA foreign_keys = ON";
 
