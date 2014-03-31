@@ -12,7 +12,7 @@ include $(BUILD_SHARED_LIBRARY)
 
 ifeq ($(HOST_OS), linux)
 include $(CLEAR_VARS)
-LOCAL_C_INCLUDES:= external/tinyalsa/include
+LOCAL_C_INCLUDES:= $(LOCAL_PATH)/include
 LOCAL_SRC_FILES:= mixer.c pcm.c
 LOCAL_MODULE := libtinyalsa
 LOCAL_STATIC_LIBRARIES:= libcutils libutils
