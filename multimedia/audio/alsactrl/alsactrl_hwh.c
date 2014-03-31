@@ -67,7 +67,7 @@ enum audio_hal_chip_id_t Alsactrl_Hwh_SelectHW(void)
 	case CHIP_ID_AB8505_V3:
 	case CHIP_ID_AB9540_V1:
 	case CHIP_ID_AB9540_V2:
-		hwh.card_name = "U85x0card";
+		hwh.card_name = "U8500card";
 		//hwh.Hwh_Init = Alsactrl_Hwh_U9540_Init;
 		//hwh.Hwh = Alsactrl_Hwh_U9540;
 		//hwh.Hwh_VC = Alsactrl_Hwh_U9540_VC;
@@ -90,7 +90,7 @@ enum audio_hal_chip_id_t Alsactrl_Hwh_SelectHW(void)
 		return CHIP_ID_UNKNOWN;
 	};
 
-	LOG_I("%s: HW-handler initialized for '%s' (chip_id = %d).", __func__, audio_hal_alsa_get_chip_id_str(hwh.chip_id), hwh.chip_id);
+	LOG_E("%s: HW-handler initialized for '%s' (chip_id = %d).", __func__, audio_hal_alsa_get_chip_id_str(hwh.chip_id), hwh.chip_id);
 
 	return hwh.chip_id;
 }
