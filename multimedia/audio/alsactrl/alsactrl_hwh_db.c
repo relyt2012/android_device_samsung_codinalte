@@ -157,47 +157,6 @@ int Alsactrl_DB_GetMicConfig_Generic(sqlite3* db_p, const char *toplevel_dev, mi
 	return 0;
 }
 
-int Alsactrl_DB_GetDeviceDataIndex(sqlite3* db_p, const char* dev, bool use_sdev)
-{
-	int rc = SQLITE_OK;
-	sqlite3_stmt *stmt = NULL;
-	int idx_data = -1;
-	char* command = malloc(1024 * sizeof(char));
-
-	memset((void*)command, 0, 1024);
-	if (use_sdev)
-		strcat(command, "SELECT Idx_Data FROM HW_Settings_SDev WHERE Device = '");
-	else
-		strcat(command, "SELECT Idx_Data FROM HW_Settings_GDev WHERE Device = '");
-	strcat(command, dev);
-	strcat(command, "'");
-	LOG_I("Query: %s", command);
-
-	rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
-	if (rc != SQLITE_OK) {
-		LOG_E("ERROR: Unable to prepare SQL-statement!");
-		goto cleanup;
-	}
-
-	if (sqlite3_step(stmt) != SQLITE_ROW) {
-		LOG_E("ERROR: sqlite3_step failed to evaluate the statement");
-		goto cleanup;
-	}
-
-	LOG_I("Found matching HW-settings for device '%s'.", dev);
-
-	idx_data = sqlite3_column_int(stmt, 0);
-
-cleanup:
-	if (command != NULL) free(command);
-	if (stmt != NULL) {
-		sqlite3_finalize(stmt);
-		stmt = NULL;
-	}
-
-	return idx_data;
-}
-
 static int GetComboDataIndex(sqlite3* db_p, char* command)
 {
 	int rc = SQLITE_OK;
@@ -234,8 +193,8 @@ cleanup:
 	return idx_data;
 }
 
-char* Alsactrl_DB_GetData(sqlite3* db_p, int idx_data)
-{
+char* Alsactrl_DB_GetData(sqlite3* db_p, const char* dev){
+
 	int rc = SQLITE_OK;
 	sqlite3_stmt *stmt = NULL;
 	char* command = malloc(1024 * sizeof(char));
@@ -243,7 +202,7 @@ char* Alsactrl_DB_GetData(sqlite3* db_p, int idx_data)
 	char* data_ret = NULL;
 
 	memset((void*)command, 0, 1024);
-	sprintf(command, "SELECT Data FROM HW_Settings_Data WHERE Idx = %u", idx_data);
+	sprintf(command, "SELECT Data FROM HW_Settings WHERE Dev1 = %s", dev);
 	LOG_I("Query: %s", command);
 
 	rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
@@ -257,7 +216,7 @@ char* Alsactrl_DB_GetData(sqlite3* db_p, int idx_data)
 
 	data = sqlite3_column_text(stmt, 0);
 	if (data == NULL) {
-		LOG_E("ERROR: Data not found (idx_data = %d)!\n", idx_data);
+		LOG_E("ERROR: Data not found (dev = %s)!\n", dev);
 		goto cleanup;
 	}
 
@@ -382,14 +341,7 @@ int Alsactrl_DB_WriteDevData(sqlite3* db_p, hwh_dev_next_t dev_next, bool use_sd
 		} else
 			dev = gdev;
 
-		LOG_I("Getting data-index for %s device '%s'.", use_sdev ? "specific" : "generic", dev);
-		idx_data = Alsactrl_DB_GetDeviceDataIndex(db_p, dev, use_sdev);
-		if (idx_data == -1) {
-			LOG_I("No data exists for device '%s'!", dev);
-			continue;
-		}
-
-		data = Alsactrl_DB_GetData(db_p, idx_data);
+		data = Alsactrl_DB_GetData(db_p, dev);
 		if (data == NULL) {
 			LOG_E("ERROR: Failed to get data with index = %d!", idx_data);
 			ret = ERR_GENERIC;
