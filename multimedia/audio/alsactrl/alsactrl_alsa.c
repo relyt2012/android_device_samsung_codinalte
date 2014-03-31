@@ -51,7 +51,7 @@ static int alsactrl_alsa_set_control(struct mixer_ctl *ctl, long *values)
 			values[value_idx] = (values[value_idx] > max ? max : (values[value_idx] < min ? min : values[value_idx]));
 			ret = mixer_ctl_set_value(ctl, value_idx, values[value_idx]);
 			if (ret < 0) {
-				LOG_I("Error: Unable to set mixer control %s for type BOOL/INT",
+				LOG_E("Error: Unable to set mixer control %s for type BOOL/INT",
 						mixer_ctl_get_name(ctl));
 				break;
 			}
@@ -63,12 +63,12 @@ static int alsactrl_alsa_set_control(struct mixer_ctl *ctl, long *values)
 			if (str) {
 				ret = mixer_ctl_set_enum_by_string(ctl, str);
 				if (ret < 0) {
-					LOG_I("Error: Unable to set mixer control %s for type ENUM",
+					LOG_E("Error: Unable to set mixer control %s for type ENUM",
 							mixer_ctl_get_name(ctl));
 					break;
 				}
 			} else {
-				LOG_I("Error: Unable to set value %d to ENUM mixer control %s since"
+				LOG_E("Error: Unable to set value %d to ENUM mixer control %s since"
 						"this value is out of bounds", values[value_idx], mixer_ctl_get_name(ctl));
 			}
 		}
@@ -89,18 +89,18 @@ static int alsactrl_set_control(struct mixer_ctl *ctl, unsigned int idx, long va
 	name = mixer_ctl_get_name(ctl);
 	ret = mixer_ctrl_read_elem_value(ctl, &ev);
 	if (ret < 0) {
-		LOG_I("Unable to get the control value !!");
+		LOG_E("Unable to get the control value !!");
 		return ret;
 	}
 	ret = mixer_ctrl_modify_elem_value(ctl, &ev, value, idx);
 	if (ret < 0) {
-		LOG_I("Unable to set BOOL/INT value for mixer control = %s idx = %d value = %d",
+		LOG_E("Unable to set BOOL/INT value for mixer control = %s idx = %d value = %d",
 				name, idx, value);
 		return ret;
 	}
 	ret = mixer_ctrl_write_elem_value(ctl, &ev);
 	if (ret < 0) {
-		LOG_I("Unable to set the control..Control not found !! ");
+		LOG_E("Unable to set the control..Control not found !! ");
 	}
 	LOG_I("Exit");
 	return ret;
@@ -114,7 +114,7 @@ static int alsactrl_alsa_get_card_idx(const char* card_name)
 
 	cardno_open = get_card_index(card_name);
 	if (cardno_open < 0) {
-		LOG_I("ERROR: Card %s not found!", card_name);
+		LOG_E("ERROR: Card %s not found!", card_name);
 		return -1;
 	}
 
@@ -178,7 +178,7 @@ int audio_hal_alsa_get_card_and_device_idx(const char* dev_name, unsigned int st
 			return 0;
 		}
 	}
-	LOG_I("device name %s not found", dev_name);
+	LOG_E("device name %s not found", dev_name);
 	return -1;
 }
 
@@ -194,7 +194,7 @@ int audio_hal_alsa_open_controls_cardno(int cardno_open)
 	pthread_mutex_lock(&ctl_open_mutex);
 	mixer_p = mixer_open(cardno_open);
 	if (!mixer_p) {
-		LOG_I("ERROR: Unable to open mixer");
+		LOG_E("ERROR: Unable to open mixer");
 		pthread_mutex_unlock(&ctl_open_mutex);
 		return -1;
 	}
@@ -213,7 +213,7 @@ int audio_hal_alsa_set_control_values(const char* name, long *values)
 	struct mixer_ctl *ctrl_p = NULL;
 	ctrl_p = mixer_get_ctl_by_name(mixer_p, name);
 	if (ctrl_p == NULL) {
-		LOG_I("ERROR: Controls not opened!\n");
+		LOG_E("ERROR: Controls not opened!\n");
 		audio_hal_alsa_close_controls();
 		return -1;
 	}
@@ -225,7 +225,7 @@ int audio_hal_alsa_set_control(const char* name, unsigned int idx, long value)
 	struct mixer_ctl *ctrl_p = NULL;
 	ctrl_p = mixer_get_ctl_by_name(mixer_p, name);
 	if (ctrl_p == NULL) {
-		LOG_I("ERROR: Controls not opened!\n");
+		LOG_E("ERROR: Controls not opened!\n");
 		audio_hal_alsa_close_controls();
 		return -1;
 	}
@@ -295,22 +295,22 @@ static int audio_hal_alsa_set_control_cfg(struct control_config_t *control_p)
 	struct snd_ctl_elem_value ev;
 	LOG_I("Enter");
 	if (!control_p) {
-		LOG_I("ERROR: Invalid control node!\n");
+		LOG_E("ERROR: Invalid control node!\n");
 		return -1;
 	}
 	ctrl_p = mixer_get_ctl_by_name(mixer_p, control_p->name);
 	if (ctrl_p == NULL) {
-		LOG_I("Error: Mixer Control name = %s not found", control_p->name);
+		LOG_E("Error: Mixer Control name = %s not found", control_p->name);
 		return -1;
 	}
 	ret = mixer_ctrl_read_elem_value(ctrl_p, &ev);
 	if (ret < 0) {
-		LOG_I("Unable to get the control..Control not found !!");
+		LOG_E("Unable to get the control..Control not found !!");
 		return -1;
 	}
 	value_count = mixer_ctl_get_num_values(ctrl_p);
 	if (value_count <= 0) {
-		LOG_I("Error: Nothing to set for mixer control = %s", control_p->name);
+		LOG_E("Error: Nothing to set for mixer control = %s", control_p->name);
 		return -1;
 	}
 	ctl_type = mixer_ctl_get_type(ctrl_p);
@@ -320,7 +320,7 @@ static int audio_hal_alsa_set_control_cfg(struct control_config_t *control_p)
 		for (value_idx = 0; value_idx < value_count; value_idx++) {
 			ret = mixer_ctrl_modify_elem_value(ctrl_p, &ev, control_p->value[value_idx].integer, value_idx);
 			if (ret < 0) {
-				LOG_I("Error: Unable to set BOOL/INT value for mixer control = %s", control_p->name);
+				LOG_E("Error: Unable to set BOOL/INT value for mixer control = %s", control_p->name);
 				break;
 			}
 			LOG_I("Successfully set BOOL/INT value for mixer control = %s idx = %d value = %d", control_p->name, value_idx, control_p->value[value_idx].integer);
@@ -331,18 +331,18 @@ static int audio_hal_alsa_set_control_cfg(struct control_config_t *control_p)
 			ret = mixer_ctrl_modify_elem_enum_string(ctrl_p, &ev,
 								control_p->value[value_idx].enum_val_str, value_idx);
 			if (ret < 0) {
-				LOG_I("Error: Unable to set ENUM value for mixer control = %s", control_p->name);
+				LOG_E("Error: Unable to set ENUM value for mixer control = %s", control_p->name);
 				break;
 			}
 			LOG_I("Successfully set ENUM value for mixer control = %s idx = %d value = %s", control_p->name, value_idx, control_p->value[value_idx].enum_val_str);
 		}
 		break;
 	default:
-		LOG_I("Error: Unknown type found for mixer control = %s", control_p->name);
+		LOG_E("Error: Unknown type found for mixer control = %s", control_p->name);
 	}
 	ret = mixer_ctrl_write_elem_value(ctrl_p, &ev);
 	if (ret < 0) {
-		LOG_I("Unable to set the control..Control not found !! ");
+		LOG_E("Unable to set the control..Control not found !! ");
 	}
 	LOG_I("Exit");
 	return ret;
@@ -364,12 +364,12 @@ int audio_hal_alsa_memctrl_init_default(const char* data)
 	}
 	ret = audio_hal_alsa_memctrl_set(data);/* this will parse data and populate main_cfg_list*/
 	if (ret < 0) {
-		LOG_I("Error: ALSA Failed to set memctrl");
+		LOG_E("Error: ALSA Failed to set memctrl");
 		goto cleanup;
 	}
 	ret = copy_control_list(&default_cfg_list, main_cfg_list);
 	if (ret < 0)
-		LOG_I("Error: Failed to copy current cfg to default cfg error: %d\n", ret);
+		LOG_E("Error: Failed to copy current cfg to default cfg error: %d\n", ret);
 
 cleanup:
 	return ret;
@@ -380,7 +380,7 @@ int audio_hal_alsa_memctrl_set_default()
 	int ret = -1;
 	LOG_I("Enter.\n");
 	if (default_cfg_list == NULL) {
-		LOG_I("Error: Cant copy default cfg, default cfg == NULL");
+		LOG_E("Error: Cant copy default cfg, default cfg == NULL");
 		return -1;
 	}
 	if (main_cfg_list != NULL) {
@@ -390,7 +390,7 @@ int audio_hal_alsa_memctrl_set_default()
 	}
 	ret = copy_control_list(&main_cfg_list, default_cfg_list);
 	if (ret < 0)
-		LOG_I("Error: Failed to copy default cfg to current cfg error: %d\n", ret);
+		LOG_E("Error: Failed to copy default cfg to current cfg error: %d\n", ret);
 	return ret;
 }
 
@@ -415,19 +415,19 @@ int audio_hal_alsa_memctrl_set(const char* data)
 	LOG_I("Enter");
 	ret = init_parser(&statefile_parser, data);
 	if (ret) {
-		LOG_I("Error: Statefile Parser init failed");
+		LOG_E("Error: Statefile Parser init failed");
 		return ret;
 	}
 	if (!main_cfg_list) {
 		ret = populate_control_list(statefile_parser, &main_cfg_list);
 		if (ret) {
-			LOG_I("Error: Statefile Parset unable to parse for main cfg list");
+			LOG_E("Error: Statefile Parset unable to parse for main cfg list");
 			goto cleanup;
 		}
 	} else {
 		ret = populate_control_list(statefile_parser, &override_cfg_list);
 		if (ret) {
-			LOG_I("Error: Statefile Parset unable to parse for override list");
+			LOG_E("Error: Statefile Parset unable to parse for override list");
 			goto cleanup;
 		}
 		ret = override_control_list(main_cfg_list, override_cfg_list);
@@ -447,7 +447,7 @@ int audio_hal_alsa_memctrl_write()
 	struct control_config_t *node = NULL;
 	LOG_I("Enter.\n");
 	if (main_cfg_list == NULL) {
-		LOG_I("ERROR: main_cfg_list is NULL nothing to commit!\n");
+		LOG_E("ERROR: main_cfg_list is NULL nothing to commit!\n");
 		goto cleanup;
 	}
 	node = main_cfg_list;
@@ -479,18 +479,18 @@ enum audio_hal_chip_id_t audio_hal_alsa_get_chip_id(void)
 	struct mixer_ctl *ctl = NULL;
 	ret = audio_hal_alsa_open_controls_cardno(0);
 	if (ret < 0) {
-		LOG_I("ERROR: audio_hal_alsa_open_controls_cardno failed (ret = %d)!", ret);
+		LOG_E("ERROR: audio_hal_alsa_open_controls_cardno failed (ret = %d)!", ret);
 		return CHIP_ID_UNKNOWN;
 	}
 	ctl =  mixer_get_ctl_by_name(mixer_p, "ChipId");
 	if (ctl == NULL) {
-		LOG_I("ERROR: Control 'ChipId' not found!\n");
+		LOG_E("ERROR: Control 'ChipId' not found!\n");
 		audio_hal_alsa_close_controls();
 		return CHIP_ID_UNKNOWN;
 	}
 	ret = mixer_ctl_get_value(ctl, 0);
 	if (ret < 0) {
-		LOG_I("ERROR: Unable to get codec chip-ID (ret = %d)!", ret);
+		LOG_E("ERROR: Unable to get codec chip-ID (ret = %d)!", ret);
 		return CHIP_ID_UNKNOWN;
 	}
 	audio_hal_alsa_close_controls();

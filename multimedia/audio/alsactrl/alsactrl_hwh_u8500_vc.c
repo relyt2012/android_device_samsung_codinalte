@@ -49,32 +49,32 @@ int Alsactrl_Hwh_U8500_VC(sqlite3* db_p, const char* indev, const char* outdev, 
 
 	ret = audio_hal_alsa_set_control("Master Clock Select", 0, vc_on ? 0 : 1); // VC -> SYSCLK,  Non-VC -> ULPCLK
 	if (ret < 0) {
-		LOG_I("%s: ERROR: Unable to set audio master-clock!\n", __func__);
+		LOG_E("%s: ERROR: Unable to set audio master-clock!\n", __func__);
 		goto cleanup;
 	}
 
 	if (vc_on) {
 		ret = Alsactrl_Hwh_GetToplevelMapping(indev, &dev_top);
 		if (ret < 0) {
-			LOG_I("%s: ERROR: Unable to find top-level device for '%s'!\n", __func__, indev);
+			LOG_E("%s: ERROR: Unable to find top-level device for '%s'!\n", __func__, indev);
 			goto cleanup;
 		}
 
 		indev_top = strdup(dev_top);
 		if (!indev_top) {
-			LOG_I("%s: ERROR: strdup() failed\n", __func__);
+			LOG_E("%s: ERROR: strdup() failed\n", __func__);
 			goto cleanup;
 		}
 
 		ret = Alsactrl_Hwh_GetToplevelMapping(outdev, &dev_top);
 		if (ret < 0) {
-			LOG_I("%s: ERROR: Unable to find top-level device for '%s'!\n", __func__, outdev);
+			LOG_E("%s: ERROR: Unable to find top-level device for '%s'!\n", __func__, outdev);
 			goto cleanup;
 		}
 
 		outdev_top = strdup(dev_top);
 		if (!outdev_top) {
-			LOG_I("%s: ERROR: strdup() failed\n", __func__);
+			LOG_E("%s: ERROR: strdup() failed\n", __func__);
 			goto cleanup;
 		}
 
@@ -82,19 +82,19 @@ int Alsactrl_Hwh_U8500_VC(sqlite3* db_p, const char* indev, const char* outdev, 
 
 		ret = SetFilters(db_p, indev_top, outdev_top, fs);
 		if (ret < 0) {
-			LOG_I("%s: Failed to configure filters! (ret = %d)\n", __func__, ret);
+			LOG_E("%s: Failed to configure filters! (ret = %d)\n", __func__, ret);
 			goto cleanup;
 		}
 
 	} else {
 		ret = SetSidetoneEnable(false, false);
 		if (ret < 0) {
-			LOG_I("%s: ERROR: Failed! (ret = %d)\n", __func__, ret);
+			LOG_E("%s: ERROR: Failed! (ret = %d)\n", __func__, ret);
 			goto cleanup;
 		}
 		ret = audio_hal_alsa_set_control("ANC Playback Switch", 0, 0);
 		if (ret < 0) {
-			LOG_I("%s: ERROR: Unable to disable ANC! (ret = %d)\n", __func__, ret);
+			LOG_E("%s: ERROR: Unable to disable ANC! (ret = %d)\n", __func__, ret);
 			goto cleanup;
 		}
 	}

@@ -60,7 +60,7 @@ static int HandleDevMic(u85xx_device_t *dev, sqlite3* db_p)
 
 	ret = Alsactrl_DB_GetMicConfig_Generic(db_p, dev->name, &mic_config);
 	if (ret) {
-		LOG_I("ERROR: No mic-config found for dev '%s'!\n", dev->name);
+		LOG_E("ERROR: No mic-config found for dev '%s'!\n", dev->name);
 		return ret;
 	}
 
@@ -138,12 +138,12 @@ static int HandleDevHSetIn(u85xx_device_t *dev, sqlite3* db_p)
 
 	ret = Alsactrl_DB_GetMicConfig_Generic(db_p, dev->name, &mic_config);
 	if (ret) {
-		LOG_I("ERROR: No mic-config found for dev '%s'!\n", dev->name);
+		LOG_E("ERROR: No mic-config found for dev '%s'!\n", dev->name);
 		return ret;
 	}
 
 	if (mic_config.n_mics == 0) {
-		LOG_I("ERROR: Unable to get mic-config for '%s'!\n", ALSACTRL_DEVSTR_HSIN);
+		LOG_E("ERROR: Unable to get mic-config for '%s'!\n", ALSACTRL_DEVSTR_HSIN);
 		return ERR_GENERIC;
 	}
 
@@ -506,7 +506,7 @@ static int Mic1_SetEnabled(u85xx_switch_t *sw, u85xx_device_t *devices, sqlite3*
 	if (devices[U8500_DEV_HSIN].active) {
 		ret = Alsactrl_DB_GetMicConfig_Generic(db_p, devices[U8500_DEV_MIC].name, &mic_config);
 		if (ret < 0) {
-			LOG_I("ERROR: Unable to get mic-config for '%s'!", devices[U8500_DEV_MIC].name);
+			LOG_E("ERROR: Unable to get mic-config for '%s'!", devices[U8500_DEV_MIC].name);
 			return ret;
 		}
 		if ((mic_config.mics[0] == MIC1A) || (mic_config.mics[0] == MIC1B))
@@ -516,7 +516,7 @@ static int Mic1_SetEnabled(u85xx_switch_t *sw, u85xx_device_t *devices, sqlite3*
 	if (devices[U8500_DEV_MIC].active) {
 		ret = Alsactrl_DB_GetMicConfig_Generic(db_p, devices[U8500_DEV_HSIN].name, &mic_config);
 		if (ret < 0) {
-			LOG_I("ERROR: Unable to get mic-config for '%s'!", devices[U8500_DEV_HSIN].name);
+			LOG_E("ERROR: Unable to get mic-config for '%s'!", devices[U8500_DEV_HSIN].name);
 			return ret;
 		}
 		for (i = 0; i < mic_config.n_mics; i++)
@@ -537,7 +537,7 @@ static int Mic2_SetEnabled(u85xx_switch_t *sw, u85xx_device_t *devices, sqlite3*
 	if (devices[U8500_DEV_HSIN].active) {
 		ret = Alsactrl_DB_GetMicConfig_Generic(db_p, devices[U8500_DEV_MIC].name, &mic_config);
 		if (ret < 0) {
-			LOG_I("ERROR: Unable to get mic-config for '%s'!", devices[U8500_DEV_MIC].name);
+			LOG_E("ERROR: Unable to get mic-config for '%s'!", devices[U8500_DEV_MIC].name);
 			return ret;
 		}
 		if (mic_config.mics[0] == MIC2)
@@ -547,7 +547,7 @@ static int Mic2_SetEnabled(u85xx_switch_t *sw, u85xx_device_t *devices, sqlite3*
 	if (devices[U8500_DEV_MIC].active) {
 		ret = Alsactrl_DB_GetMicConfig_Generic(db_p, devices[U8500_DEV_HSIN].name, &mic_config);
 		if (ret < 0) {
-			LOG_I("ERROR: Unable to get mic-config for '%s'!", devices[U8500_DEV_HSIN].name);
+			LOG_E("ERROR: Unable to get mic-config for '%s'!", devices[U8500_DEV_HSIN].name);
 			return ret;
 		}
 		for (i = 0; i < mic_config.n_mics; i++)
@@ -733,7 +733,7 @@ int Alsactrl_Hwh_U8500_Dev(sqlite3* db_p, hwh_dev_next_t dev_next, enum audio_ha
 			LOG_I("Calling device-handler (dev = '%s').", u8500_devices[i].name);
 			ret = u8500_devices[i].device_handler(&u8500_devices[i], db_p);
 			if (ret < 0) {
-				LOG_I("ERROR in device-handler (dev = '%s')!", u8500_devices[i].name);
+				LOG_E("ERROR in device-handler (dev = '%s')!", u8500_devices[i].name);
 				return ret;
 			}
 		}

@@ -27,7 +27,7 @@ int Alsactrl_DB_GetDevChannelCount(sqlite3* db_p, const char* dev)
 
 	res = Alsactrl_Hwh_GetToplevelMapping(dev, &dev_top);
     if (res != 0) {
-        LOG_I("ERROR: Unable to get top-level device for %s!", dev);
+        LOG_E("ERROR: Unable to get top-level device for %s!", dev);
         goto cleanup;
     }
 
@@ -46,18 +46,18 @@ int Alsactrl_DB_GetDevChannelCount(sqlite3* db_p, const char* dev)
 
     rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
     if (rc != SQLITE_OK) {
-        LOG_I("ERROR: Unable to prepare SQL-statement!");
+        LOG_E("ERROR: Unable to prepare SQL-statement!");
         goto cleanup;
     }
 
 	if (sqlite3_step(stmt) != SQLITE_ROW) {
-		LOG_I("ERROR: No value found in DB!\n");
+		LOG_E("ERROR: No value found in DB!\n");
 		goto cleanup;
 	}
 
 	nch = sqlite3_column_int(stmt, 0);
 	if (nch <= 0) {
-		LOG_I("ERROR: Illegal number of channels (nch = %d)!\n", nch);
+		LOG_E("ERROR: Illegal number of channels (nch = %d)!\n", nch);
 		goto cleanup;
 	}
 
@@ -83,7 +83,7 @@ int Alsactrl_DB_GetMicConfig_Specific(sqlite3* db_p, const char *actual_dev, mic
 	const char* amic_str_db = NULL;
 
 	if (mic_config == NULL) {
-		LOG_I("ERROR: mic_config struct not allocated!");
+		LOG_E("ERROR: mic_config struct not allocated!");
 		return ERR_INVPAR;
 	}
 
@@ -96,7 +96,7 @@ int Alsactrl_DB_GetMicConfig_Specific(sqlite3* db_p, const char *actual_dev, mic
 
 	rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
-		LOG_I("ERROR: Unable to prepare SQL-statement!");
+		LOG_E("ERROR: Unable to prepare SQL-statement!");
 		goto cleanup;
 	}
 
@@ -113,7 +113,7 @@ int Alsactrl_DB_GetMicConfig_Specific(sqlite3* db_p, const char *actual_dev, mic
 			if (strcmp(amic_str_db, Alsactrl_Hwh_GetMicStr(j)) == 0)
 				break;
 		if (j == AMIC_COUNT) {
-			LOG_I("ERROR: Unknown amic '%s' selected!", amic_str_db);
+			LOG_E("ERROR: Unknown amic '%s' selected!", amic_str_db);
 			goto cleanup;
 		}
 		mic_config->mics[i] = (enum amic)j;
@@ -137,20 +137,20 @@ int Alsactrl_DB_GetMicConfig_Generic(sqlite3* db_p, const char *toplevel_dev, mi
 	const char* actual_dev = NULL;
 
 	if (mic_config == NULL) {
-		LOG_I("ERROR: mic_config struct not allocated!");
+		LOG_E("ERROR: mic_config struct not allocated!");
 		return ERR_INVPAR;
 	}
 
 	ret = Alsactrl_Hwh_GetToplevelMapping(toplevel_dev, &actual_dev);
 	if (ret != 0) {
-		LOG_I("ERROR: Failed to get toplevel-mapping (ret = %d)!", ret);
+		LOG_E("ERROR: Failed to get toplevel-mapping (ret = %d)!", ret);
 		return ret;
 	}
 	LOG_I("'%s' maps to '%s'\n", toplevel_dev, actual_dev);
 
 	ret = Alsactrl_DB_GetMicConfig_Specific(db_p, actual_dev, mic_config);
 	if (ret < 0) {
-		LOG_I("ERROR: Failed to get mic-config for '%s'!", actual_dev);
+		LOG_E("ERROR: Failed to get mic-config for '%s'!", actual_dev);
 		return ret;
 	}
 
@@ -175,12 +175,12 @@ int Alsactrl_DB_GetDeviceDataIndex(sqlite3* db_p, const char* dev, bool use_sdev
 
 	rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
-		LOG_I("ERROR: Unable to prepare SQL-statement!");
+		LOG_E("ERROR: Unable to prepare SQL-statement!");
 		goto cleanup;
 	}
 
 	if (sqlite3_step(stmt) != SQLITE_ROW) {
-		LOG_I("ERROR: sqlite3_step failed to evaluate the statement");
+		LOG_E("ERROR: sqlite3_step failed to evaluate the statement");
 		goto cleanup;
 	}
 
@@ -208,7 +208,7 @@ static int GetComboDataIndex(sqlite3* db_p, char* command)
 
 		rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
-		LOG_I("ERROR: Unable to prepare SQL-statement!");
+		LOG_E("ERROR: Unable to prepare SQL-statement!");
 		goto cleanup;
 	}
 
@@ -248,7 +248,7 @@ char* Alsactrl_DB_GetData(sqlite3* db_p, int idx_data)
 
 	rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
-		LOG_I("ERROR: Unable to prepare SQL-statement!");
+		LOG_E("ERROR: Unable to prepare SQL-statement!");
 		goto cleanup;
 	}
 
@@ -257,13 +257,13 @@ char* Alsactrl_DB_GetData(sqlite3* db_p, int idx_data)
 
 	data = sqlite3_column_text(stmt, 0);
 	if (data == NULL) {
-		LOG_I("ERROR: Data not found (idx_data = %d)!\n", idx_data);
+		LOG_E("ERROR: Data not found (idx_data = %d)!\n", idx_data);
 		goto cleanup;
 	}
 
 	data_ret = strdup((const char*)data);
 	if (!data_ret) {
-		LOG_I("ERROR: strdup() failed\n");
+		LOG_E("ERROR: strdup() failed\n");
 	}
 
 cleanup:
@@ -283,14 +283,14 @@ int Alsactrl_DB_WriteDefaultData(sqlite3* db_p)
 
 	data = Alsactrl_DB_GetData(db_p, ALSACTRL_IDX_DEFAULT_STATE);
 	if (data == NULL) {
-		LOG_I("ERROR: Failed to get default data!");
+		LOG_E("ERROR: Failed to get default data!");
 		return ERR_GENERIC;
 	}
 
 	LOG_I("Write default HW-settings.");
 	ret = audio_hal_alsa_memctrl_init_default((const char*)data);
 	if (ret < 0) {
-		LOG_I("ERROR: Failed to write default HW-settings (ret = %d)!", ret);
+		LOG_E("ERROR: Failed to write default HW-settings (ret = %d)!", ret);
 		return ERR_GENERIC;
 	}
 
@@ -336,7 +336,7 @@ int Alsactrl_DB_WriteComboData(sqlite3* db_p, hwh_dev_next_t dev_next)
 
 	data = Alsactrl_DB_GetData(db_p, idx_data);
 	if (data == NULL) {
-		LOG_I("ERROR: Failed to get data with index = %d!", idx_data);
+		LOG_E("ERROR: Failed to get data with index = %d!", idx_data);
 		ret_func = ERR_GENERIC;
 		goto cleanup;
 	}
@@ -344,7 +344,7 @@ int Alsactrl_DB_WriteComboData(sqlite3* db_p, hwh_dev_next_t dev_next)
 	LOG_I("Write HW-settings from file to ALSA-interface.");
 	ret = audio_hal_alsa_memctrl_set((const char*)data);
 	if (ret < 0) {
-		LOG_I("ERROR: Failed to write HW-settings (ret = %d)!", ret);
+		LOG_E("ERROR: Failed to write HW-settings (ret = %d)!", ret);
 		ret_func = ERR_GENERIC;
 		goto cleanup;
 	}
@@ -373,7 +373,7 @@ int Alsactrl_DB_WriteDevData(sqlite3* db_p, hwh_dev_next_t dev_next, bool use_sd
 		if (use_sdev) {
 			ret = Alsactrl_Hwh_GetToplevelMapping(gdev, &sdev);
 			if (ret < 0) {
-				LOG_I("ERROR: Unable to find specific device for '%s'!\n", gdev);
+				LOG_E("ERROR: Unable to find specific device for '%s'!\n", gdev);
 				ret = ERR_GENERIC;
 				goto interrupted_loop;
 			}
@@ -391,7 +391,7 @@ int Alsactrl_DB_WriteDevData(sqlite3* db_p, hwh_dev_next_t dev_next, bool use_sd
 
 		data = Alsactrl_DB_GetData(db_p, idx_data);
 		if (data == NULL) {
-			LOG_I("ERROR: Failed to get data with index = %d!", idx_data);
+			LOG_E("ERROR: Failed to get data with index = %d!", idx_data);
 			ret = ERR_GENERIC;
 			goto interrupted_loop;
 		}
@@ -399,7 +399,7 @@ int Alsactrl_DB_WriteDevData(sqlite3* db_p, hwh_dev_next_t dev_next, bool use_sd
 		LOG_I("Write HW-settings for device '%s'.", dev);
 		ret = audio_hal_alsa_memctrl_set((const char*)data);
 		if (ret < 0) {
-			LOG_I("ERROR: Failed to write HW-settings (ret = %d)!", ret);
+			LOG_E("ERROR: Failed to write HW-settings (ret = %d)!", ret);
 			ret = ERR_GENERIC;
 			goto interrupted_loop;
 		}

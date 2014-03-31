@@ -39,14 +39,14 @@ static int CheckIncompabilities(sqlite3* db_p, u85xx_device_t* u8500_devs, u85xx
 	if ((u8500_devs[U8500_DEV_HSIN].active) &&
 		(dev_mic_nch == 2) &&
 		(u8500_devs[U8500_DEV_LINEIN].active)) {
-		LOG_I("ERROR: Not possible to have MIC (2-channel) at the same time as LINEIN (right)!");
+		LOG_E("ERROR: Not possible to have MIC (2-channel) at the same time as LINEIN (right)!");
 		return ERR_GENERIC; 
 	}
 	if ((u8500_devs[U8500_DEV_MIC].active) &&
 		(dev_mic_nch == 2) &&
 		(u8500_devs[U8500_DEV_FMRX].active) &&
 		(FMRX_TYPE == FM_TYPE_ANALOG)) {
-		LOG_I("ERROR: Not possible to have MIC (2-channel) at the same time as analog FMRX!");
+		LOG_E("ERROR: Not possible to have MIC (2-channel) at the same time as analog FMRX!");
 		return ERR_GENERIC; 
 	}
 
@@ -69,14 +69,14 @@ int Alsactrl_Hwh_U8500(sqlite3* db_p, hwh_dev_next_t dev_next, hwh_d2d_next_t de
 
 	ret = Alsactrl_Hwh_OpenControls();
 	if (ret < 0) {
-		LOG_I("ERROR: Unable to open ALSA-card '%s' error: %d!\n", Alsactrl_Hwh_CardName(), ret);
+		LOG_E("ERROR: Unable to open ALSA-card '%s' error: %d!\n", Alsactrl_Hwh_CardName(), ret);
 		goto cleanup;
 	}
 
 	// Load default data to control-array
 	ret = audio_hal_alsa_memctrl_set_default();
 	if (ret < 0) {
-		LOG_I("ERROR: load default cfg failed error: %d!", ret);
+		LOG_E("ERROR: load default cfg failed error: %d!", ret);
 		goto cleanup_close;
 	}
 
@@ -101,14 +101,14 @@ int Alsactrl_Hwh_U8500(sqlite3* db_p, hwh_dev_next_t dev_next, hwh_d2d_next_t de
 	// Detect settings not possible in the HW
 	ret = CheckIncompabilities(db_p, Alsactrl_Hwh_U8500_Dev_GetDevs(),  Alsactrl_Hwh_U8500_D2D_GetD2Ds());
 	if (ret < 0) {
-		LOG_I("ERROR: Incompabilities of HW-settings detected!");
+		LOG_E("ERROR: Incompabilities of HW-settings detected!");
 		goto cleanup_close;
 	}
 
 	// Write control-array to HW
 	ret = audio_hal_alsa_memctrl_write();
 	if (ret < 0) {
-		LOG_I("ERROR: commit control configuration failed!");
+		LOG_E("ERROR: commit control configuration failed!");
 		goto cleanup_close;
 	}
 
@@ -142,7 +142,7 @@ int Alsactrl_Hwh_U8500_Init(enum audio_hal_chip_id_t chip_id_in, sqlite3* db_p)
 
 	ret = Alsactrl_Hwh_OpenControls();
 	if (ret < 0) {
-		LOG_I("ERROR: Unable to open ALSA-card '%s' error: %d!\n", Alsactrl_Hwh_CardName(), ret);
+		LOG_E("ERROR: Unable to open ALSA-card '%s' error: %d!\n", Alsactrl_Hwh_CardName(), ret);
 		goto cleanup;
  	}
 
@@ -152,13 +152,13 @@ int Alsactrl_Hwh_U8500_Init(enum audio_hal_chip_id_t chip_id_in, sqlite3* db_p)
 
 	ret = audio_hal_alsa_set_control("Master Clock Select", 0, 1); // Default -> ULPCLK
 	if (ret < 0) {
-		LOG_I("ERROR: Unable to set master clock select! (ret = %d)\n", ret);
+		LOG_E("ERROR: Unable to set master clock select! (ret = %d)\n", ret);
 		goto cleanup;
 	}
 
 	ret = Alsactrl_DB_WriteDefaultData(db_p);
 	if (ret < 0) {
-		LOG_I("ERROR: Unable to write default data! (ret = %d)\n", ret);
+		LOG_E("ERROR: Unable to write default data! (ret = %d)\n", ret);
 		goto cleanup;
 	}
 

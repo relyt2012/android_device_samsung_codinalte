@@ -60,7 +60,7 @@ int SetSwitch(u85xx_switch_t *sw, bool enable)
 
 	ret = audio_hal_alsa_set_control(sw->name, 0, enable);
 	if (ret < 0) {
-		LOG_I("ERROR: Failed to %s '%s'!\n", enable ? "enable" : "disable", sw->name);
+		LOG_E("ERROR: Failed to %s '%s'!\n", enable ? "enable" : "disable", sw->name);
 	} else {
 		LOG_I("'%s' %s.\n", sw->name, enable ? "enabled" : "disabled");
 	}
@@ -78,11 +78,11 @@ int SetSidetoneRoute(sqlite3* db_p, const char *indev_p, bool *sidetone_left, bo
 
 	ret = Alsactrl_DB_GetMicConfig_Specific(db_p, indev_p, &mic_config);
 	if (ret < 0) {
-		LOG_I("ERROR: Unable to get mic-config for '%s'!", indev_p);
+		LOG_E("ERROR: Unable to get mic-config for '%s'!", indev_p);
 		return ERR_GENERIC;
 	}
 	if (mic_config.n_mics > 2) {
-		LOG_I("ERROR: No of mics is larger than 2 (n_mics = %d)!", mic_config.n_mics);
+		LOG_E("ERROR: No of mics is larger than 2 (n_mics = %d)!", mic_config.n_mics);
 		return ERR_INVPAR;
 	}
 
@@ -126,7 +126,7 @@ int SetSidetoneRoute(sqlite3* db_p, const char *indev_p, bool *sidetone_left, bo
 		break;
 	}
 	if (ret < 0)
-		LOG_I("%s: ERROR: Unable to set sidetone source (ret = %d)\n", __func__, ret);
+		LOG_E("%s: ERROR: Unable to set sidetone source (ret = %d)\n", __func__, ret);
 
 	return 0;
 }
@@ -136,12 +136,12 @@ int SetSidetoneEnable(bool sidetone_left, bool sidetone_right)
 	int ret;
 	ret = audio_hal_alsa_set_control("Sidetone Left", 0, sidetone_left);
 	if (ret < 0) {
-		LOG_I("%s: ERROR: Unable to set sidetone left! (ret = %d)\n", __func__, ret);
+		LOG_E("%s: ERROR: Unable to set sidetone left! (ret = %d)\n", __func__, ret);
 		return ret;
 	}
 	ret = audio_hal_alsa_set_control("Sidetone Right", 0, sidetone_right);
 	if (ret < 0) {
-		LOG_I("%s: ERROR: Unable to set sidetone right! (ret = %d)\n", __func__, ret);
+		LOG_E("%s: ERROR: Unable to set sidetone right! (ret = %d)\n", __func__, ret);
 		return ret;
 	}
 
@@ -160,7 +160,7 @@ int SetSidetoneGain(sqlite3_stmt *stmt, int *sidetone_gain)
 	LOG_I("%s: Configuring sidetone gain = %ld,%ld\n", __func__, gain[0], gain[1]);
 	ret = audio_hal_alsa_set_control_values("Sidetone Digital Gain Playback Volume", gain);
 	if (ret < 0) {
-		LOG_I("%s: ERROR: Unable to set sidetone gain! (ret = %d)\n", __func__, ret);
+		LOG_E("%s: ERROR: Unable to set sidetone gain! (ret = %d)\n", __func__, ret);
 		return ret;
 	}
 
@@ -180,7 +180,7 @@ int SetSidetoneCoeffs(sqlite3_stmt *stmt)
 		sid_fir_coefficients[i] = sqlite3_column_int(stmt, i + 2);
 	ret = audio_hal_alsa_set_control_values("Sidetone FIR Coefficients", sid_fir_coefficients);
 	if (ret < 0) {
-		LOG_I("%s: ERROR: Unable to set Sidetone FIR-coefficients!\n", __func__);
+		LOG_E("%s: ERROR: Unable to set Sidetone FIR-coefficients!\n", __func__);
 		return ret;
 	}
 
@@ -193,7 +193,7 @@ int SetSidetoneCoeffs(sqlite3_stmt *stmt)
 	}
 
 	if (ret < 0) {
-		LOG_I("%s: ERROR: Unable to apply sidetone coefficients (MAX_TRIES_SID = %d)! (ret = %d)\n", __func__, MAX_TRIES_SID, ret);
+		LOG_E("%s: ERROR: Unable to apply sidetone coefficients (MAX_TRIES_SID = %d)! (ret = %d)\n", __func__, MAX_TRIES_SID, ret);
 		return ret;
 	}
 
@@ -215,7 +215,7 @@ int SetANC(sqlite3_stmt *stmt)
 		anc_fir_coefficients[i] = sqlite3_column_int(stmt, i + 5);
 	ret = audio_hal_alsa_set_control_values("ANC FIR Coefficients", anc_fir_coefficients);
 	if (ret < 0) {
-		LOG_I("%s: ERROR: Unable to set ANC FIR-coefficients!\n", __func__);
+		LOG_E("%s: ERROR: Unable to set ANC FIR-coefficients!\n", __func__);
 		return ret;
 	}
 
@@ -225,7 +225,7 @@ int SetANC(sqlite3_stmt *stmt)
 		anc_iir_coefficients[i] = sqlite3_column_int(stmt, i + 20);
 	ret = audio_hal_alsa_set_control_values("ANC IIR Coefficients", anc_iir_coefficients);
 	if (ret < 0) {
-		LOG_I("%s: ERROR: Unable to set ANC IIR-coefficients!\n", __func__);
+		LOG_E("%s: ERROR: Unable to set ANC IIR-coefficients!\n", __func__);
 		return ret;
 	}
 
@@ -242,7 +242,7 @@ int SetANC(sqlite3_stmt *stmt)
 		else if (i == 3)
 			ret = audio_hal_alsa_set_control("ANC Warp Delay", 0, value);
 		if (ret < 0) {
-			LOG_I("%s: ERROR: Unable to set ANC IIR Warp or Shift!\n", __func__);
+			LOG_E("%s: ERROR: Unable to set ANC IIR Warp or Shift!\n", __func__);
 			return ret;
 		}
 	}
@@ -250,13 +250,13 @@ int SetANC(sqlite3_stmt *stmt)
 	// configure FIR-/IIR-coefficients into ab8500 ANC block
 	ret = audio_hal_alsa_set_control("ANC Status", 0, 1);
 	if (ret < 0) {
-		LOG_I("%s: ERROR: Unable to apply ANC FIR+IIR-coefficients!\n", __func__);
+		LOG_E("%s: ERROR: Unable to apply ANC FIR+IIR-coefficients!\n", __func__);
 		return ret;
 	}
 
 	ret = audio_hal_alsa_set_control("ANC Playback Switch", 0, 1);
 	if (ret < 0)
-		LOG_I("%s: ERROR: Unable to enable ANC! (ret = %d)\n", __func__, ret);
+		LOG_E("%s: ERROR: Unable to enable ANC! (ret = %d)\n", __func__, ret);
 
 	return ret;
 }
@@ -293,7 +293,7 @@ int SetFilters(sqlite3* db_p, const char* indev_p, const char* outdev_p, int fs)
 
 	ret = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
 	if (ret != SQLITE_OK) {
-		LOG_I("%s: Unable to prepare SQL-statement! \"%s\" (ret = %d)\n", __func__, command, ret);
+		LOG_E("%s: Unable to prepare SQL-statement! \"%s\" (ret = %d)\n", __func__, command, ret);
 		ret = -1;
 		goto cleanup;
 	}
@@ -311,7 +311,7 @@ int SetFilters(sqlite3* db_p, const char* indev_p, const char* outdev_p, int fs)
 
 	ret = SetSidetoneGain(stmt, &sidetone_gain);
 	if (ret < 0) {
-		LOG_I("%s: Failed to configure sidetone gain! (ret = %d)\n", __func__, ret);
+		LOG_E("%s: Failed to configure sidetone gain! (ret = %d)\n", __func__, ret);
 		goto cleanup;
 	}
 
@@ -323,19 +323,19 @@ int SetFilters(sqlite3* db_p, const char* indev_p, const char* outdev_p, int fs)
 
 	ret = SetSidetoneRoute(db_p, indev_p, &sidetone_left, &sidetone_right);
 	if (ret < 0) {
-		LOG_I("%s: Failed to configure sidetone mic! (ret = %d)\n", __func__, ret);
+		LOG_E("%s: Failed to configure sidetone mic! (ret = %d)\n", __func__, ret);
 		goto cleanup;
 	}
 
 	ret = SetSidetoneCoeffs(stmt);
 	if (ret < 0) {
-		LOG_I("%s: Failed to configure sidetone! (ret = %d)\n", __func__, ret);
+		LOG_E("%s: Failed to configure sidetone! (ret = %d)\n", __func__, ret);
 		goto cleanup;
 	}
 
 	ret = SetSidetoneEnable(sidetone_left, sidetone_right);
 	if (ret < 0) {
-		LOG_I("%s: Failed to configure sidetone playback switches! (ret = %d)\n", __func__, ret);
+		LOG_E("%s: Failed to configure sidetone playback switches! (ret = %d)\n", __func__, ret);
 		goto cleanup;
 	}
 
@@ -355,7 +355,7 @@ sidetone_done:
 	strcat(command, c_criteria);
 	ret = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
 	if (ret != SQLITE_OK) {
-		LOG_I("%s: Unable to prepare SQL-statement! \"%s\" (ret = %d)\n", __func__, command, ret);
+		LOG_E("%s: Unable to prepare SQL-statement! \"%s\" (ret = %d)\n", __func__, command, ret);
 		ret = -1;
 		goto cleanup;
 	}
@@ -371,7 +371,7 @@ sidetone_done:
 	LOG_I("%s: Configuring ANC.", __func__);
 	ret = SetANC(stmt);
 	if (ret < 0) {
-		LOG_I("%s: Failed to configure ANC! (ret = %d)\n", __func__, ret);
+		LOG_E("%s: Failed to configure ANC! (ret = %d)\n", __func__, ret);
 		goto cleanup;
 	} else {
 		LOG_I("%s: ANC configured.\n", __func__);

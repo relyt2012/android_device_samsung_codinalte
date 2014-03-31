@@ -25,7 +25,7 @@ void audio_hal_set_msp4_clock(int open)
 
         if(ret < 0)
         {
-            LOG_I("ERROR: MSP4 Clock Enable failed\n");
+            LOG_E("ERROR: MSP4 Clock Enable failed\n");
         }
         Alsactrl_Hwh_CloseControls();
     }
@@ -38,7 +38,7 @@ void audio_hal_set_msp4_clock(int open)
 
         if(ret < 0)
         {
-            LOG_I("ERROR: MSP4 Clock Disable failed\n");
+            LOG_E("ERROR: MSP4 Clock Disable failed\n");
         }
         Alsactrl_Hwh_CloseControls();
     }

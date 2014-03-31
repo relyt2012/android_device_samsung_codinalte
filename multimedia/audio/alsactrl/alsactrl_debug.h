@@ -23,7 +23,7 @@
 enum ALSACTRL_LOGLEVEL {
 	ALSACTRL_LOG_INFO,
 	ALSACTRL_LOG_WARN,
-	ALSACTRL_LOG_IRR,
+	ALSACTRL_LOG_ERR,
 	ALSACTRL_LOG_LAST
 };
 
@@ -107,9 +107,9 @@ extern unsigned int g_alsactrl_debug_mask VISIBILITY_HIDDEN;
 		ALSACTRL_LOG_BASE(ALSACTRL_LOG_WARN, __VA_ARGS__); \
 	} while (0)
 
-#define LOG_I(...) \
+#define LOG_E(...) \
 	do { \
-		ALSACTRL_LOG_BASE(ALSACTRL_LOG_IRR, __VA_ARGS__); \
+		ALSACTRL_LOG_BASE(ALSACTRL_LOG_ERR, __VA_ARGS__); \
 	} while (0)
 
 #endif

@@ -65,7 +65,7 @@ static int open_chardev(void)
 
 	chardev_fd = open("/dev/" CG2900_AUDIO_DEVICE_NAME, O_RDWR);
 	if (chardev_fd < 0) {
-		LOG_I("ERROR: Failed to open device (%s)!", strerror(errno));
+		LOG_E("ERROR: Failed to open device (%s)!", strerror(errno));
 		return -1;
 	} else {
 		return 0;
@@ -105,7 +105,7 @@ static int setup_i2s_dai(void)
 	len = 4 + sizeof(dai_conf);
 	buf = (unsigned char *)malloc(len);
 	if (!buf) {
-		LOG_I("ERROR: Out of memory!");
+		LOG_E("ERROR: Out of memory!");
 		return -1;
 	}
 	memset(buf, 0, len);
@@ -115,7 +115,7 @@ static int setup_i2s_dai(void)
 	r = write(chardev_fd, buf, len);
 	free(buf);
 	if (r != (ssize_t)len) {
-		LOG_I("ERROR: Set DAI failed (%s)!\n", (r < 0) ? strerror(errno) : "Internal error");
+		LOG_E("ERROR: Set DAI failed (%s)!\n", (r < 0) ? strerror(errno) : "Internal error");
 		return -1;
 	} else {
 		return 0;
@@ -145,7 +145,7 @@ static int setup_fm_endpoint(int rxtx)
 	len = 4 + sizeof(ep_conf);
 	buf = (unsigned char *)malloc(len);
 	if (!buf) {
-		LOG_I("ERROR: Out of memory!");
+		LOG_E("ERROR: Out of memory!");
 		return -1;
 	}
 	memset(buf, 0, len);
@@ -155,7 +155,7 @@ static int setup_fm_endpoint(int rxtx)
 	r = write(chardev_fd, buf, len);
 	free(buf);
 	if (r != (ssize_t)len) {
-		LOG_I("ERROR: Configure endpoint failed (%s)!", (r < 0) ? strerror(errno) : "Internal error");
+		LOG_E("ERROR: Configure endpoint failed (%s)!", (r < 0) ? strerror(errno) : "Internal error");
 		return -1;
 	} else {
 		return 0;
@@ -178,7 +178,7 @@ static int setup_analog_out_endpoint (void)
 	len = 4 + sizeof(ep_conf);
 	buf = (unsigned char *)malloc(len);
 	if (!buf) {
-		LOG_I("ERROR: Out of memory!");
+		LOG_E("ERROR: Out of memory!");
 		return -1;
 	}
 	memset(buf, 0, len);
@@ -188,7 +188,7 @@ static int setup_analog_out_endpoint (void)
 	r = write(chardev_fd, buf, len);
 	free(buf);
 	if (r != (ssize_t)len) {
-		LOG_I("ERROR: Configure endpoint failed (%s)!", (r < 0) ? strerror(errno) : "Internal error");
+		LOG_E("ERROR: Configure endpoint failed (%s)!", (r < 0) ? strerror(errno) : "Internal error");
 		return -1;
 	} else {
 		return 0;
@@ -217,7 +217,7 @@ static int start_stream(enum cg2900_audio_endpoint_id ep1,
 	len = 4 + sizeof(ep1) + sizeof(ep2);
 	buf = (unsigned char *)malloc(len);
 	if (!buf) {
-		LOG_I("Error: Out of memory!");
+		LOG_E("Error: Out of memory!");
 		return -1;
 	}
 	memset(buf, 0, len);
@@ -228,13 +228,13 @@ static int start_stream(enum cg2900_audio_endpoint_id ep1,
 	r = write(chardev_fd, buf, len);
 	free(buf);
 	if (r != (ssize_t)len) {
-		LOG_I("ERROR: Start stream failed (%s)", (r < 0) ? strerror(errno) : "Internal error");
+		LOG_E("ERROR: Start stream failed (%s)", (r < 0) ? strerror(errno) : "Internal error");
 		return -1;
 	}
 
 	r = read(chardev_fd, data, sizeof(data));
 	if ((unsigned int)r < sizeof(data)) {
-		LOG_I("ERROR: Start stream failed (%s)!", (r < 0) ? strerror(errno) : "Internal error");
+		LOG_E("ERROR: Start stream failed (%s)!", (r < 0) ? strerror(errno) : "Internal error");
 		error = -1;
 	} else {
 		stream_handle = data[1];
@@ -254,7 +254,7 @@ static void stop_stream(void)
 	len = 4 + sizeof(stream_handle);
 	buf = (unsigned char *)malloc(len);
 	if (!buf) {
-		LOG_I("Error: Out of memory!");
+		LOG_E("Error: Out of memory!");
 		return;
 	}
 	memset(buf, 0, len);
@@ -264,7 +264,7 @@ static void stop_stream(void)
 	r = write(chardev_fd, buf, len);
 	free(buf);
 	if (r != (ssize_t)len)
-		LOG_I("ERROR: Stop stream failed (%s)!", (r < 0) ? strerror(errno) : "Internal error");
+		LOG_E("ERROR: Stop stream failed (%s)!", (r < 0) ? strerror(errno) : "Internal error");
 	stream_handle = 0xffffffff;
 }
 

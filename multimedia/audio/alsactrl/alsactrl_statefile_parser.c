@@ -50,7 +50,7 @@ static int add_node_to_list(struct parser_context *parser_p, enum mixer_ctl_type
 		}
 		temp->next = (struct listvalue *)calloc(1, sizeof(struct listvalue));
 		if (!(temp->next)) {
-			LOG_I("Error: Calloc failed Unable to allocate memory to control node");
+			LOG_E("Error: Calloc failed Unable to allocate memory to control node");
 			return -1;
 		}
 		temp=temp->next;
@@ -64,7 +64,7 @@ static int add_node_to_list(struct parser_context *parser_p, enum mixer_ctl_type
 		strncpy(temp->data.enum_val_str, value_p, ENUM_VAL_MAX_LEN);
 		break;
 	default:
-		LOG_I("ERROR: Invalid value!");
+		LOG_E("ERROR: Invalid value!");
 		free(temp);
 		return -1;
 	}
@@ -81,7 +81,7 @@ static int RemoveMultiBlanks(char *string)
 	blank = string;
 	start = (char*)malloc(length + 1);
 	if (start == NULL) {
-		LOG_I("Error: Malloc failed unable to allocate memory to start");
+		LOG_E("Error: Malloc failed unable to allocate memory to start");
 		return -1;
 	}
 	while (*(blank + c)) {
@@ -123,7 +123,7 @@ int init_parser(struct parser_context **parser_p, const char *data)
 {
 	*parser_p = (struct parser_context *)calloc(1, sizeof(struct parser_context));
 	if (!(*parser_p)) {
-		LOG_I("Error: Calloc failed unable to allocate memory to parser context");
+		LOG_E("Error: Calloc failed unable to allocate memory to parser context");
 		return -1;
 	}
 	(*parser_p)->token = strtok_r(data, "{}", &((*parser_p)->save_ptr_outer));
@@ -248,7 +248,7 @@ static int get_next_control(struct parser_context *parser, struct control_config
 	int valueFlag = 0, ret;
 	bool valid_name = false;
 	if (!(nextnode)) {
-		LOG_I("Error: Insufficient memory to allocate to node!");
+		LOG_E("Error: Insufficient memory to allocate to node!");
 		return -1;
 	}
 start:
@@ -266,14 +266,14 @@ start:
 		block_size = strlen(parser->token)*sizeof(char) + 1;
 		ptr_inner_data = parser->Inner_data = (char*)calloc(1, block_size);
 		if (!(parser->Inner_data)) {
-			LOG_I("Error: Calloc failed unable to allocate memory to Inner_data");
+			LOG_E("Error: Calloc failed unable to allocate memory to Inner_data");
 			return -1;
 		}
 		strcpy(parser->Inner_data, parser->token);
 		int accessFlag = 0, typeFlag = 0, countFlag = 0, removeflag;
 		removeflag = RemoveMultiBlanks(parser->Inner_data);
 		if (removeflag) {
-			LOG_I("unable to remove multiple blanks");
+			LOG_E("unable to remove multiple blanks");
 			free(parser->Inner_data);
 			return -1;
 		}
@@ -313,14 +313,14 @@ start:
 			} else if (strncmp(parser->temp_string, "name", 4) == 0) {
 				valid_name = get_name(parser, nextnode);
                                 if (valid_name != true) {
-					LOG_I("Invalid name !");
+					LOG_E("Invalid name !");
 					free(parser->Inner_data);
 					return -1;
                                 }
 			} else if (strncmp(parser->temp_string, "value", 5) == 0) {
 				ret = get_value(parser, valueFlag, nextnode);
 				if (ret) {
-					LOG_I("Unable to write the value to node");
+					LOG_E("Unable to write the value to node");
 					free(parser->Inner_data);
 					return -1;
 				}
@@ -332,7 +332,7 @@ start:
 	}
 	nextnode->value = (union value_t*)calloc(nextnode->count, sizeof(union value_t));
 	if (!nextnode->value) {
-		LOG_I("ERROR: Insufficient memory\n");
+		LOG_E("ERROR: Insufficient memory\n");
 		free(parser->Inner_data);
 		return -1;
 	}
@@ -418,7 +418,7 @@ int populate_control_list(struct parser_context *parser_p, struct control_config
 		if (!head) {
 			node = (struct control_config_t *)calloc(1, sizeof(struct control_config_t));
 			if (!node) {
-				LOG_I("Error: Calloc failed unable to allocate memory to node");
+				LOG_E("Error: Calloc failed unable to allocate memory to node");
 				return -1;
 			}
 			LOG_I("\tNODE Number = %d address = %x \n", count, node);
@@ -432,7 +432,7 @@ int populate_control_list(struct parser_context *parser_p, struct control_config
 			node->next = (struct control_config_t *)calloc(1, sizeof(struct control_config_t));
 			if (!(node->next)) {
 				delete_control_list(head);
-				LOG_I("Error: Insufficient memory for Node->next\n");
+				LOG_E("Error: Insufficient memory for Node->next\n");
 				return -1;
 			}
 			LOG_I("\tNODE Number = %d address = %x \n", count, node->next);
@@ -479,7 +479,7 @@ static int node_copy(struct control_config_t *dest, struct control_config_t *src
 	dest->count = src->count;
 	dest->value = (union value_t *)malloc(src->count * sizeof(union value_t));
 	if (!(dest->value)) {
-		LOG_I("Error: Malloc failed unable to allocate memory to dest->value");
+		LOG_E("Error: Malloc failed unable to allocate memory to dest->value");
 		return -1;
 	}
 	memcpy(dest->value, src->value, src->count * sizeof(union value_t));
@@ -494,12 +494,12 @@ int copy_control_list(struct control_config_t **dest, struct control_config_t *s
 		return -1;
 	*dest = (struct control_config_t*)calloc(1, sizeof(struct control_config_t));
 	if (!(*dest)) {
-		LOG_I("Error: Calloc failed unable to allocate memory to dest node");
+		LOG_E("Error: Calloc failed unable to allocate memory to dest node");
 		return -1;
 	}
 	ret = node_copy(*dest, src);
 	if (ret) {
-		LOG_I("Unable to copy the node");
+		LOG_E("Unable to copy the node");
 		free(*dest);
 		return -1;
 	}
@@ -522,14 +522,14 @@ static int append_node(struct control_config_t *main_llist, struct control_confi
 	}
 	temp_p->next = (struct control_config_t *)malloc(sizeof(struct control_config_t));
 	if (!(temp_p->next)) {
-		LOG_I("Error: Malloc failed unable to allocate memory to temp_p->next");
+		LOG_E("Error: Malloc failed unable to allocate memory to temp_p->next");
 		return -1;
 	}
 	temp_p=temp_p->next;
 	temp_p->next = NULL;
 	ret = node_copy(temp_p, new_node);
 	if (ret) {
-		LOG_I("unable to copy the node");
+		LOG_E("unable to copy the node");
 		free(temp_p->next);
 		return -1;
 	}

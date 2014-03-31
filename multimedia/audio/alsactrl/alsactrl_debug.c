@@ -58,14 +58,14 @@ char *log_prefix[ALSACTRL_LOG_LAST] = {
 #define LOG_WARN_DEFINED 1
 #endif
 
-/*! \def LOG_IRR_DEFINED
+/*! \def LOG_ERR_DEFINED
 
     Helper macro to avoid \#ifdef usage for conditional compilation
 */
-#ifndef ALSACTRL_LOG_IRRORS
-#define LOG_IRR_DEFINED 0
+#ifndef ALSACTRL_LOG_ERRORS
+#define LOG_ERR_DEFINED 0
 #else
-#define LOG_IRR_DEFINED 1
+#define LOG_ERR_DEFINED 1
 #endif
 
 static const char* get_prop(const char* key)
@@ -83,7 +83,7 @@ static void set_logging_defaults(void)
 	g_alsactrl_debug_mask =
 		(LOG_INFO_DEFINED << ALSACTRL_LOG_INFO) |
 		(LOG_WARN_DEFINED << ALSACTRL_LOG_WARN) |
-		(LOG_IRR_DEFINED << ALSACTRL_LOG_IRR);
+		(LOG_ERR_DEFINED << ALSACTRL_LOG_ERR);
 }
 
 void alsactrl_dbg_set_logs_from_properties()
@@ -131,7 +131,7 @@ int alsactrl_debug_print(enum ALSACTRL_LOGLEVEL level, const char *file, int lin
 		insert_newline[0] = '\n';
 
 	switch (level) {
-	case ALSACTRL_LOG_IRR:
+	case ALSACTRL_LOG_ERR:
 		ALOGE(PRINT_FORMAT, function, buffer, insert_newline);
 	break;
 	case ALSACTRL_LOG_WARN:

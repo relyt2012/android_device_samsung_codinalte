@@ -366,7 +366,7 @@ static int alsactrl_channel_state(audio_hal_channel channel,
 		ret = alsactrl_channel_state_digmic56(state);
 		break;
 	default:
-		LOG_I("ERROR: Unknown channel type (%d)!", channel);
+		LOG_E("ERROR: Unknown channel type (%d)!", channel);
 		return ERR_INVPAR;
 	}
 
@@ -385,7 +385,7 @@ static int alsactrl_set_channel_state(alsactrl_dev_info_t* dev, enum alsactrl_ch
 		if (!dev->opened) {
 			ret = Alsactrl_Hwh_OpenAlsaDev(dev);
 			if (ret < 0) {
-				LOG_I("ERROR: Failed to open alsa device '%s' (%d)!", dev->name, ret);
+				LOG_E("ERROR: Failed to open alsa device '%s' (%d)!", dev->name, ret);
 				return ret;
 			}
 		}
@@ -393,7 +393,7 @@ static int alsactrl_set_channel_state(alsactrl_dev_info_t* dev, enum alsactrl_ch
 			if (!dev_peer->opened) {
 				ret = Alsactrl_Hwh_OpenAlsaDev(dev_peer);
 				if (ret < 0) {
-					LOG_I("ERROR: Failed to open alsa device '%s' (%d)!", dev_peer->name, ret);
+					LOG_E("ERROR: Failed to open alsa device '%s' (%d)!", dev_peer->name, ret);
 					return ret;
 				}
 			}
@@ -469,7 +469,7 @@ static alsactrl_dev_info_t* audio_hal_get_device_info(audio_hal_channel channel)
 		case CHIP_ID_AB8540_V2:
 			return Alsactrl_Hwh_GetDevInfo(ALSACTRL_ALSA_DEVICE_AB8540, PCM_IN);
 		default:
-			LOG_I("%s: ERROR: Unknown codec chip-ID '%s'!", __func__, audio_hal_alsa_get_chip_id_str(chip_id));
+			LOG_E("%s: ERROR: Unknown codec chip-ID '%s'!", __func__, audio_hal_alsa_get_chip_id_str(chip_id));
 			return NULL;
 		};
 	case AUDIO_HAL_CHANNEL_EARPIECE:
@@ -491,13 +491,13 @@ static alsactrl_dev_info_t* audio_hal_get_device_info(audio_hal_channel channel)
 		case CHIP_ID_AB8540_V2:
 			return Alsactrl_Hwh_GetDevInfo(ALSACTRL_ALSA_DEVICE_AB8540, PCM_OUT);
 		default:
-			LOG_I("%s: ERROR: Unknown codec chip-ID '%s'!", __func__, audio_hal_alsa_get_chip_id_str(chip_id));
+			LOG_E("%s: ERROR: Unknown codec chip-ID '%s'!", __func__, audio_hal_alsa_get_chip_id_str(chip_id));
 			return NULL;
 		};
 
 		return 0;
 	default:
-		LOG_I("ERROR: No device defined on channel (%d)!", channel);
+		LOG_E("ERROR: No device defined on channel (%d)!", channel);
 		return NULL;
 	}
 }
@@ -511,7 +511,7 @@ static AUDIO_HAL_STATUS audio_hal_change_channel(audio_hal_channel channel, enum
 
 	dev_info_p = audio_hal_get_device_info(channel);
 	if (dev_info_p == NULL) {
-		LOG_I("ERROR: Unable to get device info for device on channel %d!", channel);
+		LOG_E("ERROR: Unable to get device info for device on channel %d!", channel);
 		return AUDIO_HAL_STATUS_UNSUPPORTED;
 	}
 	LOG_I("ALSA-device: %s\n", dev_info_p->dev_name);
@@ -551,26 +551,26 @@ AUDIO_HAL_STATUS audio_hal_set_power(uint32 channel_index, AUDIO_HAL_STATE power
 
 	LOG_I("Enter (channel = %d).\n", channel);
 
-	//if (channel == AUDIO_HAL_CHANNEL_FMRX) {
-	//	if (power_control == AUDIO_HAL_STATE_ON) {
-	//		if (fmrx_type == AUDIO_HAL_DIGITAL) {
-	//			//setup_fm_rx_i2s();
-	//		} else {
-	//			int err = setup_fm_analog_out();
-	//			LOG_I("Setup FM chip analog out : %d\n", err);
-	//		}
-	//	}
-	//	else {
-	//		if (fmrx_type == AUDIO_HAL_DIGITAL) {
-	//			teardown_fm_i2s();
-	//		}
-	//	}
-	//} else if (channel == AUDIO_HAL_CHANNEL_FMTX) {
-	//	if (power_control == AUDIO_HAL_STATE_ON)
-	//		setup_i2s_fm_tx();
-	//	else
-	//		teardown_fm_i2s();
-	//}
+	if (channel == AUDIO_HAL_CHANNEL_FMRX) {
+		if (power_control == AUDIO_HAL_STATE_ON) {
+			if (fmrx_type == AUDIO_HAL_DIGITAL) {
+				setup_fm_rx_i2s();
+			} else {
+				int err = setup_fm_analog_out();
+				LOG_I("Setup FM chip analog out : %d\n", err);
+			}
+		}
+		else {
+			if (fmrx_type == AUDIO_HAL_DIGITAL) {
+				teardown_fm_i2s();
+			}
+		}
+	} else if (channel == AUDIO_HAL_CHANNEL_FMTX) {
+		if (power_control == AUDIO_HAL_STATE_ON)
+			setup_i2s_fm_tx();
+		else
+			teardown_fm_i2s();
+	}
 
 	return AUDIO_HAL_STATUS_OK;
 }

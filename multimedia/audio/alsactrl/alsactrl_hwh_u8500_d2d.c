@@ -46,21 +46,21 @@ static void UpdateActiveD2D(hwh_d2d_next_t dev_next_d2d)
 	const char* dst_name = NULL;
 	u85xx_device_t* u8500_devices = Alsactrl_Hwh_U8500_Dev_GetDevs();
 
-	//while (dev_next_d2d(&src_name, &dst_name) == 0) {
-	//	if (strcmp(src_name, ALSACTRL_DEVSTR_FMRX) == 0) {
-	//		if (strcmp(dst_name, ALSACTRL_DEVSTR_HSOUT) == 0) {
-	//			u8500_devices[U8500_DEV_FMRX].active = true;
-	//			u8500_devices[U8500_DEV_HSOUT].active = true;
-	//			u8500_d2ds[U8500_D2D_FMRX_HSOUT].active = true;
-	//		} else if (strcmp(dst_name, ALSACTRL_DEVSTR_SPEAKER) == 0) {
-	//			u8500_devices[U8500_DEV_FMRX].active = true;
-	//			u8500_devices[U8500_DEV_SPEAKER].active = true;
-	//			u8500_d2ds[U8500_D2D_FMRX_SPEAKER].active = true;
-	//		}
-	//		(void)setup_fm_analog_out();
-	//		LOG_I("%s: found src:%s  dst:%s\n", __func__, src_name, dst_name);
-	//	}
-	//}
+	while (dev_next_d2d(&src_name, &dst_name) == 0) {
+		if (strcmp(src_name, ALSACTRL_DEVSTR_FMRX) == 0) {
+			if (strcmp(dst_name, ALSACTRL_DEVSTR_HSOUT) == 0) {
+				u8500_devices[U8500_DEV_FMRX].active = true;
+				u8500_devices[U8500_DEV_HSOUT].active = true;
+				u8500_d2ds[U8500_D2D_FMRX_HSOUT].active = true;
+			} else if (strcmp(dst_name, ALSACTRL_DEVSTR_SPEAKER) == 0) {
+				u8500_devices[U8500_DEV_FMRX].active = true;
+				u8500_devices[U8500_DEV_SPEAKER].active = true;
+				u8500_d2ds[U8500_D2D_FMRX_SPEAKER].active = true;
+			}
+			(void)setup_fm_analog_out();
+			LOG_I("%s: found src:%s  dst:%s\n", __func__, src_name, dst_name);
+		}
+	}
 }
 
 static void ClearActiveD2Ds(void)
@@ -122,7 +122,7 @@ int Alsactrl_Hwh_U8500_D2D(sqlite3* db_p, hwh_d2d_next_t dev_next_d2d)
 
 		rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
 		if (rc != SQLITE_OK) {
-			LOG_I("%s: ERROR: Unable to prepare SQL-statement!", __func__);
+			LOG_E("%s: ERROR: Unable to prepare SQL-statement!", __func__);
 			goto cleanup;
 		}
 
@@ -131,13 +131,13 @@ int Alsactrl_Hwh_U8500_D2D(sqlite3* db_p, hwh_d2d_next_t dev_next_d2d)
 
 		data = sqlite3_column_text(stmt, 0);
 		if (data == NULL) {
-			LOG_I("%s: ERROR: Data not found!\n", __func__);
+			LOG_E("%s: ERROR: Data not found!\n", __func__);
 			goto cleanup;
 		}
 
 		ret = audio_hal_alsa_memctrl_set((const char*)data);
 		if (ret < 0) {
-			LOG_I("%s: ERROR: audio_hal_alsa_memctrl_set failed (ret = %d)!", __func__, ret);
+			LOG_E("%s: ERROR: audio_hal_alsa_memctrl_set failed (ret = %d)!", __func__, ret);
 			goto cleanup;
 		}
 
@@ -151,7 +151,7 @@ int Alsactrl_Hwh_U8500_D2D(sqlite3* db_p, hwh_d2d_next_t dev_next_d2d)
 					u8500_d2ds[i].name_src, u8500_d2ds[i].name_dst);
 			ret = u8500_d2ds[i].d2d_handler(&u8500_d2ds[i]);
 			if (ret < 0) {
-				LOG_I("%s: Error in d2d-handler (src = '%s', dst = '%s')!", __func__,
+				LOG_E("%s: Error in d2d-handler (src = '%s', dst = '%s')!", __func__,
 						u8500_d2ds[i].name_src, u8500_d2ds[i].name_dst);
 				goto cleanup;
 			}

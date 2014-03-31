@@ -14,7 +14,7 @@ int pcm_prepare(struct pcm *pcm)
 	int ret = -1;
 	ret = ioctl(pcm->fd, SNDRV_PCM_IOCTL_PREPARE);
 	if (ret)
-		LOG_I("Cannot prepare channel, error = %s", strerror(errno));
+		LOG_E("Cannot prepare channel, error = %s", strerror(errno));
 	return ret;
 }
 
@@ -54,7 +54,7 @@ int mixer_ctrl_modify_elem_value(struct mixer_ctl *ctl, struct snd_ctl_elem_valu
 	case SNDRV_CTL_ELEM_TYPE_ENUMERATED:
 		no_items = mixer_ctl_get_num_enums(ctl);
 		if (value > no_items - 1) {
-			LOG_I("ERROR: Enum-index %d outside bounds!\n", (int)value);
+			LOG_E("ERROR: Enum-index %d outside bounds!\n", (int)value);
 			return -EINVAL;
 		}
 		ev->value.enumerated.item[idx] = value;
@@ -100,7 +100,7 @@ int scan_for_next_card(int cardno, char *card_id, int size)
 	struct snd_ctl_card_info *cardinfo;
 	cardinfo = (struct snd_ctl_card_info *)malloc(sizeof(struct snd_ctl_card_info));
 	if (!cardinfo) {
-		LOG_I("Error: Malloc failed unable to allocate memory to cardinfo");
+		LOG_E("Error: Malloc failed unable to allocate memory to cardinfo");
 		return -1;
 	}
 	int fd, ret;
@@ -127,7 +127,7 @@ int scan_for_next_device(int card_fd, int *device)
 	LOG_I("Enter.");
 	assert(device);
 	if (ioctl(card_fd, SNDRV_CTL_IOCTL_PCM_NEXT_DEVICE, device) < 0) {
-		LOG_I("SNDRV_CTL_IOCTL_PCM_NEXT_DEVICE failed err = %s", strerror(errno));
+		LOG_E("SNDRV_CTL_IOCTL_PCM_NEXT_DEVICE failed err = %s", strerror(errno));
 		return -errno;
 	}
 	return 0;
@@ -139,7 +139,7 @@ int get_card_info(int card_fd, struct snd_ctl_card_info *cardinfo)
 {
 	LOG_I("Enter.");
 	if (ioctl(card_fd, SNDRV_CTL_IOCTL_CARD_INFO, cardinfo) < 0) {
-		LOG_I("SNDRV_CTL_IOCTL_CARD_INFO failed with err = %s", strerror(errno));
+		LOG_E("SNDRV_CTL_IOCTL_CARD_INFO failed with err = %s", strerror(errno));
 		return -errno;
 	}
 	return 0;
@@ -151,7 +151,7 @@ int get_pcm_info(int pcm_fd, struct snd_pcm_info *pcminfo)
 {
 	LOG_I("Enter.");
 	if (ioctl(pcm_fd, SNDRV_CTL_IOCTL_PCM_INFO, pcminfo) < 0) {
-		LOG_I("SNDRV_CTL_IOCTL_PCM_INFO failed with err = %s", strerror(errno));
+		LOG_E("SNDRV_CTL_IOCTL_PCM_INFO failed with err = %s", strerror(errno));
 		return -errno;
 	}
 	return 0;

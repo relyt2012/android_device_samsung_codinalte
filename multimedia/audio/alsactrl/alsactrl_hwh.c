@@ -57,7 +57,7 @@ enum audio_hal_chip_id_t Alsactrl_Hwh_SelectHW(void)
 
 	switch (hwh.chip_id) {
 	case CHIP_ID_AB8500:
-		hwh.card_name = "U8500card";
+		hwh.card_name = "U85x0card";
 		hwh.Hwh_Init = Alsactrl_Hwh_U8500_Init;
 		hwh.Hwh = Alsactrl_Hwh_U8500;
 		hwh.Hwh_VC = Alsactrl_Hwh_U8500_VC;
@@ -67,7 +67,7 @@ enum audio_hal_chip_id_t Alsactrl_Hwh_SelectHW(void)
 	case CHIP_ID_AB8505_V3:
 	case CHIP_ID_AB9540_V1:
 	case CHIP_ID_AB9540_V2:
-		hwh.card_name = "U8500card";
+		hwh.card_name = "U85x0card";
 		//hwh.Hwh_Init = Alsactrl_Hwh_U9540_Init;
 		//hwh.Hwh = Alsactrl_Hwh_U9540;
 		//hwh.Hwh_VC = Alsactrl_Hwh_U9540_VC;
@@ -76,7 +76,7 @@ enum audio_hal_chip_id_t Alsactrl_Hwh_SelectHW(void)
 		hwh.Hwh_VC = Alsactrl_Hwh_U8500_VC;
 		break;
 	case CHIP_ID_AB9540_V3:
-		LOG_I("%s: ERROR: Chip-ID '%s' not supported!", __func__, audio_hal_alsa_get_chip_id_str(hwh.chip_id));
+		LOG_E("%s: ERROR: Chip-ID '%s' not supported!", __func__, audio_hal_alsa_get_chip_id_str(hwh.chip_id));
 		return CHIP_ID_UNKNOWN;
 	case CHIP_ID_AB8540_V1:
 	case CHIP_ID_AB8540_V2:
@@ -86,7 +86,7 @@ enum audio_hal_chip_id_t Alsactrl_Hwh_SelectHW(void)
 		hwh.Hwh_VC = Alsactrl_Hwh_U8540_VC;
 		break;
 	default:
-		LOG_I("%s: ERROR: Unknown codec chip-ID '%s'!", __func__, audio_hal_alsa_get_chip_id_str(hwh.chip_id));
+		LOG_E("%s: ERROR: Unknown codec chip-ID '%s'!", __func__, audio_hal_alsa_get_chip_id_str(hwh.chip_id));
 		return CHIP_ID_UNKNOWN;
 	};
 
@@ -305,7 +305,7 @@ int Alsactrl_Hwh_OpenAlsaDev(alsactrl_dev_info_t* dev_info_p)
 	LOG_I("Enter.\n");
 
 	if (dev_info_p->dev_name == NULL) {
-		LOG_I("ERROR: No device-name set for stream (%s)!\n", stream_str(dev_info_p->stream_dir));
+		LOG_E("ERROR: No device-name set for stream (%s)!\n", stream_str(dev_info_p->stream_dir));
 		return -1;
 	}
 
@@ -316,7 +316,7 @@ int Alsactrl_Hwh_OpenAlsaDev(alsactrl_dev_info_t* dev_info_p)
 
 	ret = audio_hal_alsa_get_card_and_device_idx(dev_info_p->dev_name, dev_info_p->stream_dir, &idx_card, &idx_dev);
 	if (ret < 0) {
-		LOG_I("ERROR: ALSA-device %s not found among %s-devices!\n",
+		LOG_E("ERROR: ALSA-device %s not found among %s-devices!\n",
 			dev_info_p->dev_name,
 			stream_str(dev_info_p->stream_dir));
 		return -1;
@@ -344,7 +344,7 @@ int Alsactrl_Hwh_OpenAlsaDev(alsactrl_dev_info_t* dev_info_p)
 	config.avail_min = 0;
 	dev_info_p->pcm = pcm_open(idx_card, idx_dev, flags, &config);
 	if (!dev_info_p->pcm || !pcm_is_ready(dev_info_p->pcm)) {
-		LOG_I("ERROR: Open ALSA-device (%s) failed (ret = %s)!\n",
+		LOG_E("ERROR: Open ALSA-device (%s) failed (ret = %s)!\n",
 			stream_str(dev_info_p->stream_dir), pcm_get_error(dev_info_p->pcm));
 		return -1;
 	}
@@ -352,7 +352,7 @@ int Alsactrl_Hwh_OpenAlsaDev(alsactrl_dev_info_t* dev_info_p)
 	dev_info_p->opened = true;
 	ret = pcm_prepare(dev_info_p->pcm);
 	if (ret < 0) {
-		LOG_I("ERROR: PCM Start Failed (ret = %s)!", pcm_get_error(dev_info_p->pcm));
+		LOG_E("ERROR: PCM Start Failed (ret = %s)!", pcm_get_error(dev_info_p->pcm));
 	}
 	return 0;
 }
@@ -364,12 +364,12 @@ void Alsactrl_Hwh_CloseAlsaDev(alsactrl_dev_info_t* dev_info_p)
 	LOG_I("Enter.\n");
 
 	if (dev_info_p->dev_name == NULL) {
-		LOG_I("ERROR: No device-name set for stream (%s)!\n", stream_str(dev_info_p->stream_dir));
+		LOG_E("ERROR: No device-name set for stream (%s)!\n", stream_str(dev_info_p->stream_dir));
 		return;
 	}
 
 	if (!dev_info_p->opened) {
-		LOG_I("ALSA-device %s already closed!\n", dev_info_p->dev_name);
+		LOG_E("ALSA-device %s already closed!\n", dev_info_p->dev_name);
 		return;
 	}
 	LOG_I("Closing ALSA-device %s (%s).\n", dev_info_p->dev_name, stream_str(dev_info_p->stream_dir));
@@ -378,7 +378,7 @@ void Alsactrl_Hwh_CloseAlsaDev(alsactrl_dev_info_t* dev_info_p)
 	} else {
 		ret = pcm_close(dev_info_p->pcm);
 		if (ret < 0) {
-			LOG_I("Error: PCM close failed, ret = %s", pcm_get_error(dev_info_p->pcm));
+			LOG_E("Error: PCM close failed, ret = %s", pcm_get_error(dev_info_p->pcm));
 		}
 		dev_info_p->pcm = NULL;
 	}

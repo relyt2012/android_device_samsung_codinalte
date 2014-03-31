@@ -529,7 +529,7 @@ static int Mic1_SetEnabled(u85xx_switch_t *sw, u85xx_device_t *devices, sqlite3*
 	if (devices[U8540_DEV_HSIN].active) {
 		ret = Alsactrl_DB_GetMicConfig_Generic(db_p, devices[U8540_DEV_MIC].name, &mic_config);
 		if (ret < 0) {
-			LOG_I("Unable to get mic-config for '%s'!", devices[U8540_DEV_MIC].name);
+			LOG_E("Unable to get mic-config for '%s'!", devices[U8540_DEV_MIC].name);
 			return ret;
 		}
 		if ((mic_config.mics[0] == MIC1A) || (mic_config.mics[0] == MIC1B))
@@ -539,7 +539,7 @@ static int Mic1_SetEnabled(u85xx_switch_t *sw, u85xx_device_t *devices, sqlite3*
 	if (devices[U8540_DEV_MIC].active) {
 		ret = Alsactrl_DB_GetMicConfig_Generic(db_p, devices[U8540_DEV_HSIN].name, &mic_config);
 		if (ret < 0) {
-			LOG_I("Unable to get mic-config for '%s'!", devices[U8540_DEV_HSIN].name);
+			LOG_E("Unable to get mic-config for '%s'!", devices[U8540_DEV_HSIN].name);
 			return ret;
 		}
 		for (i = 0; i < mic_config.n_mics; i++)
@@ -560,7 +560,7 @@ static int Mic2_SetEnabled(u85xx_switch_t *sw, u85xx_device_t *devices, sqlite3*
 	if (devices[U8540_DEV_HSIN].active) {
 		ret = Alsactrl_DB_GetMicConfig_Generic(db_p, devices[U8540_DEV_MIC].name, &mic_config);
 		if (ret < 0) {
-			LOG_I("Unable to get mic-config for '%s'!", devices[U8540_DEV_MIC].name);
+			LOG_E("Unable to get mic-config for '%s'!", devices[U8540_DEV_MIC].name);
 			return ret;
 		}
 		if (mic_config.mics[0] == MIC2)
@@ -570,7 +570,7 @@ static int Mic2_SetEnabled(u85xx_switch_t *sw, u85xx_device_t *devices, sqlite3*
 	if (devices[U8540_DEV_MIC].active) {
 		ret = Alsactrl_DB_GetMicConfig_Generic(db_p, devices[U8540_DEV_HSIN].name, &mic_config);
 		if (ret < 0) {
-			LOG_I("Unable to get mic-config for '%s'!", devices[U8540_DEV_HSIN].name);
+			LOG_E("Unable to get mic-config for '%s'!", devices[U8540_DEV_HSIN].name);
 			return ret;
 		}
 		for (i = 0; i < mic_config.n_mics; i++)
@@ -613,14 +613,14 @@ static int VoiceModemDL_SetEnabled(u85xx_switch_t *sw, u85xx_device_t *devices, 
 
 	alsa_dev = Alsactrl_Hwh_GetDevInfo(ALSACTRL_ALSA_DEVICE_AB8540_VC, PCM_IN);
 	if (alsa_dev == NULL) {
-		LOG_I("ERROR: Failed to get alsa device info for ab8540 voice capture!");
+		LOG_E("ERROR: Failed to get alsa device info for ab8540 voice capture!");
 		return -1;
 	}
 
 	if (devices[U8540_DEV_MODEMDL].active && !alsa_dev->opened) {
 		ret = Alsactrl_Hwh_OpenAlsaDev(alsa_dev);
 		if (ret < 0) {
-			LOG_I("ERROR: Failed to open alsa device '%s' (%d)!", alsa_dev->dev_name, ret);
+			LOG_E("ERROR: Failed to open alsa device '%s' (%d)!", alsa_dev->dev_name, ret);
 			return ret;
 		}
 	} else if (!devices[U8540_DEV_MODEMDL].active && alsa_dev->opened) {
@@ -641,14 +641,14 @@ static int VoiceModemUL_SetEnabled(u85xx_switch_t *sw, u85xx_device_t *devices, 
 
 	alsa_dev = Alsactrl_Hwh_GetDevInfo(ALSACTRL_ALSA_DEVICE_AB8540_VC, PCM_OUT);
 	if (alsa_dev == NULL) {
-		LOG_I("ERROR: Failed to get alsa device info for ab8540 voice playback!");
+		LOG_E("ERROR: Failed to get alsa device info for ab8540 voice playback!");
 		return -1;
 	}
 
 	if (devices[U8540_DEV_MODEMUL].active && !alsa_dev->opened) {
 		ret = Alsactrl_Hwh_OpenAlsaDev(alsa_dev);
 		if (ret < 0) {
-			LOG_I("ERROR: Failed to open alsa device '%s' (%d)!", alsa_dev->dev_name, ret);
+			LOG_E("ERROR: Failed to open alsa device '%s' (%d)!", alsa_dev->dev_name, ret);
 			return ret;
 		}
 	} else if (!devices[U8540_DEV_MODEMUL].active && alsa_dev->opened) {
@@ -841,7 +841,7 @@ int Alsactrl_Hwh_U8540_Dev(sqlite3* db_p, hwh_dev_next_t dev_next, enum audio_ha
 			LOG_I("Calling device-handler (dev = '%s').", u8540_devices[i].name);
 			ret = u8540_devices[i].device_handler(&u8540_devices[i], db_p);
 			if (ret < 0) {
-				LOG_I("Error in device-handler (dev = '%s')!", u8540_devices[i].name);
+				LOG_E("Error in device-handler (dev = '%s')!", u8540_devices[i].name);
 				return ret;
 			}
 		}

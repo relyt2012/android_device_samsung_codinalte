@@ -14,6 +14,7 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES :=  \
         alsactrl_alsa.c \
+        alsactrl_fm.c \
         alsactrl_audiocodec.c \
         alsactrl_debug.c \
         alsactrl_hwh.c \
@@ -33,7 +34,7 @@ LOCAL_SRC_FILES :=  \
 
 LOCAL_CFLAGS += -D_POSIX_C_SOURCE
 LOCAL_CFLAGS += -O3 -Wall -funwind-tables
-LOCAL_CFLAGS += -DALSACTRL_LOG_IRRORS -DADM_LOG_WARNINGS
+LOCAL_CFLAGS += -DALSACTRL_LOG_ERRORS -DADM_LOG_WARNINGS
 
 LOCAL_MODULE           := libalsactrl
 LOCAL_MODULE_TAGS      := optional
@@ -51,6 +52,6 @@ LOCAL_C_INCLUDES := \
     $(LOCAL_PATH)/include \
     $(LOCAL_PATH)/ \
     $(TOP)/external/sqlite/dist/  \
-    $(LOCAL_PATH)/../tinyalsa/include/
+    $(TOP)/external/tinyalsa/include/
 
 include $(BUILD_SHARED_LIBRARY)
