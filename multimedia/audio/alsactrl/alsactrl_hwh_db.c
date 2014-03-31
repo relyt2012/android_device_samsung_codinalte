@@ -235,12 +235,53 @@ cleanup:
 	return data_ret;
 }
 
+char* Alsactrl_DB_GetData_Default(sqlite3* db_p){
+
+	int rc = SQLITE_OK;
+	sqlite3_stmt *stmt = NULL;
+	char* command = malloc(1024 * sizeof(char));
+	const unsigned char* data = NULL;
+	char* data_ret = NULL;
+
+	memset((void*)command, 0, 1024);
+	sprintf(command, "SELECT Data FROM HW_Settings WHERE (Dev1 is null or Dev1 = '')");
+	LOG_I("Query: %s", command);
+
+	rc = sqlite3_prepare_v2(db_p, command, -1, &stmt, NULL);
+	if (rc != SQLITE_OK) {
+		LOG_E("ERROR: Unable to prepare SQL-statement!");
+		goto cleanup;
+	}
+
+	if (sqlite3_step(stmt) != SQLITE_ROW)
+		goto cleanup;
+
+	data = sqlite3_column_text(stmt, 0);
+	if (data == NULL) {
+		LOG_E("ERROR: Data not found (dev IS NULL)!\n");
+		goto cleanup;
+	}
+
+	data_ret = strdup((const char*)data);
+	if (!data_ret) {
+		LOG_E("ERROR: strdup() failed\n");
+	}
+
+cleanup:
+	if (command != NULL) free(command);
+	if (stmt != NULL) {
+		sqlite3_finalize(stmt);
+		stmt = NULL;
+	}
+
+	return data_ret;
+}
+
 int Alsactrl_DB_WriteDefaultData(sqlite3* db_p)
 {
 	char* data = NULL;
 	int ret = 0;
-
-	data = Alsactrl_DB_GetData(db_p, ALSACTRL_IDX_DEFAULT_STATE);
+	data = Alsactrl_DB_GetData_Default(db_p);
 	if (data == NULL) {
 		LOG_E("ERROR: Failed to get default data!");
 		return ERR_GENERIC;
