@@ -108,12 +108,12 @@ public class cmcallsrv extends Service {
 		audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 		resetStreams();
 		//Start autologger
-	   	try{
-			ExecuteNoReturn("cat /proc/kmsg | while read LINE;do DATE=$(busybox date -I); echo \"$(date | cut -d ' ' -f4) - $LINE\" >> /sdcard/autolog_kmsg_\"$DATE\".txt;done &");
-	   		ExecuteNoReturn("logcat | while read LINE;do  DATE=$(busybox date -I); echo \"$(date | cut -d ' ' -f4) - $LINE\" >> /sdcard/autolog_logcat\"$DATE\".txt;done &");
-			Log.i("cmcallservice","Starting Autologgers...");
-	   	}
-	   	catch(Exception e){e.printStackTrace();}
+	   	//try{
+			//ExecuteNoReturn("cat /proc/kmsg | while read LINE;do DATE=$(busybox date -I); echo \"$(date | cut -d ' ' -f4) - $LINE\" >> /sdcard/autolog_kmsg_\"$DATE\".txt;done &");
+	   		//ExecuteNoReturn("logcat | while read LINE;do  DATE=$(busybox date -I); echo \"$(date | cut -d ' ' -f4) - $LINE\" >> /sdcard/autolog_logcat\"$DATE\".txt;done &");
+		//	Log.i("cmcallservice","Starting Autologgers...");
+	   	//}
+	   	//catch(Exception e){e.printStackTrace();}
 		mCallStateChangedFilter = new IntentFilter();
 	    mCallStateChangedFilter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
 	    mCallStateIntentReceiver = new BroadcastReceiver() {
