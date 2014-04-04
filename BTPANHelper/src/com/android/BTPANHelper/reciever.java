@@ -35,7 +35,7 @@ public class reciever extends BroadcastReceiver
 {
     static final String TAG = "BTPANHelper";
     static int BUFF_LEN = 1024 * 100;
-    static final String CMD_BTPAN_IP = "netcfg | grep bt-pan | awk -F '/' '{print $1}' | awk -F ' ' '{print $ 3}'";
+    static final String CMD_BTPAN_IP = "RESULT=$(netcfg | grep bt-pan | awk -F '/' '{print $1}' | awk -F ' ' '{print $ 3}'); if [[ \"$RESULT\" == \"\" ]]; then echo \"not found\";else echo $RESULT;fi";
     static final String CMD_BTPAN_DHCP = "netcfg bt-pan dhcp";
     static final String CMD_DNS1 = "echo \"nameserver 8.8.8.8\" > /system/etc/resolv.conf";
     static final String CMD_DNS2 = "echo \"nameserver 8.8.4.4\" >> /system/etc/resolv.conf";
@@ -55,7 +55,7 @@ public class reciever extends BroadcastReceiver
 			try{
 				String btpanip = "";
 				btpanip = ExecuteShellCommand(CMD_BTPAN_IP).trim();
-				if(btpanip.equals(""))
+				if(btpanip.equals("not found"))
 					Log.i(TAG,"bt-pan interface not found. Probably not enabled");
 				else if (btpanip.equals("0.0.0.0")){
 					Log.i(TAG,"bt-pan found but not configured.");
