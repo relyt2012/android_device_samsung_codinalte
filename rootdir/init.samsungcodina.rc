@@ -500,7 +500,6 @@ service usbid_init /system/bin/usbid_init.sh
 
 # We must to setup two different services for p2p and wpa supplicants on bcm4334
 service wpa_supplicant /system/bin/wpa_supplicant \
-
     -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
     -I/system/etc/wifi/wpa_supplicant_overlay.conf \
     -O/data/misc/wifi/sockets \
