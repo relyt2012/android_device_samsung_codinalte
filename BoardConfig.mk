@@ -98,6 +98,7 @@ BOARD_NO_APSME_ATTR := true
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/codinalte/bluetooth
+BOARD_BLUEDROID_VENDOR_CONF := device/samsung/codinalte/bluetooth/vnd_codinalte.txt
 
 # RIL
 BOARD_RIL_CLASS := ../../../device/samsung/codinalte/ril/
