@@ -136,13 +136,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.default_network=0
 
 
-# Low-InCall workaround app
+# CodinalteParts unified workaround app
 PRODUCT_PACKAGES += \
-  CMCallService
-
-# BT Tethering workaround app
-PRODUCT_PACKAGES += \
-  BTPANHelper
+  CodinalteParts
 
 
 # GPS
