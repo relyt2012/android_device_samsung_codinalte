@@ -258,6 +258,12 @@ on post-fs
     chown system radio /sys/class/sensors/light_sensor/vendor
     chown system radio /sys/class/sensors/light_sensor/name
 
+    #LMK: Not Killable Proccess
+    chmod 0666 /sys/module/lowmemorykiller/parameters/donotkill_proc
+    chmod 0666 /sys/module/lowmemorykiller/parameters/donotkill_proc_names
+    chmod 0666 /sys/module/lowmemorykiller/parameters/donotkill_sysproc
+    chmod 0666 /sys/module/lowmemorykiller/parameters/donotkill_sysproc_names
+
 # PRCMU debug fs
     chown radio system /debug/prcmu/ape_opp
     chown radio system /debug/prcmu/ddr_opp
