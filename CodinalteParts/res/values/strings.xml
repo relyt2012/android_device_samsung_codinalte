@@ -5,11 +5,12 @@
     <string name="incallaudio_title">In-Call Audio</string>
     <string name="bttether_title">Bluetooth Tether</string>
     <string name="CPU2_title">CPU2</string>
+    <string name="LMKNKP_title">Low Memory Killer\nNot Killable Procs</string>
     <string name="autologcat_title">Auto logcat</string>
     <string name="autokmsg_title">Auto kmsg</string>
     <string name="autoril_title">Auto RIL log</string>
     <string name="workarounds_header">Workarounds</string>
-    <string name="power_header">Power</string>
+    <string name="performance_header">Performance</string>
     <string name="debugging_header">Debugging</string>
     <string name="action_settings">Settings</string>
     <string name="incallaudio_desc">The In-Call Audio Service runs in the background
@@ -22,7 +23,10 @@
     <string name="cpu2_desc">I am not sure what benefits this has but this allows you
     to disable the secondary cpu. It is possible that this may save battery life.
     Note: I have noticed that disabling it sometimes causes the min and max scaling
-    frequency to both be set at 1000 mhz???</string>
+    frequency to both be set at 1000 mhz???(Experimental)</string>
+    <string name="LMKNKP_desc">Low Memory Killer - Not Killable Processes: allows
+    you to set a white list of processes in the LMK. LMK will not kill these
+    processes when more memory is needed unless it is absolutely neccessary.</string>
     <string name="autologcat_desc">Auto logcat enables automatic dumping of the log
     to a file in the root of the sdcard. Does not clean up after itself. Should
     probably keep this off unless I ask you to turn it on.</string>

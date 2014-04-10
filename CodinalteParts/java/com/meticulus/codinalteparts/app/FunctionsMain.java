@@ -43,6 +43,19 @@ public class FunctionsMain {
             "DATE=$(busybox date -I); echo \"$(busybox date | cut -d ' ' -f4) - $LINE\" >> "+
             "/sdcard/autolog_rillog_\"$DATE\".txt;done &";
 
+    /* Low Memory Killer - Not Killable Processes  */
+    private static final String LMKNKP_ENABLE_SYSPROCS = "echo 1 > /sys/module/lowmemorykiller/" +
+            "parameters/donotkill_sysproc";
+
+    private static final String LMKNKP_DISABLE_SYSPROCS = "echo 0 > /sys/module/lowmemorykiller/" +
+            "parameters/donotkill_sysproc";
+
+    private static final String LMKNKP_PROC_LIST_START = "echo ";
+
+    private static final String LMKNKP_PROC_LIST_TAIL = " > /sys/module/lowmemorykiller/"+
+            "parameters/donotkill_sysproc_names";
+
+    private static final String LMKNKP_PROC_LIST = "wpa_supplicant,rild,at_core,at_distributor";
 
     public static void startInCallAudioService(Context context)
     {
@@ -131,6 +144,36 @@ public class FunctionsMain {
         {
             Log.i(TAG, "Running auto ril log...");
             CommandUtility.ExecuteNoReturn(CMD_RILLOG,true);
+        }
+        catch(Exception e){e.printStackTrace();}
+    }
+
+    public static void enableLMKNKP()
+    {
+        try
+        {
+            Log.i(TAG, "Enabling Not Killable Processes...");
+            CommandUtility.ExecuteNoReturn(LMKNKP_ENABLE_SYSPROCS,true);
+        }
+        catch(Exception e){e.printStackTrace();}
+    }
+    public static void disableLMKNKP()
+    {
+        try
+        {
+            Log.i(TAG, "Disabling Not Killable Processes...");
+            CommandUtility.ExecuteNoReturn(LMKNKP_DISABLE_SYSPROCS,true);
+        }
+        catch(Exception e){e.printStackTrace();}
+    }
+
+    public static void setLMKNKPWhitelist()
+    {
+        try
+        {
+            Log.i(TAG, "Setting Not Killable Processes List...");
+            CommandUtility.ExecuteNoReturn(LMKNKP_PROC_LIST_START + LMKNKP_PROC_LIST +
+                    LMKNKP_PROC_LIST_TAIL,true);
         }
         catch(Exception e){e.printStackTrace();}
     }

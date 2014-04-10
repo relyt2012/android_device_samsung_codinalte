@@ -15,11 +15,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.meticulus.codinalteparts.app.FunctionsMain;
+
 public class MainActivity extends Activity {
 
-    Switch incallaudio, bttether, cpu2, autologcat, autokmsg, autoril;
-    ImageView whatis_incallaudio, whatis_bttether, whatis_cpu2, whatis_autologcat,
-            whatis_autokmsg, whatis_autorillog;
+    Switch incallaudio, bttether, cpu2, LMKNKP, autologcat, autokmsg, autoril;
+    ImageView whatis_incallaudio, whatis_bttether, whatis_cpu2, whatis_LMKNKP,
+            whatis_autologcat,whatis_autokmsg, whatis_autorillog;
 
     SharedPreferences sharedPref;
 
@@ -31,6 +33,7 @@ public class MainActivity extends Activity {
         incallaudio = (Switch) findViewById(R.id.switch_incallaudio);
         bttether = (Switch) findViewById(R.id.switch_bttether);
         cpu2 = (Switch) findViewById(R.id.switch_cpu2);
+        LMKNKP = (Switch) findViewById(R.id.switch_LMKNKP);
         autologcat = (Switch) findViewById(R.id.switch_autologcat);
         autokmsg = (Switch) findViewById(R.id.switch_autokmsg);
         autoril = (Switch)findViewById(R.id.switch_autorillog);
@@ -38,6 +41,7 @@ public class MainActivity extends Activity {
         incallaudio.setOnCheckedChangeListener(switchListener);
         bttether.setOnCheckedChangeListener(switchListener);
         cpu2.setOnCheckedChangeListener(switchListener);
+        LMKNKP.setOnCheckedChangeListener(switchListener);
         autologcat.setOnCheckedChangeListener(switchListener);
         autokmsg.setOnCheckedChangeListener(switchListener);
         autoril.setOnCheckedChangeListener(switchListener);
@@ -50,6 +54,9 @@ public class MainActivity extends Activity {
 
         whatis_cpu2 = (ImageView) findViewById(R.id.whatis_cpu2);
         whatis_cpu2.setOnClickListener(switchClickListener);
+
+        whatis_LMKNKP = (ImageView) findViewById(R.id.whatis_LMKNKP);
+        whatis_LMKNKP.setOnClickListener(switchClickListener);
 
         whatis_autologcat = (ImageView) findViewById(R.id.whatis_autologcat);
         whatis_autologcat.setOnClickListener(switchClickListener);
@@ -70,6 +77,7 @@ public class MainActivity extends Activity {
         incallaudio.setChecked(sharedPref.getBoolean("incallaudio",true));
         bttether.setChecked(sharedPref.getBoolean("bttether",true));
         cpu2.setChecked(sharedPref.getBoolean("cpu2", true));
+        LMKNKP.setChecked(sharedPref.getBoolean("LMKNKP", true));
         autologcat.setChecked(sharedPref.getBoolean("autologcat",false));
         autokmsg.setChecked(sharedPref.getBoolean("autokmsg",false));
         autoril.setChecked(sharedPref.getBoolean("autoril",false));
@@ -88,6 +96,9 @@ public class MainActivity extends Activity {
             }
             else if(thisSwitch == whatis_cpu2){
                 ShowDialog("CPU2",getString(R.string.cpu2_desc));
+            }
+            else if(thisSwitch == whatis_LMKNKP){
+                ShowDialog("Low Memory Killer",getString(R.string.LMKNKP_desc));
             }
             else if(thisSwitch == whatis_autologcat){
                 ShowDialog("Auto Logcat",getString(R.string.autologcat_desc));
@@ -125,6 +136,16 @@ public class MainActivity extends Activity {
             else if(thisSwitch == cpu2){
                 editor.putBoolean("cpu2", b);
                 FunctionsMain.SetCPU2(b);
+            }
+            else if(thisSwitch == LMKNKP){
+                if(b) {
+                    FunctionsMain.enableLMKNKP();
+                    FunctionsMain.setLMKNKPWhitelist();
+                }
+                else
+                    FunctionsMain.disableLMKNKP();
+
+                editor.putBoolean("LMKNKP", b);
             }
             else if(thisSwitch == autologcat){
                 if(b != sharedPref.getBoolean("autologcat",false))

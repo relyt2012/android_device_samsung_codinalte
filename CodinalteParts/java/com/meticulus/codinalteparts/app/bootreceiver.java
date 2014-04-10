@@ -27,6 +27,12 @@ public class bootreceiver extends BroadcastReceiver  {
         //Setting it on if it's already on should make no difference.
         FunctionsMain.SetCPU2(sharedPref.getBoolean("cpu2",true));
 
+        if(sharedPref.getBoolean("LKMNKP", true))
+        {
+            FunctionsMain.enableLMKNKP();
+            FunctionsMain.setLMKNKPWhitelist();;
+        }
+
         if(sharedPref.getBoolean("autologcat", false))
             FunctionsMain.startAutologcat();
 
