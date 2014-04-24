@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2012 The Android Open Source Project
  * Copyright (C) 2013 Marcin Chojnacki
+ * Copyright (C) 2014 Jonathan Jason Dennis [Meticulus]
+		theonejohnnyd@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +38,10 @@ static pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
 /** Paths to light files **/
 char const *const BACKLIGHT_FILE = "/sys/class/backlight/panel/brightness";
 char const *const BUTTON_FILE = "/sys/class/leds/button-backlight/brightness";
+char const*const NOTIFICATION_FILE
+        = "/sys/class/misc/backlightnotification/notification_led";
+
+int notification_on = 0;
 
 /** Write integer to file **/
 static int write_int(char const *path, int value)
@@ -95,6 +101,22 @@ static int set_light_buttons(struct light_device_t* dev, struct light_state_t co
     return err;
 }
 
+static int set_light_notifications(struct light_device_t* dev, struct light_state_t const* state)
+{
+    int err = 0;
+    pthread_mutex_lock(&g_lock);
+    if(!notification_on){
+        err = write_int(NOTIFICATION_FILE, 1);
+	notification_on = 1;
+    }
+    else {
+        err = write_int(NOTIFICATION_FILE, 0);
+	notification_on = 0;
+    }
+    pthread_mutex_unlock(&g_lock);
+    return err;
+}
+
 /** Close the lights device */
 static int close_lights(struct light_device_t *dev)
 {
@@ -114,7 +136,9 @@ static int open_lights(const struct hw_module_t *module, char const *name, struc
 	if (0 == strcmp(LIGHT_ID_BACKLIGHT, name))
 		set_light = set_light_backlight;
 	else if (0 == strcmp(LIGHT_ID_BUTTONS, name))
-        set_light = set_light_buttons;
+        	set_light = set_light_buttons;
+	else if (0 == strcmp(LIGHT_ID_NOTIFICATIONS, name))
+        	set_light = set_light_notifications;
 	else
 		return -EINVAL;
 
@@ -147,7 +171,7 @@ struct hw_module_t HAL_MODULE_INFO_SYM =
 	.version_major = 1,
 	.version_minor = 0,
 	.id = LIGHTS_HARDWARE_MODULE_ID,
-	.name = "Montblanc lights module",
-	.author = "Marcin Chojnacki",
+	.name = "BLN Lights for Codinalte",
+	.author = "Jonathan Jason Dennis",
 	.methods = &lights_methods,
 };
