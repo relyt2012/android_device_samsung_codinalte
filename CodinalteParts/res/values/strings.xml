@@ -9,9 +9,11 @@
     <string name="autologcat_title">Auto logcat</string>
     <string name="autokmsg_title">Auto kmsg</string>
     <string name="autoril_title">Auto RIL log</string>
-    <string name="workarounds_header">Workarounds</string>
-    <string name="performance_header">Performance</string>
-    <string name="debugging_header">Debugging</string>
+    <string name="enablebln_title">Enable BLN</string>
+    <string name="workarounds_header">WORKAROUNDS</string>
+    <string name="performance_header">PERFORMANCE</string>
+    <string name="bln_header">BACKLIGHT NOTIFICATION</string>
+    <string name="debugging_header">DEBUGGING</string>
     <string name="action_settings">Settings</string>
     <string name="incallaudio_desc">The In-Call Audio Service runs in the background
     and when you are on a call. It resets the volume to workaround the low-in-call volume

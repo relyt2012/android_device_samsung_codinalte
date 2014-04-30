@@ -27,7 +27,9 @@
                 android:id="@+id/textView"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentStart="true"
-                style="@android:style/TextAppearance.DialogWindowTitle" />
+                style="@android:style/TextAppearance.DialogWindowTitle"
+                android:textStyle="bold"
+                android:textSize="10dp" />
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -100,7 +102,9 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/performance_header"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                android:textStyle="bold"
+                android:textSize="10dp" />
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -172,7 +176,9 @@
                 android:id="@+id/textView2"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentStart="true"
-                android:paddingBottom="20dp" />
+                android:paddingBottom="20dp"
+                android:textSize="10dp"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:orientation="horizontal"
