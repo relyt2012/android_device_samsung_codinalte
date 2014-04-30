@@ -41,8 +41,6 @@ char const *const BUTTON_FILE = "/sys/class/leds/button-backlight/brightness";
 char const*const NOTIFICATION_FILE
         = "/sys/class/misc/backlightnotification/notification_led";
 
-int notification_on = 0;
-
 /** Write integer to file **/
 static int write_int(char const *path, int value)
 {
@@ -105,14 +103,7 @@ static int set_light_notifications(struct light_device_t* dev, struct light_stat
 {
     int err = 0;
     pthread_mutex_lock(&g_lock);
-    if(!notification_on){
-        err = write_int(NOTIFICATION_FILE, 1);
-	notification_on = 1;
-    }
-    else {
-        err = write_int(NOTIFICATION_FILE, 0);
-	notification_on = 0;
-    }
+    err = write_int(NOTIFICATION_FILE, 1);
     pthread_mutex_unlock(&g_lock);
     return err;
 }
