@@ -16,17 +16,20 @@
 #
 
 # Inherit CM common Phone stuff.
-$(call inherit-product, vendor/cm/config/common_full_phone.mk)
+$(call inherit-product, vendor/carbon/config/common_phone.mk)
 
 # Inherit device configuration
 $(call inherit-product, device/samsung/codinalte/full_codinalte.mk)
 
 # Device identifier
 PRODUCT_DEVICE := codinalte
-PRODUCT_NAME := cm_codinalte
+PRODUCT_NAME := carbon_codinalte
 PRODUCT_BRAND := samsung
 PRODUCT_MODEL := SGH-T599X
 PRODUCT_MANUFACTURER := samsung
+
+TARGET_SCREEN_HEIGHT := 800
+TARGET_SCREEN_WIDTH := 480
 
 # Set build fingerprint and ID
 BUILD_ID := TRIANA00$(shell date -u +%Y%m%d)
