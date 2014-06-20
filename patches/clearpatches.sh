@@ -11,20 +11,8 @@ do
 	echo "repo = $REPO"
 	cd $TOPDIR
 	cd $REPO
-	RESULT=$(patch -p1 < $PATCH)
-	echo $RESULT
-	if [[ $(echo $RESULT | grep -c FAILED) -gt 0 ]] ; then
-		echo ""
-		echo "Fail!"
-		echo "Fix the patch!"
-		break;
-	fi
-	if [[ $(echo $RESULT | grep -c "saving rejects to file") -gt 0 ]] ; then
-		echo ""
-		echo "Fail!"
-		echo "Fix the patch!"
-		break;
-	fi
+	git add .
+	git stash
 	cd $THISDIR
 	sleep 10
 done
