@@ -13,6 +13,7 @@ do
 	cd $REPO
 	git add .
 	git stash
+	find -name *.orig | while read LINE; do rm $LINE; done
+	find -name *.rej | while read LINE; do rm $LINE; done
 	cd $THISDIR
-	sleep 10
 done

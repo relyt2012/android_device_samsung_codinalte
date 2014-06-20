@@ -26,5 +26,4 @@ do
 		break;
 	fi
 	cd $THISDIR
-	sleep 10
 done
