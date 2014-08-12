@@ -56,6 +56,9 @@ BOARD_KERNEL_CMDLINE := "androidboot.selinux=permissive"
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_PAGESIZE := 2048
 
+# External apps on SD
+TARGET_EXTERNAL_APPS = sdcard1
+
 # Releasetools
 TARGET_RELEASETOOLS_EXTENSIONS := device/samsung/codinalte
 
