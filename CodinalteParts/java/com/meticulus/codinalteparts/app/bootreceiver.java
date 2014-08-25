@@ -23,6 +23,11 @@ public class bootreceiver extends BroadcastReceiver  {
         {
             FunctionsMain.startInCallAudioService(arg0.getApplicationContext());
         }
+        //If clockfreeze is selected that start service at boot.
+        if(sharedPref.getBoolean("clockfreeze", true))
+        {
+            FunctionsMain.startClockFreezeMonitorService(arg0.getApplicationContext());
+        }
         //Set cpu2 on or off
         //Setting it on if it's already on should make no difference.
         FunctionsMain.SetCPU2(sharedPref.getBoolean("cpu2",true));

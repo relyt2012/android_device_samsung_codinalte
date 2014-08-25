@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">Codinalte Parts</string>
+    <string name="clockfreeze_title">Clock Freeze Monitor</string>
     <string name="incallaudio_title">In-Call Audio</string>
     <string name="bttether_title">Bluetooth Tether</string>
     <string name="CPU2_title">CPU2</string>
@@ -15,6 +16,9 @@
     <string name="bln_header">BACKLIGHT NOTIFICATION</string>
     <string name="debugging_header">DEBUGGING</string>
     <string name="action_settings">Settings</string>
+    <string name="clockfreeze_desc">If the status bar clock get stuck enable this.
+    WARNING: Do not depend on this to fix the alarm clock. NOTE: Experimental for now.
+    </string>
     <string name="incallaudio_desc">The In-Call Audio Service runs in the background
     and when you are on a call. It resets the volume to workaround the low-in-call volume
     problem. It also detects if you switch to speaker phone and resets the volume for that

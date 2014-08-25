@@ -63,6 +63,12 @@ public class FunctionsMain {
         Intent intent = new Intent(context,InCallAudioService.class);
         context.startService(intent);
     }
+    public static void startClockFreezeMonitorService(Context context)
+    {
+        Log.i(TAG,"Starting Clock Freeze Monitor Service.");
+        Intent intent = new Intent(context,ClockFreezeMonitor.class);
+        context.startService(intent);
+    }
 
     public static void SetCPU2(Boolean enabled)
     {

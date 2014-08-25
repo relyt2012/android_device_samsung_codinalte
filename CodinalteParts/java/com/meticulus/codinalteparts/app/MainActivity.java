@@ -19,8 +19,8 @@ import com.meticulus.codinalteparts.app.FunctionsMain;
 
 public class MainActivity extends Activity {
 
-    Switch incallaudio, bttether, cpu2, LMKNKP, autologcat, autokmsg, autoril;
-    ImageView whatis_incallaudio, whatis_bttether, whatis_cpu2, whatis_LMKNKP,
+    Switch clockfreeze, incallaudio, bttether, cpu2, LMKNKP, autologcat, autokmsg, autoril;
+    ImageView whatis_clockfreeze, whatis_incallaudio, whatis_bttether, whatis_cpu2, whatis_LMKNKP,
             whatis_autologcat,whatis_autokmsg, whatis_autorillog;
 
     SharedPreferences sharedPref;
@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         /* Assign all switches */
+        clockfreeze = (Switch) findViewById(R.id.switch_clockfreeze);
         incallaudio = (Switch) findViewById(R.id.switch_incallaudio);
         bttether = (Switch) findViewById(R.id.switch_bttether);
         cpu2 = (Switch) findViewById(R.id.switch_cpu2);
@@ -38,6 +39,7 @@ public class MainActivity extends Activity {
         autokmsg = (Switch) findViewById(R.id.switch_autokmsg);
         autoril = (Switch)findViewById(R.id.switch_autorillog);
         /* Assign all switches onCheckChanged*/
+        clockfreeze.setOnCheckedChangeListener(switchListener);
         incallaudio.setOnCheckedChangeListener(switchListener);
         bttether.setOnCheckedChangeListener(switchListener);
         cpu2.setOnCheckedChangeListener(switchListener);
@@ -45,6 +47,9 @@ public class MainActivity extends Activity {
         autologcat.setOnCheckedChangeListener(switchListener);
         autokmsg.setOnCheckedChangeListener(switchListener);
         autoril.setOnCheckedChangeListener(switchListener);
+
+        whatis_clockfreeze = (ImageView) findViewById(R.id.whatis_clockfreeze);
+        whatis_clockfreeze.setOnClickListener(switchClickListener);
 
         whatis_incallaudio = (ImageView) findViewById(R.id.whatis_incallaudio);
         whatis_incallaudio.setOnClickListener(switchClickListener);
@@ -74,6 +79,7 @@ public class MainActivity extends Activity {
 
     private void prepareUI(){
 
+        clockfreeze.setChecked(sharedPref.getBoolean("clockfreeze",true));
         incallaudio.setChecked(sharedPref.getBoolean("incallaudio",true));
         bttether.setChecked(sharedPref.getBoolean("bttether",true));
         cpu2.setChecked(sharedPref.getBoolean("cpu2", true));
@@ -88,9 +94,13 @@ public class MainActivity extends Activity {
         public void onClick(View view) {
 
             ImageView thisSwitch = (ImageView)view;
-            if(thisSwitch == whatis_incallaudio){
+            if(thisSwitch == whatis_clockfreeze){
+                ShowDialog("Clock Freeze",getString(R.string.clockfreeze_desc));
+            }
+            else if(thisSwitch == whatis_incallaudio){
                 ShowDialog("In-Call Audio",getString(R.string.incallaudio_desc));
             }
+
             else if(thisSwitch == whatis_bttether){
                 ShowDialog("Bluetooth Tether",getString(R.string.bttether_desc));
             }
@@ -119,7 +129,18 @@ public class MainActivity extends Activity {
             Switch thisSwitch = (Switch)compoundButton;
             SharedPreferences.Editor editor = sharedPref.edit();
 
-            if(thisSwitch == incallaudio){
+             if(thisSwitch == clockfreeze){
+                if(b != sharedPref.getBoolean("clockfreeze",true)) {
+                    if (b)
+                        FunctionsMain.startClockFreezeMonitorService(getApplicationContext());
+                    else
+                        ShowDialog("Clock Freeze Monitor", "Will NOT be started on the next reboot. " +
+                                "Still running till then!");
+                }
+                editor.putBoolean("clockfreeze",b);
+
+            }
+            else if(thisSwitch == incallaudio){
                 if(b != sharedPref.getBoolean("incallaudio",true)) {
                     if (b)
                         FunctionsMain.startInCallAudioService(getApplicationContext());
