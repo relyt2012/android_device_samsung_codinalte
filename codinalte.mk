@@ -137,11 +137,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.default_network=0
 
 
-# CodinalteParts unified workaround app
-PRODUCT_PACKAGES += \
-  CodinalteParts
-
-
 # GPS
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/etc/sirfgps.conf:system/etc/sirfgps.conf \
