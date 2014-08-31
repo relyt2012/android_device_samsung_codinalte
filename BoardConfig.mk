@@ -130,6 +130,7 @@ BOARD_CHARGER_ENABLE_SUSPEND := false
 COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
 
 # Recovery
+RECOVERY_VARIANT := cwm
 BOARD_UMS_LUNFILE := "/sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun0/file"
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun%d/file"
 TARGET_RECOVERY_FSTAB := device/samsung/codinalte/rootdir/fstab.samsungcodina
