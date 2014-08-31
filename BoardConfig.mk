@@ -130,7 +130,7 @@ BOARD_CHARGER_ENABLE_SUSPEND := false
 COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
 
 # Recovery
-RECOVERY_VARIANT := cwm
+RECOVERY_VARIANT := philz
 BOARD_UMS_LUNFILE := "/sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun0/file"
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun%d/file"
 TARGET_RECOVERY_FSTAB := device/samsung/codinalte/rootdir/fstab.samsungcodina
@@ -140,6 +140,9 @@ BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_RECOVERY_SWIPE := true
 BOARD_SUPPRESS_EMMC_WIPE := true
 RECOVERY_FSTAB_VERSION := 2
+
+#PhilZ
+BRIGHTNESS_SYS_FILE := /sys/devices/platform/pri_bl_ktd253/backlight/panel/brightness
 
 # TWRP Recovery defines
 TW_BOARD_CUSTOM_GRAPHICS := ../../../device/samsung/codinalte/recovery/twrp-graphics.c
