@@ -1,0 +1,15 @@
+diff --git a/recovery.c b/recovery.c
+index 554cccd..41e647a 100644
+--- a/recovery.c
++++ b/recovery.c
+@@ -1228,6 +1228,10 @@ main(int argc, char **argv) {
+     LOGI("device_recovery_start()\n");
+     device_recovery_start();
+ 
++    ensure_path_mounted("/storage/sdcard1");
++    system("mkdir -p /storage/sdcard1/clockworkmod/aromafm");
++    system("cp -f /aromafm/aromafm.zip /storage/sdcard1/clockworkmod/aromafm/aromafm.zip");
++
+     printf("Command:");
+     for (arg = 0; arg < argc; arg++) {
+         printf(" \"%s\"", argv[arg]);

@@ -18,7 +18,9 @@ $(INSTALLED_RECOVERYIMAGE_TARGET): $(MKBOOTIMG) \
 $(recovery_uncompressed_ramdisk): $(MINIGZIP) \
 		$(TARGET_RECOVERY_ROOT_TIMESTAMP)
 	mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/lib/modules
+	mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/aromafm
 	cp -f $(TARGET_OUT)/lib/modules/j4fs.ko $(TARGET_RECOVERY_ROOT_OUT)/lib/modules/j4fs.ko
 	cp -f $(TARGET_OUT)/lib/modules/param.ko $(TARGET_RECOVERY_ROOT_OUT)/lib/modules/param.ko
+	cp -f $(PRODUCT_OUT)/aromafm_out/aromafm_codinalte.zip $(TARGET_RECOVERY_ROOT_OUT)/aromafm/aromafm.zip
 	@echo -e ${CL_CYN}"----- Making uncompressed recovery ramdisk ------"${CL_RST}
 	$(MKBOOTFS) $(TARGET_RECOVERY_ROOT_OUT) > $@
