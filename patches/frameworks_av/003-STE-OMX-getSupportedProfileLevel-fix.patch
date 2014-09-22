@@ -122,7 +122,7 @@ index 0000000..d309200
 +    OMX_IndexComponentStartUnused = 0x01000000,
 +    OMX_IndexParamPriorityMgmt,             /**< reference: OMX_PRIORITYMGMTTYPE */
 +    OMX_IndexParamAudioInit,                /**< reference: OMX_PORT_PARAM_TYPE */
-+    OMX_IndexParamImageInit,                /**< reference: OMX_PORT_PARAM_TYPE */
++    OMX_IndexParamAudioFlac,                /**< reference: OMX_PORT_PARAM_TYPE */
 +    OMX_IndexParamVideoInit,                /**< reference: OMX_PORT_PARAM_TYPE */
 +    OMX_IndexParamOtherInit,                /**< reference: OMX_PORT_PARAM_TYPE */
 +    OMX_IndexParamNumAvailableStreams,      /**< reference: OMX_PARAM_U32TYPE */
@@ -394,6 +394,8 @@ index 0000000..af221a1
 +    OMX_VIDEO_CodingAutoDetect, /**< Autodetection of coding type */
 +    OMX_VIDEO_CodingMPEG2,      /**< AKA: H.262 */
 +    OMX_VIDEO_CodingH263,       /**< H.263 */
++    OMX_VIDEO_CodingVP8,       /**< VP8 */
++    OMX_VIDEO_CodingVP9,       /**< VP9 */
 +    OMX_VIDEO_CodingMPEG4,      /**< MPEG-4 */
 +    OMX_VIDEO_CodingWMV,        /**< all versions of Windows Media Video */
 +    OMX_VIDEO_CodingRV,         /**< all versions of Real Video */
@@ -1408,4 +1410,3 @@ index 0000000..af221a1
 +
 -- 
 1.7.9.5
-
