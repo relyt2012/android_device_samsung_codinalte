@@ -12,6 +12,12 @@ on boot
     write /sys/module/sweep2wake/parameters/enable 1
     write /sys/module/doubletap2wake/parameters/enable 1
 
+# Needed for date/time in charging mode
+    mkdir /data
+    mount ext4 /dev/block/mmcblk0p25 /data wait ro
+    mkdir /system
+    mount ext4 /dev/block/mmcblk0p22 /system wait ro
+
     class_start default
 
 ## Daemon processes to be run by init.
