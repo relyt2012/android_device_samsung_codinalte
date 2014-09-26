@@ -122,9 +122,9 @@ BOARD_VOLD_DISC_HAS_MULTIPLE_MAJORS := true
 
 # Charging mode
 BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
-
-# Allow suspend in charge mode
 BOARD_CHARGER_ENABLE_SUSPEND := false
+BOARD_CHARGER_DISABLE_INIT_BLANK := false
+BOARD_CHARGER_CUSTOM_BACKLIGHT_PATH := /sys/class/backlight/panel/brightness
 
 # Needed for blobs
 COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
