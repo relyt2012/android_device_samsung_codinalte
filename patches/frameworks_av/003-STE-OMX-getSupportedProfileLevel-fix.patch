@@ -42,7 +42,7 @@ index fb87de0..f688b2e 100644
 +	if(index == OMX_IndexParamVideoProfileLevelQuerySupported){
 +		OMX_VIDEO_PARAM_PROFILELEVELTYPE *pt = (OMX_VIDEO_PARAM_PROFILELEVELTYPE *)params;
 +		ALOGI("Meticulus: eProfile=%lu eLevel=%lu nProfileIndex=%lu\n",pt->eProfile, pt->eLevel, pt->nProfileIndex);
-+		if(pt->nProfileIndex >= 3 || pt->nProfileIndex == 0){
++		if(pt->nProfileIndex == 0){
 +			return -1;
 +		}
 +		
@@ -96,7 +96,7 @@ index 0000000..d309200
 +
 +
 +/* Each OMX header must include all required header files to allow the
-+ *  header to compile without errors.  The includes below are required
++ *  header to compile *without errors.  The includes below are required
 + *  for this header file to compile successfully 
 + */
 +#include <OMX_Types.h>
