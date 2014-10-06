@@ -26,9 +26,9 @@ index a3d54a4..73c4696 100755
 +    * Software codecs don't require configuration? Not sure
 +    * but skipping configuration for them seems to work.
 +    */
-+    if(strncmp("OMX.google.", mComponentName.c_str(), 11) == 0
-+       || strncmp("OMX.ffmpeg.", mComponentName.c_str(), 11) == 0){
-+	ALOGI("Meticulus: Soft codec detected, skipping configureCodec\n");
++    if(strncmp("OMX.google.h264", mComponentName.c_str(), 15) == 0
++       || strncmp("OMX.ffmpeg.h264", mComponentName.c_str(), 15) == 0){
++	ALOGI("Meticulus: Soft codec %s detected, skipping configureCodec\n", mComponentName.c_str());
 +       return OK;
 +    }
  
