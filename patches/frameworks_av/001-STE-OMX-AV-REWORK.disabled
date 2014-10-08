@@ -1,20 +1,20 @@
-From 2710cad29ff9c14e38816a97e42c1e4555875023 Mon Sep 17 00:00:00 2001
+From ec9269635b1c2f9c9db7158b701dff382e1c934d Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Mon, 6 Oct 2014 12:09:55 -0500
+Date: Wed, 8 Oct 2014 11:10:22 -0500
 Subject: [PATCH] STE OMX AV REWORK
 
 -Created by diffing source against AOSP tag android-4.1.1_r1
 
 -Worked out rejects by hand.
 
-Change-Id: I70d2d0b3652e40b12d52fb8158561d1f58c65543
+Change-Id: I7228a654ccdf9398fca7c00c42b17f377fc3e48b
 ---
- camera/CameraParameters.cpp                        |   10 +
+ camera/CameraParameters.cpp                        |   23 +
  cmds/stagefright/recordvideo.cpp                   |   63 +-
- include/camera/CameraParameters.h                  |   10 +
- include/media/stagefright/ColorConverter.h         |    3 +
+ include/camera/CameraParameters.h                  |   23 +
+ include/media/stagefright/ColorConverter.h         |    5 +
  include/media/stagefright/DataSource.h             |    5 +
- include/media/stagefright/MediaDefs.h              |    4 +
+ include/media/stagefright/MediaDefs.h              |    8 +
  include/media/stagefright/MediaErrors.h            |    8 +-
  include/media/stagefright/MetaData.h               |   12 +
  include/media/stagefright/OMXCodec.h               |    8 +
@@ -27,19 +27,19 @@ Change-Id: I70d2d0b3652e40b12d52fb8158561d1f58c65543
  media/libstagefright/AVIExtractor.cpp              |  223 ++++-
  media/libstagefright/Android.mk                    |    8 +-
  media/libstagefright/AwesomePlayer.cpp             |    3 +-
- media/libstagefright/CameraSource.cpp              |   16 +-
+ media/libstagefright/CameraSource.cpp              |   24 +-
  media/libstagefright/DataSource.cpp                |   22 +-
  media/libstagefright/MPEG4Extractor.cpp            |   38 +-
  media/libstagefright/MPEG4Writer.cpp               |    5 +
- media/libstagefright/MediaDefs.cpp                 |    2 +
+ media/libstagefright/MediaDefs.cpp                 |    6 +
  media/libstagefright/MediaExtractor.cpp            |   11 +
  media/libstagefright/NuCachedFileSource2.cpp       |  735 +++++++++++++++++
- media/libstagefright/OMXCodec.cpp                  |  129 ++-
+ media/libstagefright/OMXCodec.cpp                  |  139 ++++
  media/libstagefright/PCMExtractor.cpp              |  302 +++++++
  media/libstagefright/SampleTable.cpp               |    5 +-
  .../StagefrightMetadataRetriever.cpp               |   55 +-
  media/libstagefright/SurfaceMediaSource.cpp        |   20 +-
- .../colorconversion/ColorConverter.cpp             |  142 ++++
+ .../colorconversion/ColorConverter.cpp             |  147 ++++
  media/libstagefright/foundation/ABitReader.cpp     |   15 +
  media/libstagefright/include/ASFExtractor.h        |  142 ++++
  media/libstagefright/include/AVIExtractor.h        |    6 +
@@ -61,7 +61,7 @@ Change-Id: I70d2d0b3652e40b12d52fb8158561d1f58c65543
  media/libstagefright/omx/SoftOMXPlugin.cpp         |    5 +
  media/libstagefright/rtsp/AMPEG4AudioAssembler.cpp |   77 +-
  media/libstagefright/tests/Android.mk              |    2 +
- 52 files changed, 4009 insertions(+), 77 deletions(-)
+ 52 files changed, 4069 insertions(+), 76 deletions(-)
  create mode 100644 media/libstagefright/ASFExtractor.cpp
  create mode 100644 media/libstagefright/NuCachedFileSource2.cpp
  create mode 100644 media/libstagefright/PCMExtractor.cpp
@@ -80,29 +80,49 @@ Change-Id: I70d2d0b3652e40b12d52fb8158561d1f58c65543
  create mode 100644 media/libstagefright/include/utf.h
 
 diff --git a/camera/CameraParameters.cpp b/camera/CameraParameters.cpp
-index 65cdba4..b6491d2 100644
+index 65cdba4..092e499 100644
 --- a/camera/CameraParameters.cpp
 +++ b/camera/CameraParameters.cpp
-@@ -375,6 +375,12 @@ const char CameraParameters::PIXEL_FORMAT_JPEG[] = "jpeg";
+@@ -341,6 +341,13 @@ const char CameraParameters::SCENE_MODE_FIREWORKS[] = "fireworks";
+ const char CameraParameters::SCENE_MODE_SPORTS[] = "sports";
+ const char CameraParameters::SCENE_MODE_PARTY[] = "party";
+ const char CameraParameters::SCENE_MODE_CANDLELIGHT[] = "candlelight";
++#ifdef STE_SAMSUNG_HARDWARE
++const char CameraParameters::SCENE_MODE_AQUA[] = "aqua";
++const char CameraParameters::SCENE_MODE_BACKLIGHT[] = "backlight";
++const char CameraParameters::SCENE_MODE_DUSKDAWN[] = "duskdawn";
++const char CameraParameters::SCENE_MODE_FALLCOLOR[] = "fallcolor";
++const char CameraParameters::SCENE_MODE_TEXT[] = "text";
++#endif
+ #ifdef QCOM_HARDWARE
+ #ifdef SAMSUNG_CAMERA_LEGACY
+ const char CameraParameters::SCENE_MODE_BACKLIGHT[] = "back-light";
+@@ -375,6 +382,16 @@ const char CameraParameters::PIXEL_FORMAT_JPEG[] = "jpeg";
  const char CameraParameters::PIXEL_FORMAT_BAYER_RGGB[] = "bayer-rggb";
  const char CameraParameters::PIXEL_FORMAT_ANDROID_OPAQUE[] = "android-opaque";
  
 +#ifdef STE_HARDWARE
 +const char CameraParameters::PIXEL_FORMAT_YUV420SPNV12[] = "yuv420spnv12";
 +const char CameraParameters::PIXEL_FORMAT_YUV420MB[] = "yuv420mb";
++const char CameraParameters::PIXEL_FORMAT_YVU422SP[] = "yvu422sp";
++const char CameraParameters::PIXEL_FORMAT_YVU422P[] = "yvu422p";
++const char CameraParameters::PIXEL_FORMAT_YVU420SP[] = "yvu420sp";
++const char CameraParameters::PIXEL_FORMAT_YVU420P[]  = "yvu420p";
 +const char CameraParameters::PIXEL_FORMAT_UYV422I[] = "yuv422i-uyvy";
 +#endif
 +
  #ifdef QCOM_HARDWARE
  const char CameraParameters::PIXEL_FORMAT_RAW[] = "raw";
  const char CameraParameters::PIXEL_FORMAT_YV12[] = "yuv420p";
-@@ -531,6 +537,10 @@ void CameraParameters::setOrientation(int orientation)
+@@ -531,6 +548,12 @@ void CameraParameters::setOrientation(int orientation)
  const char CameraParameters::LIGHTFX_LOWLIGHT[] = "low-light";
  const char CameraParameters::LIGHTFX_HDR[] = "high-dynamic-range";
  
++#ifdef STE_HARDWARE
 +// keys for record stride and sliceheight
 +const char CameraParameters::KEY_RECORD_STRIDE[] = "record-stride";
 +const char CameraParameters::KEY_RECORD_SLICE_HEIGHT[] = "record-slice-height";
++#endif
 +
  CameraParameters::CameraParameters()
                  : mMap()
@@ -271,43 +291,65 @@ index c30c122..bfe1259 100644
      sp<MetaData> enc_meta = new MetaData;
      switch (codec) {
 diff --git a/include/camera/CameraParameters.h b/include/camera/CameraParameters.h
-index 02928f0..c06dbae 100644
+index 02928f0..433fc09 100644
 --- a/include/camera/CameraParameters.h
 +++ b/include/camera/CameraParameters.h
-@@ -880,6 +880,12 @@ public:
+@@ -856,6 +856,13 @@ public:
+     static const char SCENE_MODE_SPORTS[];
+     static const char SCENE_MODE_PARTY[];
+     static const char SCENE_MODE_CANDLELIGHT[];
++#ifdef STE_SAMSUNG_HARDWARE
++    static const char SCENE_MODE_AQUA[];
++    static const char SCENE_MODE_BACKLIGHT[];
++    static const char SCENE_MODE_DUSKDAWN[];
++    static const char SCENE_MODE_FALLCOLOR[];
++    static const char SCENE_MODE_TEXT[];
++#endif
+ #ifdef QCOM_HARDWARE
+     static const char SCENE_MODE_BACKLIGHT[];
+     static const char SCENE_MODE_FLOWERS[];
+@@ -880,6 +887,16 @@ public:
  #ifdef QCOM_HARDWARE
      static const char PIXEL_FORMAT_YUV420SP_ADRENO[]; // ADRENO
  #endif
 +#ifdef STE_HARDWARE
++    static const char PIXEL_FORMAT_YUV420SPNV12[]; // NV12
++    static const char PIXEL_FORMAT_YVU422SP[];
++    static const char PIXEL_FORMAT_YVU422P[];
++    static const char PIXEL_FORMAT_YVU420SP[];
++    static const char PIXEL_FORMAT_YVU420P[];
 +    static const char PIXEL_FORMAT_YUV420MB[];
 +    static const char PIXEL_FORMAT_UYV422I[];
-+    static const char PIXEL_FORMAT_YUV420SPNV12[]; // NV12
 +#endif
 +
      static const char PIXEL_FORMAT_YUV422I[]; // YUY2
      static const char PIXEL_FORMAT_YUV420P[]; // YV12
      static const char PIXEL_FORMAT_RGB565[];
-@@ -1082,6 +1088,10 @@ public:
+@@ -1082,6 +1099,12 @@ public:
      void getSupportedHfrSizes(Vector<Size> &sizes) const;
  #endif
  
++#ifdef STE_HARDWARE
 +    // keys for record stride and slice height
 +    static const char KEY_RECORD_STRIDE[];
 +    static const char KEY_RECORD_SLICE_HEIGHT[];
++#endif
 +
  private:
      DefaultKeyedVector<String8,String8>    mMap;
  };
 diff --git a/include/media/stagefright/ColorConverter.h b/include/media/stagefright/ColorConverter.h
-index 85ba920..0f9e400 100644
+index 85ba920..014fc7a 100644
 --- a/include/media/stagefright/ColorConverter.h
 +++ b/include/media/stagefright/ColorConverter.h
-@@ -73,6 +73,9 @@ private:
+@@ -73,6 +73,11 @@ private:
      status_t convertQCOMYUV420SemiPlanar(
              const BitmapParams &src, const BitmapParams &dst);
  
++#ifdef STE_HARDWARE
 +    status_t convertSTEYUV420PackedSemiPlanarMB(
 +            const BitmapParams &src, const BitmapParams &dst);
++#endif
 +
      status_t convertYUV420SemiPlanar(
              const BitmapParams &src, const BitmapParams &dst);
@@ -336,21 +378,25 @@ index 24ca89d..2c168e2 100644
  
  }  // namespace android
 diff --git a/include/media/stagefright/MediaDefs.h b/include/media/stagefright/MediaDefs.h
-index 312e6e2..5f91db3 100644
+index 481972c..a89bb55 100644
 --- a/include/media/stagefright/MediaDefs.h
 +++ b/include/media/stagefright/MediaDefs.h
-@@ -27,8 +27,10 @@ extern const char *MEDIA_MIMETYPE_VIDEO_VP9;
+@@ -27,8 +27,14 @@ extern const char *MEDIA_MIMETYPE_VIDEO_VP9;
  extern const char *MEDIA_MIMETYPE_VIDEO_AVC;
  extern const char *MEDIA_MIMETYPE_VIDEO_MPEG4;
  extern const char *MEDIA_MIMETYPE_VIDEO_H263;
++#ifdef STE_HARDWARE
 +extern const char *MEDIA_MIMETYPE_VIDEO_H263_SW;
++#endif
  extern const char *MEDIA_MIMETYPE_VIDEO_MPEG2;
  extern const char *MEDIA_MIMETYPE_VIDEO_RAW;
++#ifdef STE_HARDWARE
 +extern const char *MEDIA_MIMETYPE_VIDEO_VC1;
++#endif
  
  extern const char *MEDIA_MIMETYPE_AUDIO_AMR_NB;
  extern const char *MEDIA_MIMETYPE_AUDIO_AMR_WB;
-@@ -39,6 +41,7 @@ extern const char *MEDIA_MIMETYPE_AUDIO_MPEG;           // layer III
+@@ -39,6 +45,7 @@ extern const char *MEDIA_MIMETYPE_AUDIO_MPEG;           // layer III
  extern const char *MEDIA_MIMETYPE_AUDIO_MPEG_LAYER_I;
  extern const char *MEDIA_MIMETYPE_AUDIO_MPEG_LAYER_II;
  extern const char *MEDIA_MIMETYPE_AUDIO_AAC;
@@ -358,7 +404,7 @@ index 312e6e2..5f91db3 100644
  extern const char *MEDIA_MIMETYPE_AUDIO_QCELP;
  extern const char *MEDIA_MIMETYPE_AUDIO_VORBIS;
  extern const char *MEDIA_MIMETYPE_AUDIO_G711_ALAW;
-@@ -58,6 +61,7 @@ extern const char *MEDIA_MIMETYPE_CONTAINER_AVI;
+@@ -59,6 +66,7 @@ extern const char *MEDIA_MIMETYPE_CONTAINER_AVI;
  extern const char *MEDIA_MIMETYPE_CONTAINER_MPEG2PS;
  
  extern const char *MEDIA_MIMETYPE_CONTAINER_WVM;
@@ -1506,7 +1552,7 @@ index 0000000..2c7221f
 +
 +}
 diff --git a/media/libstagefright/AVIExtractor.cpp b/media/libstagefright/AVIExtractor.cpp
-index 794e425..1ea6989 100644
+index 6c384be..bae4f97 100644
 --- a/media/libstagefright/AVIExtractor.cpp
 +++ b/media/libstagefright/AVIExtractor.cpp
 @@ -35,6 +35,12 @@
@@ -1850,7 +1896,7 @@ index 794e425..1ea6989 100644
          size_t trackIndex, size_t sampleIndex,
          off64_t *offset, size_t *size, bool *isKey,
 diff --git a/media/libstagefright/Android.mk b/media/libstagefright/Android.mk
-index 7ee91ec..57ca002 100644
+index c5b12ce..08c1850 100644
 --- a/media/libstagefright/Android.mk
 +++ b/media/libstagefright/Android.mk
 @@ -28,8 +28,10 @@ LOCAL_SRC_FILES:=                         \
@@ -1885,7 +1931,7 @@ index 7ee91ec..57ca002 100644
  ifneq ($(TI_CUSTOM_DOMX_PATH),)
  LOCAL_C_INCLUDES += $(TI_CUSTOM_DOMX_PATH)/omx_core/inc
  LOCAL_CPPFLAGS += -DUSE_TI_CUSTOM_DOMX
-@@ -152,7 +157,8 @@ LOCAL_SHARED_LIBRARIES := \
+@@ -147,7 +152,8 @@ LOCAL_SHARED_LIBRARIES := \
          libutils \
          libvorbisidec \
          libz \
@@ -1917,38 +1963,41 @@ index 7fc4512..c436dba 100644
      status_t err = dataSource->initCheck();
  
 diff --git a/media/libstagefright/CameraSource.cpp b/media/libstagefright/CameraSource.cpp
-index 295c0f5..52e36a3 100644
+index 295c0f5..b0affb2 100644
 --- a/media/libstagefright/CameraSource.cpp
 +++ b/media/libstagefright/CameraSource.cpp
-@@ -120,6 +120,11 @@ static int32_t getColorFormat(const char* colorFormat) {
-         return OMX_COLOR_FormatYCbYCr;
+@@ -121,6 +121,10 @@ static int32_t getColorFormat(const char* colorFormat) {
  #endif
      }
-+    // Meticulus: why doesn't this work, it should but undefined reference
-+    // android::CameraParameters::PIXEL_FORMAT_UYV422I.... 
+ 
 +    //if (!strcmp(colorFormat, CameraParameters::PIXEL_FORMAT_UYV422I)) {
 +    //    return OMX_COLOR_FormatCbYCrY;
 +    //}
- 
++
      if (!strcmp(colorFormat, CameraParameters::PIXEL_FORMAT_RGB565)) {
         return OMX_COLOR_Format16bitRGB565;
-@@ -133,6 +138,10 @@ static int32_t getColorFormat(const char* colorFormat) {
+     }
+@@ -133,6 +137,12 @@ static int32_t getColorFormat(const char* colorFormat) {
          return OMX_COLOR_FormatAndroidOpaque;
      }
  
++#ifdef STE_HARDWARE
 +    if (!strcmp(colorFormat, CameraParameters::PIXEL_FORMAT_YUV420MB)) {
 +       return 0x7FA00000; //OMX_STE_COLOR_FormatYUV420PackedSemiPlanarMB
 +    }
++#endif
 +
      ALOGE("Uknown color format (%s), please add it to "
           "CameraSource::getColorFormat", colorFormat);
  
-@@ -577,13 +586,16 @@ status_t CameraSource::initWithCameraAccess(
+@@ -577,13 +587,23 @@ status_t CameraSource::initWithCameraAccess(
  
      // XXX: query camera for the stride and slice height
      // when the capability becomes available.
++#ifdef STE_HARDWARE
 +    int stride = newCameraParams.getInt(CameraParameters::KEY_RECORD_STRIDE);
 +    int sliceHeight = newCameraParams.getInt(CameraParameters::KEY_RECORD_SLICE_HEIGHT);
++#endif
 +
      mMeta = new MetaData;
      mMeta->setCString(kKeyMIMEType,  MEDIA_MIMETYPE_VIDEO_RAW);
@@ -1957,8 +2006,13 @@ index 295c0f5..52e36a3 100644
      mMeta->setInt32(kKeyHeight,      mVideoSize.height);
 -    mMeta->setInt32(kKeyStride,      mVideoSize.width);
 -    mMeta->setInt32(kKeySliceHeight, mVideoSize.height);
++#ifdef STE_HARDWARE
 +    mMeta->setInt32(kKeyStride,      stride != -1 ? stride : mVideoSize.width);
 +    mMeta->setInt32(kKeySliceHeight, sliceHeight != -1 ? sliceHeight : mVideoSize.height);
++#else
++     mMeta->setInt32(kKeyStride,      mVideoSize.width);
++     mMeta->setInt32(kKeySliceHeight, mVideoSize.height);
++#endif
      mMeta->setInt32(kKeyFrameRate,   mVideoFrameRate);
  
  #ifdef QCOM_HARDWARE
@@ -2028,10 +2082,10 @@ index 14b04f9..93bef69 100755
 +
  }  // namespace android
 diff --git a/media/libstagefright/MPEG4Extractor.cpp b/media/libstagefright/MPEG4Extractor.cpp
-index 85ee7e3..feccfd3 100644
+index d1b4381..098c0f0 100644
 --- a/media/libstagefright/MPEG4Extractor.cpp
 +++ b/media/libstagefright/MPEG4Extractor.cpp
-@@ -1522,15 +1522,25 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+@@ -1524,15 +1524,25 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
  
          case FOURCC('c', 't', 't', 's'):
          {
@@ -2059,7 +2113,7 @@ index 85ee7e3..feccfd3 100644
              break;
          }
  
-@@ -1882,6 +1892,12 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+@@ -1884,6 +1894,12 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
              return UNKNOWN_ERROR; // stop parsing after sidx
          }
  
@@ -2072,7 +2126,7 @@ index 85ee7e3..feccfd3 100644
          default:
          {
              *offset += chunk_size;
-@@ -2328,7 +2344,8 @@ status_t MPEG4Extractor::verifyTrack(Track *track) {
+@@ -2330,7 +2346,8 @@ status_t MPEG4Extractor::verifyTrack(Track *track) {
              return ERROR_MALFORMED;
          }
      } else if (!strcasecmp(mime, MEDIA_MIMETYPE_VIDEO_MPEG4)
@@ -2082,7 +2136,7 @@ index 85ee7e3..feccfd3 100644
          if (!track->meta->findData(kKeyESDS, &type, &data, &size)
                  || type != kTypeESDS) {
              return ERROR_MALFORMED;
-@@ -2373,6 +2390,17 @@ status_t MPEG4Extractor::updateAudioTrackInfoFromESDS_MPEG4Audio(
+@@ -2375,6 +2392,17 @@ status_t MPEG4Extractor::updateAudioTrackInfoFromESDS_MPEG4Audio(
           return OK;
      }
  #else
@@ -2100,7 +2154,7 @@ index 85ee7e3..feccfd3 100644
      if (objectTypeIndication  == 0x6b) {
          // The media subtype is MP3 audio
          // Our software MP3 audio decoder may not be able to handle
-@@ -2381,6 +2409,7 @@ status_t MPEG4Extractor::updateAudioTrackInfoFromESDS_MPEG4Audio(
+@@ -2383,6 +2411,7 @@ status_t MPEG4Extractor::updateAudioTrackInfoFromESDS_MPEG4Audio(
          return ERROR_UNSUPPORTED;
      }
  #endif
@@ -2108,7 +2162,7 @@ index 85ee7e3..feccfd3 100644
  
      const uint8_t *csd;
      size_t csd_size;
-@@ -2416,6 +2445,7 @@ status_t MPEG4Extractor::updateAudioTrackInfoFromESDS_MPEG4Audio(
+@@ -2418,6 +2447,7 @@ status_t MPEG4Extractor::updateAudioTrackInfoFromESDS_MPEG4Audio(
  
      if (objectType == 31) {  // AAC-ELD => additional 6 bits
          objectType = 32 + br.getBits(6);
@@ -2116,7 +2170,7 @@ index 85ee7e3..feccfd3 100644
      }
  
  #ifdef QCOM_DIRECTTRACK
-@@ -3879,7 +3909,7 @@ static bool BetterSniffMPEG4(
+@@ -3881,7 +3911,7 @@ static bool BetterSniffMPEG4(
              case FOURCC('m', 'o', 'o', 'v'):
              {
                  moovAtomEndOffset = offset + chunkSize;
@@ -2149,18 +2203,20 @@ index 1546a7e..c826cf1 100644
          }
  
 diff --git a/media/libstagefright/MediaDefs.cpp b/media/libstagefright/MediaDefs.cpp
-index e99de61..008c288 100644
+index 6a69740..bd2401f 100644
 --- a/media/libstagefright/MediaDefs.cpp
 +++ b/media/libstagefright/MediaDefs.cpp
-@@ -25,6 +25,7 @@ const char *MEDIA_MIMETYPE_VIDEO_VP9 = "video/x-vnd.on2.vp9";
+@@ -25,6 +25,9 @@ const char *MEDIA_MIMETYPE_VIDEO_VP9 = "video/x-vnd.on2.vp9";
  const char *MEDIA_MIMETYPE_VIDEO_AVC = "video/avc";
  const char *MEDIA_MIMETYPE_VIDEO_MPEG4 = "video/mp4v-es";
  const char *MEDIA_MIMETYPE_VIDEO_H263 = "video/3gpp";
++#ifdef STE_HARDWARE
 +const char *MEDIA_MIMETYPE_VIDEO_H263_SW = "video/3gpp-sw";
++#endif
  const char *MEDIA_MIMETYPE_VIDEO_MPEG2 = "video/mpeg2";
  const char *MEDIA_MIMETYPE_VIDEO_RAW = "video/raw";
  
-@@ -34,6 +35,7 @@ const char *MEDIA_MIMETYPE_AUDIO_MPEG = "audio/mpeg";
+@@ -34,6 +37,7 @@ const char *MEDIA_MIMETYPE_AUDIO_MPEG = "audio/mpeg";
  const char *MEDIA_MIMETYPE_AUDIO_MPEG_LAYER_I = "audio/mpeg-L1";
  const char *MEDIA_MIMETYPE_AUDIO_MPEG_LAYER_II = "audio/mpeg-L2";
  const char *MEDIA_MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
@@ -2168,6 +2224,16 @@ index e99de61..008c288 100644
  const char *MEDIA_MIMETYPE_AUDIO_QCELP = "audio/qcelp";
  const char *MEDIA_MIMETYPE_AUDIO_VORBIS = "audio/vorbis";
  const char *MEDIA_MIMETYPE_AUDIO_G711_ALAW = "audio/g711-alaw";
+@@ -64,7 +68,9 @@ const char *MEDIA_MIMETYPE_VIDEO_DIVX4 = "video/divx4";
+ const char *MEDIA_MIMETYPE_VIDEO_FLV1 = "video/x-flv";
+ const char *MEDIA_MIMETYPE_VIDEO_MJPEG = "video/x-jpeg";
+ const char *MEDIA_MIMETYPE_VIDEO_RV = "video/vnd.rn-realvideo";
++#ifdef STE_HARDWARE
+ const char *MEDIA_MIMETYPE_VIDEO_VC1 = "video/vc1";
++#endif
+ const char *MEDIA_MIMETYPE_VIDEO_WMV = "video/x-ms-wmv";
+ const char *MEDIA_MIMETYPE_VIDEO_HEVC = "video/hevc";
+ const char *MEDIA_MIMETYPE_VIDEO_FFMPEG = "video/ffmpeg";
 diff --git a/media/libstagefright/MediaExtractor.cpp b/media/libstagefright/MediaExtractor.cpp
 index c90937e..21b8f71 100755
 --- a/media/libstagefright/MediaExtractor.cpp
@@ -2956,13 +3022,14 @@ index 0000000..5a6f086
 +
 +}  // namespace android
 diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
-index a75c8f9..4287d7c 100644
+index 0ac0d2a..0fd63e5 100644
 --- a/media/libstagefright/OMXCodec.cpp
 +++ b/media/libstagefright/OMXCodec.cpp
-@@ -340,6 +340,22 @@ void OMXCodec::findMatchingCodecs(
+@@ -340,6 +340,24 @@ void OMXCodec::findMatchingCodecs(
      }
  }
  
++#ifdef STE_HARDWARE
 +//static
 +uint32_t OMXCodec::OmxToHALFormat(OMX_COLOR_FORMATTYPE omxValue) {
 +    switch (omxValue) {
@@ -2977,15 +3044,17 @@ index a75c8f9..4287d7c 100644
 +            return omxValue;
 +    }
 +}
++#endif
 +
 +
  // static
  uint32_t OMXCodec::getComponentQuirks(
          const MediaCodecList *list, size_t index) {
-@@ -410,6 +426,16 @@ uint32_t OMXCodec::getComponentQuirks(
+@@ -410,6 +428,18 @@ uint32_t OMXCodec::getComponentQuirks(
      quirks |= ExtendedCodec::getComponentQuirks(list,index);
  #endif
  
++#ifdef STE_HARDWARE
 +    if (list->codecHasQuirk(
 +                index, "requires-store-metadata-before-idle")) {
 +        quirks |= kRequiresStoreMetaDataBeforeIdle;
@@ -2995,11 +3064,12 @@ index a75c8f9..4287d7c 100644
 +                index, "override-default-avc-profile")) {
 +        quirks |= kOverrideDefaultAVCProfile;
 +    }
++#endif
 +
      return quirks;
  }
  
-@@ -637,6 +663,56 @@ status_t OMXCodec::parseAVCCodecSpecificData(
+@@ -637,6 +667,56 @@ status_t OMXCodec::parseAVCCodecSpecificData(
      return OK;
  }
  
@@ -3056,7 +3126,7 @@ index a75c8f9..4287d7c 100644
  status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
      ALOGV("configureCodec protected=%d",
           (mFlags & kEnableGrallocUsageProtected) ? 1 : 0);
-@@ -790,6 +866,22 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
+@@ -790,6 +870,22 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
          if (meta->findData(kKeyAacCodecSpecificData, &type, &data, &size)) {
              ALOGV("OMXCodec:: configureCodec found kKeyAacCodecSpecificData of size %d\n", size);
              addCodecSpecificData(data, size);
@@ -3079,15 +3149,17 @@ index a75c8f9..4287d7c 100644
          }
  #endif
      } else if (!strcasecmp(MEDIA_MIMETYPE_AUDIO_MPEG, mMIME)) {
-@@ -1098,6 +1190,7 @@ static size_t getFrameSize(
+@@ -1104,6 +1200,9 @@ static size_t getFrameSize(
          case OMX_COLOR_FormatYUV420Planar:
          case OMX_COLOR_FormatYUV420SemiPlanar:
          case OMX_TI_COLOR_FormatYUV420PackedSemiPlanar:
++#ifdef STE_HARDWARE
 +        case 0x7FA00000: //OMX_STE_COLOR_FormatYUV420PackedSemiPlanarMB
++#endif
          /*
          * FIXME: For the Opaque color format, the frame size does not
          * need to be (w*h*3)/2. It just needs to
-@@ -1572,6 +1665,9 @@ status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
+@@ -1578,6 +1677,9 @@ status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
      if (ExtendedUtils::isAVCProfileSupported(h264type.eProfile)){
          ALOGI("Profile type is  %d ",h264type.eProfile);
      } else if (h264type.eProfile != OMX_VIDEO_AVCProfileBaseline) {
@@ -3097,7 +3169,7 @@ index a75c8f9..4287d7c 100644
  #else
      if (h264type.eProfile != OMX_VIDEO_AVCProfileBaseline) {
  #endif
-@@ -1661,8 +1757,13 @@ status_t OMXCodec::setVideoOutputFormat(
+@@ -1667,8 +1769,13 @@ status_t OMXCodec::setVideoOutputFormat(
              return err;
          }
          compressionFormat = OMX_VIDEO_CodingRV;
@@ -3111,7 +3183,7 @@ index a75c8f9..4287d7c 100644
      } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_FLV1, mime)) {
          compressionFormat = OMX_VIDEO_CodingFLV1;
      } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_DIVX, mime)) {
-@@ -1915,6 +2016,8 @@ void OMXCodec::setComponentRole(
+@@ -1921,6 +2028,8 @@ void OMXCodec::setComponentRole(
              "audio_decoder.aac", "audio_encoder.aac" },
          { MEDIA_MIMETYPE_AUDIO_VORBIS,
              "audio_decoder.vorbis", "audio_encoder.vorbis" },
@@ -3120,7 +3192,7 @@ index a75c8f9..4287d7c 100644
          { MEDIA_MIMETYPE_AUDIO_G711_MLAW,
              "audio_decoder.g711mlaw", "audio_encoder.g711mlaw" },
          { MEDIA_MIMETYPE_AUDIO_G711_ALAW,
-@@ -1941,6 +2044,10 @@ void OMXCodec::setComponentRole(
+@@ -1947,6 +2056,10 @@ void OMXCodec::setComponentRole(
              "audio_decoder.flac", "audio_encoder.flac" },
          { MEDIA_MIMETYPE_AUDIO_MSGSM,
              "audio_decoder.gsm", "audio_encoder.gsm" },
@@ -3131,10 +3203,11 @@ index a75c8f9..4287d7c 100644
      };
  
      static const size_t kNumMimeToRole =
-@@ -2017,6 +2124,15 @@ status_t OMXCodec::init() {
+@@ -2023,6 +2136,16 @@ status_t OMXCodec::init() {
      CHECK_EQ((int)mState, (int)LOADED);
  
      status_t err;
++#ifdef STE_HARDWARE
 +    if ((mQuirks & kRequiresStoreMetaDataBeforeIdle)
 +        && (mFlags & kStoreMetaDataInVideoBuffers)) {
 +        err = mOMX->storeMetaDataInBuffers(mNode, kPortIndexInput, OMX_TRUE);
@@ -3143,21 +3216,25 @@ index a75c8f9..4287d7c 100644
 +            return err;
 +        }
 +    }
-+
++#endif
      if (!(mQuirks & kRequiresLoadedToIdleAfterAllocation)) {
          err = mOMX->sendCommand(mNode, OMX_CommandStateSet, OMX_StateIdle);
          CHECK_EQ(err, (status_t)OK);
-@@ -2082,7 +2198,8 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
+@@ -2088,7 +2211,13 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
      }
  
      status_t err = OK;
--    if ((mFlags & kStoreMetaDataInVideoBuffers)
++#ifdef STE_HARDWARE
 +    if (!(mQuirks & kRequiresStoreMetaDataBeforeIdle)
++            && (mFlags & kStoreMetaDataInVideoBuffers)
++#else
+     if ((mFlags & kStoreMetaDataInVideoBuffers)
++#endif
 +            && (mFlags & kStoreMetaDataInVideoBuffers)
              && portIndex == kPortIndexInput) {
          err = mOMX->storeMetaDataInBuffers(mNode, kPortIndexInput, OMX_TRUE);
          if (err != OK) {
-@@ -2283,7 +2400,11 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
+@@ -2289,7 +2418,11 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
              mNativeWindow.get(),
              def.format.video.nFrameWidth,
              def.format.video.nFrameHeight,
@@ -3169,7 +3246,7 @@ index a75c8f9..4287d7c 100644
  #else
      OMX_COLOR_FORMATTYPE eColorFormat;
  
-@@ -5509,6 +5630,9 @@ static const char *audioCodingTypeString(OMX_AUDIO_CODINGTYPE type) {
+@@ -5515,6 +5648,9 @@ static const char *audioCodingTypeString(OMX_AUDIO_CODINGTYPE type) {
          "OMX_AUDIO_CodingRA",
          "OMX_AUDIO_CodingMIDI",
          "OMX_AUDIO_CodingFLAC",
@@ -3179,7 +3256,7 @@ index a75c8f9..4287d7c 100644
  #ifdef DOLBY_UDC
          "OMX_AUDIO_CodingDDP",
  #endif // DOLBY_UDC
-@@ -5892,6 +6016,9 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
+@@ -5898,6 +6034,9 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
              } else if (video_def->eCompressionFormat == OMX_VIDEO_CodingAVC) {
                  mOutputFormat->setCString(
                          kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_AVC);
@@ -3498,10 +3575,10 @@ index 0000000..bb26bcd
 +
 +}  // namespace android
 diff --git a/media/libstagefright/SampleTable.cpp b/media/libstagefright/SampleTable.cpp
-index 9d86a0f..f037a1b 100644
+index 2bb47a5..a777032 100644
 --- a/media/libstagefright/SampleTable.cpp
 +++ b/media/libstagefright/SampleTable.cpp
-@@ -346,7 +346,7 @@ status_t SampleTable::setTimeToSampleParams(
+@@ -350,7 +350,7 @@ status_t SampleTable::setTimeToSampleParams(
  }
  
  status_t SampleTable::setCompositionTimeToSampleParams(
@@ -3510,7 +3587,7 @@ index 9d86a0f..f037a1b 100644
      ALOGI("There are reordered frames present.");
  
      if (mCompositionTimeDeltaEntries != NULL || data_size < 8) {
-@@ -368,7 +368,7 @@ status_t SampleTable::setCompositionTimeToSampleParams(
+@@ -372,7 +372,7 @@ status_t SampleTable::setCompositionTimeToSampleParams(
  
      size_t numEntries = U32_AT(&header[4]);
  
@@ -3519,7 +3596,7 @@ index 9d86a0f..f037a1b 100644
          return ERROR_MALFORMED;
      }
  
-@@ -391,6 +391,7 @@ status_t SampleTable::setCompositionTimeToSampleParams(
+@@ -400,6 +400,7 @@ status_t SampleTable::setCompositionTimeToSampleParams(
      mCompositionDeltaLookup->setEntries(
              mCompositionTimeDeltaEntries, mNumCompositionTimeDeltaEntries);
  
@@ -3713,32 +3790,37 @@ index e8402ad..56fc806 100644
              break;
          }
 diff --git a/media/libstagefright/colorconversion/ColorConverter.cpp b/media/libstagefright/colorconversion/ColorConverter.cpp
-index 597167f..85bbdec 100644
+index 597167f..db7ea53 100644
 --- a/media/libstagefright/colorconversion/ColorConverter.cpp
 +++ b/media/libstagefright/colorconversion/ColorConverter.cpp
-@@ -47,6 +47,7 @@ bool ColorConverter::isValid() const {
+@@ -47,7 +47,10 @@ bool ColorConverter::isValid() const {
          case OMX_QCOM_COLOR_FormatYVU420SemiPlanar:
          case OMX_COLOR_FormatYUV420SemiPlanar:
          case OMX_TI_COLOR_FormatYUV420PackedSemiPlanar:
++#ifdef STE_HARDWARE
 +        case 0x7FA00000: //OMX_STE_COLOR_FormatYUV420PackedSemiPlanarMB
              return true;
++#endif
  
          default:
-@@ -122,6 +123,10 @@ status_t ColorConverter::convert(
+             return false;
+@@ -121,6 +124,11 @@ status_t ColorConverter::convert(
+         case OMX_TI_COLOR_FormatYUV420PackedSemiPlanar:
              err = convertTIYUV420PackedSemiPlanar(src, dst);
              break;
- 
++#ifdef STE_HARDWARE
 +        case 0x7FA00000: //OMX_STE_COLOR_FormatYUV420PackedSemiPlanarMB
 +            err = convertSTEYUV420PackedSemiPlanarMB(src, dst);
 +            break;
-+
++#endif
+ 
          default:
          {
-             CHECK(!"Should not be here. Unknown color conversion.");
-@@ -506,6 +511,143 @@ status_t ColorConverter::convertTIYUV420PackedSemiPlanar(
+@@ -506,6 +514,145 @@ status_t ColorConverter::convertTIYUV420PackedSemiPlanar(
      return OK;
  }
  
++#ifdef STE_HARDWARE
 +status_t ColorConverter::convertSTEYUV420PackedSemiPlanarMB(
 +        const BitmapParams &src, const BitmapParams &dst) {
 +
@@ -3875,6 +3957,7 @@ index 597167f..85bbdec 100644
 +
 +    return OK;
 +}
++#endif
 +
  uint8_t *ColorConverter::initClip() {
      static const signed kClipMin = -278;
@@ -4315,7 +4398,7 @@ index 0000000..4717d10
 +
 +#endif  // PCM_EXTRACTOR_H_
 diff --git a/media/libstagefright/include/SampleTable.h b/media/libstagefright/include/SampleTable.h
-index d05e7c7..7baa4fb 100644
+index fc5ad41..94ebd27 100644
 --- a/media/libstagefright/include/SampleTable.h
 +++ b/media/libstagefright/include/SampleTable.h
 @@ -49,7 +49,7 @@ public:
