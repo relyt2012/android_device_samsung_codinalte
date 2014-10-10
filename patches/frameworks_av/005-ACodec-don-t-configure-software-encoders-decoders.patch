@@ -1,6 +1,6 @@
-From a36b05538b64f9376d68be000d26ab6db3423358 Mon Sep 17 00:00:00 2001
+From 4d52f9e78767a0e549a25720eed674f2855c50a7 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Sun, 5 Oct 2014 14:50:40 -0500
+Date: Fri, 10 Oct 2014 11:03:45 -0500
 Subject: [PATCH] ACodec: don't configure software encoders/decoders.
 
 -Not sure if this is correct in principal, but in practice every time
@@ -9,13 +9,13 @@ seen multiple, stackoverflow queries that tring to create and
 instance of MediaCodec (software dec/enc) fails, probably because
 of what this fixes.
 
-Change-Id: I231b031547bbd5b25dc254cd4f6774ece113831b
+Change-Id: I819b3a22bc74bf8b7b27326c1bf906653ba439d8
 ---
- media/libstagefright/ACodec.cpp |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ media/libstagefright/ACodec.cpp |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
-index a3d54a4..73c4696 100755
+index a3d54a4..4764a76 100755
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
 @@ -1083,6 +1083,15 @@ status_t ACodec::configureCodec(
@@ -33,24 +33,6 @@ index a3d54a4..73c4696 100755
 +    }
  
      status_t err = setComponentRole(encoder /* isEncoder */, mime);
- 
-@@ -3960,7 +3969,7 @@ bool ACodec::LoadedState::onConfigureComponent(
- 
-     CHECK(mCodec->mNode != NULL);
- 
--#ifndef QCOM_HARDWARE
-+#if !defined (QCOM_HARDWARE) && !defined (STE_HARDWARE)
-     AString mime;
-     CHECK(msg->findString("mime", &mime));
- 
-@@ -3996,7 +4005,7 @@ bool ACodec::LoadedState::onConfigureComponent(
-     }
-     CHECK_EQ((status_t)OK, mCodec->initNativeWindow());
- 
--#ifdef QCOM_HARDWARE
-+#if defined (QCOM_HARDWARE) || defined (STE_HARDWARE)
-     AString mime;
-     CHECK(msg->findString("mime", &mime));
  
 -- 
 1.7.9.5
