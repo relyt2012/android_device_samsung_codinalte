@@ -1,13 +1,13 @@
-From ec9269635b1c2f9c9db7158b701dff382e1c934d Mon Sep 17 00:00:00 2001
+From e64430b67bc1071b2ae465bcfea7dab001390909 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Wed, 8 Oct 2014 11:10:22 -0500
+Date: Sun, 19 Oct 2014 08:03:56 -0500
 Subject: [PATCH] STE OMX AV REWORK
 
 -Created by diffing source against AOSP tag android-4.1.1_r1
 
 -Worked out rejects by hand.
 
-Change-Id: I7228a654ccdf9398fca7c00c42b17f377fc3e48b
+Change-Id: Ie399531147dc60081652a7e607605d8de70bff44
 ---
  camera/CameraParameters.cpp                        |   23 +
  cmds/stagefright/recordvideo.cpp                   |   63 +-
@@ -590,7 +590,7 @@ index 5510b12..bf3967a 100644
      uint32_t mReservoir;  // left-aligned bits
      size_t mNumBitsLeft;
 diff --git a/media/libmedia/AudioTrack.cpp b/media/libmedia/AudioTrack.cpp
-index 51557ce..21b5625 100644
+index 387d8f0..5e750d1 100644
 --- a/media/libmedia/AudioTrack.cpp
 +++ b/media/libmedia/AudioTrack.cpp
 @@ -38,6 +38,8 @@
@@ -1942,7 +1942,7 @@ index c5b12ce..08c1850 100644
  LOCAL_STATIC_LIBRARIES := \
          libstagefright_color_conversion \
 diff --git a/media/libstagefright/AwesomePlayer.cpp b/media/libstagefright/AwesomePlayer.cpp
-index 7fc4512..c436dba 100644
+index cc152d8..c727406 100644
 --- a/media/libstagefright/AwesomePlayer.cpp
 +++ b/media/libstagefright/AwesomePlayer.cpp
 @@ -30,6 +30,7 @@
@@ -3022,10 +3022,10 @@ index 0000000..5a6f086
 +
 +}  // namespace android
 diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
-index 0ac0d2a..0fd63e5 100644
+index 71f6f8d..482f61f 100644
 --- a/media/libstagefright/OMXCodec.cpp
 +++ b/media/libstagefright/OMXCodec.cpp
-@@ -340,6 +340,24 @@ void OMXCodec::findMatchingCodecs(
+@@ -342,6 +342,24 @@ void OMXCodec::findMatchingCodecs(
      }
  }
  
@@ -3050,7 +3050,7 @@ index 0ac0d2a..0fd63e5 100644
  // static
  uint32_t OMXCodec::getComponentQuirks(
          const MediaCodecList *list, size_t index) {
-@@ -410,6 +428,18 @@ uint32_t OMXCodec::getComponentQuirks(
+@@ -412,6 +430,18 @@ uint32_t OMXCodec::getComponentQuirks(
      quirks |= ExtendedCodec::getComponentQuirks(list,index);
  #endif
  
@@ -3069,7 +3069,7 @@ index 0ac0d2a..0fd63e5 100644
      return quirks;
  }
  
-@@ -637,6 +667,56 @@ status_t OMXCodec::parseAVCCodecSpecificData(
+@@ -639,6 +669,56 @@ status_t OMXCodec::parseAVCCodecSpecificData(
      return OK;
  }
  
@@ -3126,7 +3126,7 @@ index 0ac0d2a..0fd63e5 100644
  status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
      ALOGV("configureCodec protected=%d",
           (mFlags & kEnableGrallocUsageProtected) ? 1 : 0);
-@@ -790,6 +870,22 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
+@@ -792,6 +872,22 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
          if (meta->findData(kKeyAacCodecSpecificData, &type, &data, &size)) {
              ALOGV("OMXCodec:: configureCodec found kKeyAacCodecSpecificData of size %d\n", size);
              addCodecSpecificData(data, size);
@@ -3149,7 +3149,7 @@ index 0ac0d2a..0fd63e5 100644
          }
  #endif
      } else if (!strcasecmp(MEDIA_MIMETYPE_AUDIO_MPEG, mMIME)) {
-@@ -1104,6 +1200,9 @@ static size_t getFrameSize(
+@@ -1117,6 +1213,9 @@ static size_t getFrameSize(
          case OMX_COLOR_FormatYUV420Planar:
          case OMX_COLOR_FormatYUV420SemiPlanar:
          case OMX_TI_COLOR_FormatYUV420PackedSemiPlanar:
@@ -3159,7 +3159,7 @@ index 0ac0d2a..0fd63e5 100644
          /*
          * FIXME: For the Opaque color format, the frame size does not
          * need to be (w*h*3)/2. It just needs to
-@@ -1578,6 +1677,9 @@ status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
+@@ -1591,6 +1690,9 @@ status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
      if (ExtendedUtils::isAVCProfileSupported(h264type.eProfile)){
          ALOGI("Profile type is  %d ",h264type.eProfile);
      } else if (h264type.eProfile != OMX_VIDEO_AVCProfileBaseline) {
@@ -3169,21 +3169,21 @@ index 0ac0d2a..0fd63e5 100644
  #else
      if (h264type.eProfile != OMX_VIDEO_AVCProfileBaseline) {
  #endif
-@@ -1667,8 +1769,13 @@ status_t OMXCodec::setVideoOutputFormat(
-             return err;
-         }
-         compressionFormat = OMX_VIDEO_CodingRV;
+@@ -1681,8 +1783,13 @@ status_t OMXCodec::setVideoOutputFormat(
+                 return err;
+             }
+             compressionFormat = OMX_VIDEO_CodingRV;
 +#ifdef STE_HARDWARE
-+    } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_VC1, mime)) {
-+        compressionFormat = OMX_VIDEO_CodingWMV;
++	} else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_VC1, mime)) {
++            compressionFormat = OMX_VIDEO_CodingWMV;
 +#else
-     } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_VC1, mime)) {
-         compressionFormat = OMX_VIDEO_CodingVC1;
+         } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_VC1, mime)) {
+             compressionFormat = OMX_VIDEO_CodingVC1;
 +#endif
-     } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_FLV1, mime)) {
-         compressionFormat = OMX_VIDEO_CodingFLV1;
-     } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_DIVX, mime)) {
-@@ -1921,6 +2028,8 @@ void OMXCodec::setComponentRole(
+         } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_FLV1, mime)) {
+             compressionFormat = OMX_VIDEO_CodingFLV1;
+         } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_DIVX, mime)) {
+@@ -1939,6 +2046,8 @@ void OMXCodec::setComponentRole(
              "audio_decoder.aac", "audio_encoder.aac" },
          { MEDIA_MIMETYPE_AUDIO_VORBIS,
              "audio_decoder.vorbis", "audio_encoder.vorbis" },
@@ -3192,7 +3192,7 @@ index 0ac0d2a..0fd63e5 100644
          { MEDIA_MIMETYPE_AUDIO_G711_MLAW,
              "audio_decoder.g711mlaw", "audio_encoder.g711mlaw" },
          { MEDIA_MIMETYPE_AUDIO_G711_ALAW,
-@@ -1947,6 +2056,10 @@ void OMXCodec::setComponentRole(
+@@ -1965,6 +2074,10 @@ void OMXCodec::setComponentRole(
              "audio_decoder.flac", "audio_encoder.flac" },
          { MEDIA_MIMETYPE_AUDIO_MSGSM,
              "audio_decoder.gsm", "audio_encoder.gsm" },
@@ -3203,7 +3203,7 @@ index 0ac0d2a..0fd63e5 100644
      };
  
      static const size_t kNumMimeToRole =
-@@ -2023,6 +2136,16 @@ status_t OMXCodec::init() {
+@@ -2041,6 +2154,16 @@ status_t OMXCodec::init() {
      CHECK_EQ((int)mState, (int)LOADED);
  
      status_t err;
@@ -3220,7 +3220,7 @@ index 0ac0d2a..0fd63e5 100644
      if (!(mQuirks & kRequiresLoadedToIdleAfterAllocation)) {
          err = mOMX->sendCommand(mNode, OMX_CommandStateSet, OMX_StateIdle);
          CHECK_EQ(err, (status_t)OK);
-@@ -2088,7 +2211,13 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
+@@ -2106,7 +2229,13 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
      }
  
      status_t err = OK;
@@ -3234,7 +3234,7 @@ index 0ac0d2a..0fd63e5 100644
              && portIndex == kPortIndexInput) {
          err = mOMX->storeMetaDataInBuffers(mNode, kPortIndexInput, OMX_TRUE);
          if (err != OK) {
-@@ -2289,7 +2418,11 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
+@@ -2314,7 +2443,11 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
              mNativeWindow.get(),
              def.format.video.nFrameWidth,
              def.format.video.nFrameHeight,
@@ -3246,7 +3246,7 @@ index 0ac0d2a..0fd63e5 100644
  #else
      OMX_COLOR_FORMATTYPE eColorFormat;
  
-@@ -5515,6 +5648,9 @@ static const char *audioCodingTypeString(OMX_AUDIO_CODINGTYPE type) {
+@@ -5542,6 +5675,9 @@ static const char *audioCodingTypeString(OMX_AUDIO_CODINGTYPE type) {
          "OMX_AUDIO_CodingRA",
          "OMX_AUDIO_CodingMIDI",
          "OMX_AUDIO_CodingFLAC",
@@ -3256,7 +3256,7 @@ index 0ac0d2a..0fd63e5 100644
  #ifdef DOLBY_UDC
          "OMX_AUDIO_CodingDDP",
  #endif // DOLBY_UDC
-@@ -5898,6 +6034,9 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
+@@ -5925,6 +6061,9 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
              } else if (video_def->eCompressionFormat == OMX_VIDEO_CodingAVC) {
                  mOutputFormat->setCString(
                          kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_AVC);
