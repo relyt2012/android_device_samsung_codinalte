@@ -66,17 +66,18 @@ The local manifest is different for every device. It contains those repos that a
 
 Execute the following commands in a linux terminal:
 ```bash
+mkdir /home/$USER/carbon/.repo/local_manifests
 gedit /home/$USER/carbon/.repo/local_manifests/codinalte.xml
 ```
 Assuming you want to build for all three devices copy the following into codinalte.xml, save and close. If not remove the "vendor" trees for the devices you don't want.
 ```bash
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <project name="Meticulus/android_kernel_samsung_codina" path="kernel/samsung/codina" remote="github" revision="kk44"/>
-  <project name="Meticulus/android_device_samsung_codinalte" path="device/samsung/codinalte" remote="github" revision="carbon"/>
-  <project name="Meticulus/android_vendor_samsung_codinatmo" path="vendor/samsung/codinatmo" remote="github" revision="kk44"/>
-  <project name="Meticulus/android_vendor_samsung_codinamtr" path="vendor/samsung/codinamtr" remote="github" revision="kk44"/>
-  <project name="Meticulus/android_vendor_samsung_codinavid" path="vendor/samsung/codinavid" remote="github" revision="kk44"/>
+  <project name="Meticulus/android_kernel_samsung_codina" path="kernel/samsung/codina" remote="cm" revision="kk44"/>
+  <project name="Meticulus/android_device_samsung_codinalte" path="device/samsung/codinalte" remote="cm" revision="carbon"/>
+  <project name="Meticulus/android_vendor_samsung_codinatmo" path="vendor/samsung/codinatmo" remote="cm" revision="kk44"/>
+  <project name="Meticulus/android_vendor_samsung_codinamtr" path="vendor/samsung/codinamtr" remote="cm" revision="kk44"/>
+  <project name="Meticulus/android_vendor_samsung_codinavid" path="vendor/samsung/codinavid" remote="cm" revision="kk44"/>
 </manifest>
 ```
 Execute the following commands in a linux terminal:
