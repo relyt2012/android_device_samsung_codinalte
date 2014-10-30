@@ -1,7 +1,7 @@
 #!/bin/bash
 THISDIR=$PWD
 UNATTENDED=${1}
-TOPDIR="$THISDIR/../"
+TOPDIR="$THISDIR/../../../../"
 echo $TOPDIR
 for LINE in $(find -name *.patch)
 do
