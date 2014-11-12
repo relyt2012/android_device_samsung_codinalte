@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
+  <remote  name="cm"
+           fetch="git://github.com/"
+           review="review.cyanogenmod.org"
+           sync-c="true"
+           sync-j="4" />
+
   <project name="Meticulus/android_kernel_samsung_codina" path="kernel/samsung/codina" remote="cm" revision="kk44"/>
   <project name="Meticulus/android_device_samsung_codinalte" path="device/samsung/codinalte" remote="cm" revision="aosp-l"/>
   <project name="Meticulus/android_vendor_samsung_codinatmo" path="vendor/samsung/codinatmo" remote="cm" revision="kk44"/>
