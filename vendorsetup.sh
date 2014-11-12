@@ -1,1 +1,1 @@
-add_lunch_combo carbon_codinalte-userdebug
+add_lunch_combo aosp_codinalte-userdebug
