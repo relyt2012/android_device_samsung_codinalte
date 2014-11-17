@@ -1,6 +1,6 @@
 LOCAL_PATH := $(call my-dir)
 
-TARGET_KERNEL_BINARIES : $(PRODUCT_OUT)/utilities/make_ext4fs
+TARGET_KERNEL_BINARIES : $(PRODUCT_OUT)/symbols/system/bin/make_ext4fs
 
 $(INSTALLED_BOOTIMAGE_TARGET): $(MKBOOTIMG) $(INTERNAL_BOOTIMAGE_FILES)
 	$(call pretty,"Target boot image: $@")
