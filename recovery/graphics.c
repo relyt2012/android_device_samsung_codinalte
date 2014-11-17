@@ -224,9 +224,9 @@ void gr_font_size(int *x, int *y)
     *y = gr_font->cheight;
 }
 
-int gr_text(int x, int y, const char *s, int bold)
+void gr_text(int x, int y, const char *s, int bold)
 {
-    return gr_text_impl(x, y, s, bold);
+    gr_text_impl(x, y, s, bold);
 }
 
 int gr_text_impl(int x, int y, const char *s, int bold)
@@ -392,10 +392,10 @@ int gr_fb_height(void)
     return gr_framebuffer[0].height;
 }
 
-gr_pixel *gr_fb_data(void)
-{
-    return (unsigned short *) gr_mem_surface.data;
-}
+//gr_pixel *gr_fb_data(void)
+//{
+//    return (unsigned short *) gr_mem_surface.data;
+//}
 
 void gr_fb_blank(bool blank)
 {
