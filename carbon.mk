@@ -16,7 +16,7 @@
 #
 
 # Inherit CM common Phone stuff.
-$(call inherit-product, vendor/carbon/config/common_phone.mk)
+$(call inherit-product-if-exists, vendor/carbon/config/common_phone.mk)
 
 # Inherit device configuration
 $(call inherit-product, device/samsung/codinalte/full_codinalte.mk)
