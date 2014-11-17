@@ -91,7 +91,7 @@
     <bool name="config_samsung_stk">true</bool>
 
     <!-- Device supports LED flashlight -->
-    <bool name="config_enableTorch">true</bool>
+    <!--<bool name="config_enableTorch">true</bool>-->
     
     <!-- Enables or disables fading edges when marquee is enabled in TextView. -->
     <bool name="config_ui_enableFadingMarquee">true</bool>
