@@ -23,7 +23,7 @@ import time
 
 LOCAL_DIR = os.path.dirname(os.path.abspath(__file__))
 TARGET_DIR = os.getenv('OUT')
-UTILITIES_DIR = os.path.join(TARGET_DIR, 'utilities')
+UTILITIES_DIR = os.path.join(TARGET_DIR, 'symbols')
 
 def addFolderToZip(info, directory, basedir):
     list = os.listdir(directory)
@@ -65,7 +65,7 @@ def FullOTA_Assertions(info):
   if(models == 0):
 	raise Exception("You must have vendor files for at least one variant!")
 
-  info.output_zip.write(os.path.join(UTILITIES_DIR, "make_ext4fs"), "make_ext4fs")
+  info.output_zip.write(os.path.join(UTILITIES_DIR, "system/bin/make_ext4fs"), "make_ext4fs")
   info.output_zip.write(os.path.join(TARGET_DIR, "blobinstaller.sh"), "blobinstaller.sh")
   info.output_zip.write(os.path.join(TARGET_DIR, "restorecon.sh"), "restorecon.sh")
 
