@@ -104,7 +104,7 @@ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/codinalte/bluetoot
 BOARD_BLUEDROID_VENDOR_CONF := device/samsung/codinalte/bluetooth/vnd_codinalte.txt
 
 # RIL
-BOARD_RIL_CLASS := ../../../device/samsung/codinalte/ril/
+# BOARD_RIL_CLASS := ../../../device/samsung/codinalte/ril/
 
 # Browser
 ENABLE_WEBGL := true
@@ -162,10 +162,3 @@ TW_CRYPTO_MNT_POINT := "/data"
 TW_CRYPTO_FS_OPTIONS := "noatime,nosuid,nodev,discard,noauto_da_alloc,journal_async_commit,errors=panic    wait,check"
 TW_CRYPTO_FS_FLAGS := "0x00000406"
 TW_CRYPTO_KEY_LOC := "footer"
-
-# SELinux
-BOARD_SEPOLICY_DIRS += \
-	device/samsung/codinalte/sepolicy
-
-BOARD_SEPOLICY_UNION += \
-	file_contexts \

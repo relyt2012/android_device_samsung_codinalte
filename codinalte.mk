@@ -94,6 +94,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/bin/usbid_init.sh:system/bin/usbid_init.sh \
 
+# Media
+PRODUCT_PROPERTY_OVERRIDES += \
+    media.stagefright.use-awesome=1
 
 # Screen
 PRODUCT_PROPERTY_OVERRIDES += \
