@@ -39,6 +39,7 @@ def addFolderToZip(info, directory, basedir):
 
 def FullOTA_Assertions(info):
   sys.setrecursionlimit(100000)
+
   models = 0
 
   if os.path.isdir(os.path.join(TARGET_DIR, "codinamtr")):
@@ -65,7 +66,6 @@ def FullOTA_Assertions(info):
   if(models == 0):
 	raise Exception("You must have vendor files for at least one variant!")
 
-  info.output_zip.write(os.path.join(UTILITIES_DIR, "system/bin/make_ext4fs"), "make_ext4fs")
   info.output_zip.write(os.path.join(TARGET_DIR, "blobinstaller.sh"), "blobinstaller.sh")
   info.output_zip.write(os.path.join(TARGET_DIR, "restorecon.sh"), "restorecon.sh")
 
@@ -85,14 +85,6 @@ def FullOTA_Assertions(info):
   info.script.AppendExtra(
         ('package_extract_file("restorecon.sh", "/tmp/restorecon.sh");\n'
          'set_perm(0, 0, 0777, "/tmp/restorecon.sh");'))
-  info.script.AppendExtra(
-       ('package_extract_file("make_ext4fs", "/tmp/make_ext4fs");\n'
-        'set_perm(0, 0, 0777, "/tmp/make_ext4fs");'))
-
-# Force clean install! Bypass all that persistence crap!
-  info.script.AppendExtra('ui_print("Enforcing clean install...");')
-  info.script.AppendExtra('run_program("/sbin/busybox", "umount","/system");')
-  info.script.AppendExtra('assert(run_program("/tmp/make_ext4fs", "-b", "4096", "-g", "32768", "-i", "8192", "-I", "256", "-a","/system", "/dev/block/mmcblk0p22") == 0);')
 
 def FullOTA_InstallEnd(info):
   info.script.AppendExtra('assert(run_program("/tmp/blobinstaller.sh") == 0);')
@@ -143,5 +135,3 @@ def FullOTA_InstallEnd(info):
   info.script.AppendExtra('set_metadata("/system/xbin/procrank", "uid", 0, "gid", 0, "mode", 06755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");')
   info.script.AppendExtra('set_metadata("/system/xbin/su", "uid", 0, "gid", 0, "mode", 06755, "capabilities", 0x0, "selabel", "u:object_r:su_exec:s0");')
 
-# GApps must be reinstalled every flash now!
-  info.script.AppendExtra('ui_print("Remember to install/re-install GApps on every ROM flash! -Meticulus");')
