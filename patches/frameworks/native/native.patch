@@ -13,10 +13,10 @@ index 463e26d..5bf104b 100644
  private:
      size_t          mSize;
 diff --git a/include/binder/Parcel.h b/include/binder/Parcel.h
-index 98f20de..9667324 100644
+index 2ee99f8..8b59aec 100644
 --- a/include/binder/Parcel.h
 +++ b/include/binder/Parcel.h
-@@ -27,8 +27,12 @@
+@@ -28,8 +28,12 @@
  // ---------------------------------------------------------------------------
  namespace android {
  
@@ -30,7 +30,7 @@ index 98f20de..9667324 100644
  class IBinder;
  class IPCThreadState;
  class ProcessState;
-@@ -104,8 +108,12 @@ public:
+@@ -106,8 +110,12 @@ public:
      status_t            writeInt32Array(size_t len, const int32_t *val);
      status_t            writeByteArray(size_t len, const uint8_t *val);
  
@@ -43,7 +43,7 @@ index 98f20de..9667324 100644
  
      template<typename T>
      status_t            write(const LightFlattenable<T>& val);
-@@ -160,9 +168,12 @@ public:
+@@ -167,9 +175,12 @@ public:
      const char16_t*     readString16Inplace(size_t* outLen) const;
      sp<IBinder>         readStrongBinder() const;
      wp<IBinder>         readWeakBinder() const;
@@ -57,7 +57,16 @@ index 98f20de..9667324 100644
  
      template<typename T>
      status_t            read(LightFlattenable<T>& val) const;
-@@ -275,11 +286,18 @@ private:
+@@ -284,7 +295,7 @@ private:
+ 
+     class FlattenableHelperInterface {
+     protected:
+-        ~FlattenableHelperInterface() { }
++        virtual ~FlattenableHelperInterface() { }
+     public:
+         virtual size_t getFlattenedSize() const = 0;
+         virtual size_t getFdCount() const = 0;
+@@ -292,11 +303,18 @@ private:
          virtual status_t unflatten(void const* buffer, size_t size, int const* fds, size_t count) = 0;
      };
  
@@ -76,7 +85,7 @@ index 98f20de..9667324 100644
  
      public:
          virtual size_t getFlattenedSize() const {
-@@ -292,7 +310,11 @@ private:
+@@ -309,7 +327,11 @@ private:
              return val.flatten(buffer, size, fds, count);
          }
          virtual status_t unflatten(void const* buffer, size_t size, int const* fds, size_t count) {
@@ -88,7 +97,7 @@ index 98f20de..9667324 100644
          }
      };
      status_t write(const FlattenableHelperInterface& val);
-@@ -314,11 +336,13 @@ public:
+@@ -331,11 +353,13 @@ public:
  
  // ---------------------------------------------------------------------------
  
@@ -102,7 +111,7 @@ index 98f20de..9667324 100644
  
  template<typename T>
  status_t Parcel::write(const LightFlattenable<T>& val) {
-@@ -338,11 +362,13 @@ status_t Parcel::write(const LightFlattenable<T>& val) {
+@@ -355,11 +379,13 @@ status_t Parcel::write(const LightFlattenable<T>& val) {
      return NO_ERROR;
  }
  
@@ -116,25 +125,41 @@ index 98f20de..9667324 100644
  
  template<typename T>
  status_t Parcel::read(LightFlattenable<T>& val) const {
+diff --git a/include/gui/BufferItem.h b/include/gui/BufferItem.h
+index ca2c35d..75d2cb4 100644
+--- a/include/gui/BufferItem.h
++++ b/include/gui/BufferItem.h
+@@ -32,8 +32,8 @@ namespace android {
+ class Fence;
+ class GraphicBuffer;
+ 
+-class BufferItem : public Flattenable<BufferItem> {
+-    friend class Flattenable<BufferItem>;
++class BufferItem : public Flattenable {
++    friend class Flattenable;
+     size_t getPodSize() const;
+     size_t getFlattenedSize() const;
+     size_t getFdCount() const;
 diff --git a/include/gui/BufferQueue.h b/include/gui/BufferQueue.h
-index 6250dbb..c923e9c 100644
+index 9688f93..61a0b76 100644
 --- a/include/gui/BufferQueue.h
 +++ b/include/gui/BufferQueue.h
-@@ -43,6 +43,9 @@ class BufferQueue : public BnGraphicBufferProducer,
- public:
-     enum { MIN_UNDEQUEUED_BUFFERS = 2 };
-     enum { NUM_BUFFER_SLOTS = 32 };
+@@ -41,6 +41,10 @@ public:
+         PRESENT_LATER = IGraphicBufferConsumer::PRESENT_LATER,
+     };
+ 
 +#ifdef STE_HARDWARE
 +    enum { NUM_BLIT_BUFFER_SLOTS = 2 };
 +#endif
-     enum { NO_CONNECTED_API = 0 };
-     enum { INVALID_BUFFER_SLOT = -1 };
-     enum { STALE_BUFFER_SLOT = 1, NO_BUFFER_AVAILABLE, PRESENT_LATER };
++
+     // When in async mode we reserve two slots in order to guarantee that the
+     // producer and consumer can run asynchronously.
+     enum { MAX_MAX_ACQUIRED_BUFFERS = NUM_BUFFER_SLOTS - 2 };
 diff --git a/include/gui/ConsumerBase.h b/include/gui/ConsumerBase.h
-index fb21185..74e315c 100644
+index 100bb26..97cfc82 100644
 --- a/include/gui/ConsumerBase.h
 +++ b/include/gui/ConsumerBase.h
-@@ -164,7 +164,10 @@ protected:
+@@ -167,7 +167,10 @@ protected:
              const sp<GraphicBuffer> graphicBuffer,
              EGLDisplay display, EGLSyncKHR eglFence);
  
@@ -147,7 +172,7 @@ index fb21185..74e315c 100644
  
      // addReleaseFence* adds the sync points associated with a fence to the set
 diff --git a/include/gui/GLConsumer.h b/include/gui/GLConsumer.h
-index f08189f..0ab48d0 100644
+index e03de45..2bf5aa6 100644
 --- a/include/gui/GLConsumer.h
 +++ b/include/gui/GLConsumer.h
 @@ -30,6 +30,11 @@
@@ -162,9 +187,9 @@ index f08189f..0ab48d0 100644
  namespace android {
  // ----------------------------------------------------------------------------
  
-@@ -85,6 +90,11 @@ public:
-             uint32_t tex, uint32_t texureTarget = TEXTURE_EXTERNAL,
-             bool useFenceSync = true, bool isControlledByApp = false);
+@@ -89,6 +94,11 @@ public:
+     GLConsumer(const sp<IGraphicBufferConsumer>& bq, uint32_t texureTarget,
+             bool useFenceSync, bool isControlledByApp);
  
 +#ifdef STE_HARDWARE
 +    // Method for closing copybit device while abandoning the surface 
@@ -174,7 +199,16 @@ index f08189f..0ab48d0 100644
      // updateTexImage acquires the most recently queued buffer, and sets the
      // image contents of the target texture to it.
      //
-@@ -250,6 +260,11 @@ protected:
+@@ -206,6 +216,8 @@ public:
+     status_t setConsumerUsageBits(uint32_t usage);
+     status_t setTransformHint(uint32_t hint);
+ 
++    status_t convert(sp<GraphicBuffer> &srcBuf, sp<GraphicBuffer> &dstBuf);
++
+     // detachFromContext detaches the GLConsumer from the calling thread's
+     // current OpenGL ES context.  This context must be the same as the context
+     // that was current for previous calls to updateTexImage.
+@@ -254,6 +266,11 @@ protected:
              const sp<GraphicBuffer> graphicBuffer,
              EGLDisplay display, EGLSyncKHR eglFence);
  
@@ -186,19 +220,19 @@ index f08189f..0ab48d0 100644
      status_t releaseBufferLocked(int slot,
              const sp<GraphicBuffer> graphicBuffer, EGLSyncKHR eglFence) {
          return releaseBufferLocked(slot, graphicBuffer, mEglDisplay, eglFence);
-@@ -280,6 +295,11 @@ private:
-     EGLImageKHR createImage(EGLDisplay dpy,
-             const sp<GraphicBuffer>& graphicBuffer, const Rect& crop);
+@@ -314,6 +331,11 @@ private:
+         EGLImageKHR createImage(EGLDisplay dpy,
+                 const sp<GraphicBuffer>& graphicBuffer, const Rect& crop);
  
 +#ifdef STE_HARDWARE
 +    // converts buffer to a suitable color format
 +    status_t convert(sp<GraphicBuffer> &srcBuf, sp<GraphicBuffer> &dstBuf);
 +#endif
 +
-     // freeBufferLocked frees up the given buffer slot.  If the slot has been
-     // initialized this will release the reference to the GraphicBuffer in that
-     // slot and destroy the EGLImage in that slot.  Otherwise it has no effect.
-@@ -437,6 +457,22 @@ private:
+         // Disallow copying
+         EglImage(const EglImage& rhs);
+         void operator = (const EglImage& rhs);
+@@ -475,6 +497,22 @@ private:
      // reset mCurrentTexture to INVALID_BUFFER_SLOT.
      int mCurrentTexture;
  
@@ -222,10 +256,10 @@ index f08189f..0ab48d0 100644
      // an OpenGL ES context.  For legacy reasons, this is initialized to true,
      // indicating that the ConsumerBase is considered to be attached to
 diff --git a/include/gui/IGraphicBufferConsumer.h b/include/gui/IGraphicBufferConsumer.h
-index c9a0f47..d243227 100644
+index 2728d82..1de5594 100644
 --- a/include/gui/IGraphicBufferConsumer.h
 +++ b/include/gui/IGraphicBufferConsumer.h
-@@ -39,8 +39,12 @@ class IGraphicBufferConsumer : public IInterface {
+@@ -43,8 +43,12 @@ class IGraphicBufferConsumer : public IInterface {
  public:
  
      // public facing structure for BufferSlot
@@ -239,12 +273,12 @@ index c9a0f47..d243227 100644
          size_t getFlattenedSize() const;
          size_t getFdCount() const;
 diff --git a/include/gui/IGraphicBufferProducer.h b/include/gui/IGraphicBufferProducer.h
-index daf0b38..d57204c 100644
+index f687fb1..38b713d 100644
 --- a/include/gui/IGraphicBufferProducer.h
 +++ b/include/gui/IGraphicBufferProducer.h
-@@ -105,8 +105,12 @@ public:
-     // and height of the window and current transform applied to buffers,
-     // respectively.
+@@ -262,8 +262,12 @@ public:
+     //              * the slot was enqueued without requesting a buffer
+     //              * crop rect is out of bounds of the buffer dimensions
  
 +#ifdef STE_HARDWARE
 +    struct QueueBufferInput : public Flattenable {
@@ -253,15 +287,15 @@ index daf0b38..d57204c 100644
          friend class Flattenable<QueueBufferInput>;
 +#endif
          inline QueueBufferInput(const Parcel& parcel);
-         inline QueueBufferInput(int64_t timestamp, bool isAutoTimestamp,
-                 const Rect& crop, int scalingMode, uint32_t transform, bool async,
+         // timestamp - a monotonically increasing value in nanoseconds
+         // isAutoTimestamp - if the timestamp was synthesized at queue time
 diff --git a/include/media/openmax/OMX_IVCommon.h b/include/media/openmax/OMX_IVCommon.h
-index 96a4396..d052744 100644
+index 5f9e9b6..d794a99 100644
 --- a/include/media/openmax/OMX_IVCommon.h
 +++ b/include/media/openmax/OMX_IVCommon.h
-@@ -158,6 +158,9 @@ typedef enum OMX_COLOR_FORMATTYPE {
-      * */
-     OMX_COLOR_FormatAndroidOpaque = 0x7F000789,
+@@ -165,6 +165,9 @@ typedef enum OMX_COLOR_FORMATTYPE {
+     OMX_COLOR_FormatYUV420Flexible = 0x7F420888,
+ 
      OMX_TI_COLOR_FormatYUV420PackedSemiPlanar = 0x7F000100,
 +#ifdef STE_HARDWARE
 +    OMX_STE_COLOR_FormatYUV420PackedSemiPlanarMB = 0x7FA00000,
@@ -286,7 +320,7 @@ index 20466b6..4fdb425 100644
  public:
      static const sp<Fence> NO_FENCE;
 diff --git a/include/ui/GraphicBuffer.h b/include/ui/GraphicBuffer.h
-index 7f8cde6..3f7114d 100644
+index 3a5b10d..6f303e5 100644
 --- a/include/ui/GraphicBuffer.h
 +++ b/include/ui/GraphicBuffer.h
 @@ -38,10 +38,18 @@ class GraphicBufferMapper;
@@ -310,13 +344,14 @@ index 7f8cde6..3f7114d 100644
  
      enum {
 diff --git a/include/ui/PixelFormat.h b/include/ui/PixelFormat.h
-index 79a29bc..3c636eb 100644
+index ed7c1d8..6e0641c 100644
 --- a/include/ui/PixelFormat.h
 +++ b/include/ui/PixelFormat.h
-@@ -63,6 +63,13 @@ enum {
-     PIXEL_FORMAT_BGRA_8888   = HAL_PIXEL_FORMAT_BGRA_8888,  // 4x8-bit BGRA
-     PIXEL_FORMAT_RGBA_5551   = 6,                           // 16-bit ARGB
-     PIXEL_FORMAT_RGBA_4444   = 7,                           // 16-bit ARGB
+@@ -65,6 +65,15 @@ enum {
+     PIXEL_FORMAT_RGBA_4444   = 7,                            // 16-bit ARGB
+     PIXEL_FORMAT_sRGB_A_8888 = HAL_PIXEL_FORMAT_sRGB_A_8888, // 4x8-bit sRGB + A
+     PIXEL_FORMAT_sRGB_X_8888 = HAL_PIXEL_FORMAT_sRGB_X_8888, // 4x8-bit sRGB, no A
++
 +#ifdef STE_HARDWARE
 +    // Added Support for YUV42XMBN,
 +    // Required for Copybit CC acceleration
@@ -324,11 +359,12 @@ index 79a29bc..3c636eb 100644
 +    PIXEL_FORMAT_YCbCr_420_SP = HAL_PIXEL_FORMAT_YCbCr_420_SP,
 +    PIXEL_FORMAT_YCbCr_420_P = HAL_PIXEL_FORMAT_YCbCr_420_P,
 +#endif
++
  };
  
  typedef int32_t PixelFormat;
 diff --git a/include/ui/Region.h b/include/ui/Region.h
-index d906dbb..8828497 100644
+index 0d1c68c..47a46b0 100644
 --- a/include/ui/Region.h
 +++ b/include/ui/Region.h
 @@ -25,6 +25,10 @@
@@ -342,7 +378,7 @@ index d906dbb..8828497 100644
  namespace android {
  // ---------------------------------------------------------------------------
  
-@@ -211,6 +215,26 @@ Region& Region::operator += (const Point& pt) {
+@@ -214,6 +218,26 @@ Region& Region::operator += (const Point& pt) {
      return translateSelf(pt.x, pt.y);
  }
  // ---------------------------------------------------------------------------
@@ -370,10 +406,10 @@ index d906dbb..8828497 100644
  
  #endif // ANDROID_UI_REGION_H
 diff --git a/libs/binder/MemoryBase.cpp b/libs/binder/MemoryBase.cpp
-index 5c82330..105c5df 100644
+index 1190ff6..64ee6c9 100644
 --- a/libs/binder/MemoryBase.cpp
 +++ b/libs/binder/MemoryBase.cpp
-@@ -26,6 +26,10 @@ namespace android {
+@@ -25,6 +25,10 @@ namespace android {
  
  // ---------------------------------------------------------------------------
  
@@ -384,7 +420,7 @@ index 5c82330..105c5df 100644
  MemoryBase::MemoryBase(const sp<IMemoryHeap>& heap,
          ssize_t offset, size_t size)
      : mSize(size), mOffset(offset), mHeap(heap)
-@@ -43,6 +47,21 @@ MemoryBase::~MemoryBase()
+@@ -42,6 +46,21 @@ MemoryBase::~MemoryBase()
  {
  }
  
@@ -407,10 +443,10 @@ index 5c82330..105c5df 100644
  }; // namespace android
  
 diff --git a/libs/binder/Parcel.cpp b/libs/binder/Parcel.cpp
-index db9e0a1..382ea99 100644
+index 1dbb06f..3338a65 100644
 --- a/libs/binder/Parcel.cpp
 +++ b/libs/binder/Parcel.cpp
-@@ -819,6 +819,13 @@ status_t Parcel::writeBlob(size_t len, WritableBlob* outBlob)
+@@ -875,6 +875,13 @@ status_t Parcel::writeBlob(size_t len, WritableBlob* outBlob)
      return status;
  }
  
@@ -424,7 +460,7 @@ index db9e0a1..382ea99 100644
  status_t Parcel::write(const FlattenableHelperInterface& val)
  {
      status_t err;
-@@ -1197,6 +1204,13 @@ status_t Parcel::readBlob(size_t len, ReadableBlob* outBlob) const
+@@ -1287,6 +1294,13 @@ status_t Parcel::readBlob(size_t len, ReadableBlob* outBlob) const
      return NO_ERROR;
  }
  
@@ -439,10 +475,10 @@ index db9e0a1..382ea99 100644
  {
      // size
 diff --git a/libs/gui/Android.mk b/libs/gui/Android.mk
-index 80746e4..018ed28 100644
+index 572a16a..26a6621 100644
 --- a/libs/gui/Android.mk
 +++ b/libs/gui/Android.mk
-@@ -37,6 +37,7 @@ LOCAL_SHARED_LIBRARIES := \
+@@ -44,6 +44,7 @@ LOCAL_SHARED_LIBRARIES := \
  	libsync \
  	libui \
  	libutils \
@@ -451,10 +487,10 @@ index 80746e4..018ed28 100644
  
  # Executed only on QCOM BSPs
 diff --git a/libs/gui/ConsumerBase.cpp b/libs/gui/ConsumerBase.cpp
-index c4ec857..790b393 100644
+index f19b6c7..6a362f1 100644
 --- a/libs/gui/ConsumerBase.cpp
 +++ b/libs/gui/ConsumerBase.cpp
-@@ -141,7 +141,7 @@ void ConsumerBase::abandon() {
+@@ -146,7 +146,7 @@ void ConsumerBase::abandon() {
  }
  
  void ConsumerBase::abandonLocked() {
@@ -464,7 +500,7 @@ index c4ec857..790b393 100644
          freeBufferLocked(i);
      }
 diff --git a/libs/gui/GLConsumer.cpp b/libs/gui/GLConsumer.cpp
-index de83a20..f33ad6e 100644
+index b4d0c1f..272a802 100644
 --- a/libs/gui/GLConsumer.cpp
 +++ b/libs/gui/GLConsumer.cpp
 @@ -133,6 +133,9 @@ GLConsumer::GLConsumer(const sp<IGraphicBufferConsumer>& bq, uint32_t tex,
@@ -499,7 +535,7 @@ index de83a20..f33ad6e 100644
      mConsumer->setConsumerUsageBits(DEFAULT_USAGE_FLAGS);
  #ifdef QCOM_BSP
      mCurrentDirtyRect.clear();
-@@ -151,6 +169,16 @@ status_t GLConsumer::setDefaultMaxBufferCount(int bufferCount) {
+@@ -178,6 +196,16 @@ status_t GLConsumer::setDefaultMaxBufferCount(int bufferCount) {
      return mConsumer->setDefaultMaxBufferCount(bufferCount);
  }
  
@@ -516,7 +552,7 @@ index de83a20..f33ad6e 100644
  
  status_t GLConsumer::setDefaultBufferSize(uint32_t w, uint32_t h)
  {
-@@ -349,6 +377,24 @@ status_t GLConsumer::releaseBufferLocked(int buf,
+@@ -365,6 +393,24 @@ status_t GLConsumer::releaseBufferLocked(int buf,
      return err;
  }
  
@@ -541,18 +577,19 @@ index de83a20..f33ad6e 100644
  status_t GLConsumer::updateAndReleaseLocked(const BufferQueue::BufferItem& item)
  {
      status_t err = NO_ERROR;
-@@ -374,9 +420,62 @@ status_t GLConsumer::updateAndReleaseLocked(const BufferQueue::BufferItem& item)
-     // means the buffer was previously acquired), if we destroyed the
-     // EGLImage when detaching from a context but the buffer has not been
-     // re-allocated.
+@@ -392,6 +438,54 @@ status_t GLConsumer::updateAndReleaseLocked(const BufferQueue::BufferItem& item)
+     // ConsumerBase.
+     // We may have to do this even when item.mGraphicBuffer == NULL (which
+     // means the buffer was previously acquired).
++
 +#ifdef STE_HARDWARE
 +    sp<GraphicBuffer> textureBuffer;
 +    if (mSlots[buf].mGraphicBuffer->getPixelFormat() == HAL_PIXEL_FORMAT_YCBCR42XMBN
 +     || mSlots[buf].mGraphicBuffer->getPixelFormat() == HAL_PIXEL_FORMAT_YCbCr_420_P) {
 +        /* deallocate image each time .... */
-+        if (mEglSlots[buf].mEglImage != EGL_NO_IMAGE_KHR) {
-+            eglDestroyImageKHR(mEglDisplay, mEglSlots[buf].mEglImage);
-+            mEglSlots[buf].mEglImage = EGL_NO_IMAGE_KHR;
++        if (&mEglSlots[buf].mEglImage != EGL_NO_IMAGE_KHR) {
++            eglDestroyImageKHR(mEglDisplay, &mEglSlots[buf].mEglImage);
++            mEglSlots[buf].mEglImage = (android::GLConsumer::EglImage*)EGL_NO_IMAGE_KHR;
 +        }
 +        /* test if source and convert buffer size are ok */
 +        if (mSlots[buf].mGraphicBuffer != NULL && mBlitSlots[mNextBlitSlot] != NULL) {
@@ -587,51 +624,25 @@ index de83a20..f33ad6e 100644
 +            return UNKNOWN_ERROR;
 +        }
 +        textureBuffer = mBlitSlots[mNextBlitSlot];
++        mSlots[buf].mGraphicBuffer = textureBuffer;
 +        mNextBlitSlot = (mNextBlitSlot + 1) % BufferQueue::NUM_BLIT_BUFFER_SLOTS;
-+    } else {
-+        textureBuffer = mSlots[buf].mGraphicBuffer;
-+    }
++    } 
 +#endif
 +
-     if (mEglSlots[buf].mEglImage == EGL_NO_IMAGE_KHR) {
-         EGLImageKHR image = createImage(mEglDisplay,
--                mSlots[buf].mGraphicBuffer, item.mCrop);
-+#ifdef STE_HARDWARE
-+                textureBuffer,
-+#else
-+                mSlots[buf].mGraphicBuffer,
-+#endif
-+                item.mCrop);
-         if (image == EGL_NO_IMAGE_KHR) {
-             ST_LOGW("updateAndRelease: unable to createImage on display=%p slot=%d",
-                   mEglDisplay, buf);
-@@ -395,7 +494,12 @@ status_t GLConsumer::updateAndReleaseLocked(const BufferQueue::BufferItem& item)
+     err = mEglSlots[buf].mEglImage->createIfNeeded(mEglDisplay, item.mCrop);
+     if (err != NO_ERROR) {
+         ST_LOGW("updateAndRelease: unable to createImage on display=%p slot=%d",
+@@ -408,8 +502,7 @@ status_t GLConsumer::updateAndReleaseLocked(const BufferQueue::BufferItem& item)
          // release the old buffer, so instead we just drop the new frame.
          // As we are still under lock since acquireBuffer, it is safe to
          // release by slot.
 -        releaseBufferLocked(buf, mSlots[buf].mGraphicBuffer,
-+        releaseBufferLocked(buf,
-+#ifdef STE_HARDWARE
-+                textureBuffer,
-+#else
-+                mSlots[buf].mGraphicBuffer,
-+#endif
-                 mEglDisplay, EGL_NO_SYNC_KHR);
+-                mEglDisplay, EGL_NO_SYNC_KHR);
++        releaseBufferLocked(buf, mSlots[buf].mGraphicBuffer, mEglDisplay, EGL_NO_SYNC_KHR);
          return err;
      }
-@@ -420,7 +524,11 @@ status_t GLConsumer::updateAndReleaseLocked(const BufferQueue::BufferItem& item)
  
-     // Update the GLConsumer state.
-     mCurrentTexture = buf;
-+#ifdef STE_HARDWARE
-+    mCurrentTextureBuf = textureBuffer;
-+#else
-     mCurrentTextureBuf = mSlots[buf].mGraphicBuffer;
-+#endif
-     mCurrentCrop = item.mCrop;
-     mCurrentTransform = item.mTransform;
-     mCurrentScalingMode = item.mScalingMode;
-@@ -1094,6 +1202,49 @@ void GLConsumer::dumpLocked(String8& result, const char* prefix) const
+@@ -1045,6 +1138,49 @@ void GLConsumer::dumpLocked(String8& result, const char* prefix) const
      ConsumerBase::dumpLocked(result, prefix);
  }
  
@@ -682,7 +693,7 @@ index de83a20..f33ad6e 100644
      out[0] = a[0]*b[0] + a[4]*b[1] + a[8]*b[2] + a[12]*b[3];
      out[1] = a[1]*b[0] + a[5]*b[1] + a[9]*b[2] + a[13]*b[3];
 diff --git a/libs/ui/PixelFormat.cpp b/libs/ui/PixelFormat.cpp
-index 6517c8c..6411a5e 100644
+index a716949..cbd0063 100644
 --- a/libs/ui/PixelFormat.cpp
 +++ b/libs/ui/PixelFormat.cpp
 @@ -90,6 +90,10 @@ status_t getPixelFormatInfo(PixelFormat format, PixelFormatInfo* info)
@@ -716,8 +727,22 @@ index 3b2984a..9736c5a 100644
  
  #if KHRONOS_SUPPORT_INT64 /* EGLuint64KHR requires 64-bit uint support */
  #ifndef EGL_KHR_stream
+diff --git a/opengl/libs/Android.mk b/opengl/libs/Android.mk
+index cc5d544..3631e17 100644
+--- a/opengl/libs/Android.mk
++++ b/opengl/libs/Android.mk
+@@ -47,6 +47,9 @@ LOCAL_CFLAGS += -DEGL_TRACE=1
+ ifeq ($(BOARD_ALLOW_EGL_HIBERNATION),true)
+   LOCAL_CFLAGS += -DBOARD_ALLOW_EGL_HIBERNATION
+ endif
++ifeq ($(BOARD_EGL_WORKAROUND_BUG_10194508), true)
++  LOCAL_CFLAGS += -DWORKAROUND_BUG_10194508=1
++endif
+ ifeq ($(TARGET_BOARD_PLATFORM), omap4)
+   LOCAL_CFLAGS += -DWORKAROUND_BUG_10194508=1
+ endif
 diff --git a/opengl/libs/EGL/eglApi.cpp b/opengl/libs/EGL/eglApi.cpp
-index 5607310..12b1d9b 100644
+index 937665b..9303165 100644
 --- a/opengl/libs/EGL/eglApi.cpp
 +++ b/opengl/libs/EGL/eglApi.cpp
 @@ -139,11 +139,13 @@ static const extention_map_t sExtensionMap[] = {
@@ -734,7 +759,7 @@ index 5607310..12b1d9b 100644
  
      // EGL_KHR_wait_sync
      { "eglWaitSyncKHR",
-@@ -1591,6 +1593,7 @@ EGLBoolean eglGpuPerfHintQCOM(EGLDisplay dpy, EGLContext ctx, EGLint *attrib_lis
+@@ -1610,6 +1612,7 @@ EGLBoolean eglGpuPerfHintQCOM(EGLDisplay dpy, EGLContext ctx, EGLint *attrib_lis
  // ----------------------------------------------------------------------------
  // NVIDIA extensions
  // ----------------------------------------------------------------------------
@@ -742,7 +767,7 @@ index 5607310..12b1d9b 100644
  EGLuint64NV eglGetSystemTimeFrequencyNV()
  {
      clearError();
-@@ -1626,3 +1629,4 @@ EGLuint64NV eglGetSystemTimeNV()
+@@ -1645,3 +1648,4 @@ EGLuint64NV eglGetSystemTimeNV()
  
      return setErrorQuiet(EGL_BAD_DISPLAY, 0);
  }
@@ -763,7 +788,9 @@ index aa92ea0..4d2de12 100644
  /* IMG extensions */
  
 diff --git a/services/surfaceflinger/DisplayDevice.cpp b/services/surfaceflinger/DisplayDevice.cpp
-index f56a1c5..fae698f 100755
+old mode 100644
+new mode 100755
+index c166aaa..d72163b
 --- a/services/surfaceflinger/DisplayDevice.cpp
 +++ b/services/surfaceflinger/DisplayDevice.cpp
 @@ -26,6 +26,9 @@
@@ -776,9 +803,9 @@ index f56a1c5..fae698f 100755
  
  #include <gui/Surface.h>
  
-@@ -74,8 +77,12 @@ DisplayDevice::DisplayDevice(
-       mHardwareOrientation(0),
-       mOrientation()
+@@ -76,8 +79,12 @@ DisplayDevice::DisplayDevice(
+       mPowerMode(HWC_POWER_MODE_OFF),
+       mActiveConfig(0)
  {
 +#ifdef STE_HARDWARE
 +    ANativeWindow* const window = new FramebufferNativeWindow();
@@ -787,35 +814,48 @@ index f56a1c5..fae698f 100755
      ANativeWindow* const window = mNativeWindow.get();
 +#endif
  
-     int format;
-     window->query(window, NATIVE_WINDOW_FORMAT, &format);
-@@ -487,12 +494,19 @@ void DisplayDevice::dump(String8& result) const {
+     /*
+      * Create our display's surface
+@@ -422,7 +429,12 @@ void DisplayDevice::setDisplaySize(const int newWidth, const int newHeight) {
+ 
+     mDisplaySurface->resizeBuffers(newWidth, newHeight);
+ 
++#ifdef STE_HARDWARE
++    ANativeWindow* const window = new FramebufferNativeWindow();
++#else
++    mNativeWindow = new Surface(producer, false);
+     ANativeWindow* const window = mNativeWindow.get();
++#endif
+     mSurface = eglCreateWindowSurface(mDisplay, mConfig, window, NULL);
+     eglQuerySurface(mDisplay, mSurface, EGL_WIDTH,  &mDisplayWidth);
+     eglQuerySurface(mDisplay, mSurface, EGL_HEIGHT, &mDisplayHeight);
+@@ -506,12 +518,19 @@ void DisplayDevice::dump(String8& result) const {
      const Transform& tr(mGlobalTransform);
      result.appendFormat(
          "+ DisplayDevice: %s\n"
 -        "   type=%x, hwcId=%d, layerStack=%u, (%4dx%4d), ANativeWindow=%p, orient=%2d (type=%08x), "
-+        "   type=%x, hwcId=%d, layerStack=%u, (%4dx%4d), "
++        "   type=%x, hwcId=%d, layerStack=%u, (%4dx%4d)," 
 +#ifndef STE_HARDWARE
-+        "ANativeWindow=%p, "
-+#endif
++        "ANativeWindow=%p,"
++#endif 
 +        "orient=%2d (type=%08x), "
-         "flips=%u, isSecure=%d, secureVis=%d, acquired=%d, numLayers=%u\n"
+         "flips=%u, isSecure=%d, secureVis=%d, powerMode=%d, activeConfig=%d, numLayers=%zu\n"
          "   v:[%d,%d,%d,%d], f:[%d,%d,%d,%d], s:[%d,%d,%d,%d],"
          "transform:[[%0.3f,%0.3f,%0.3f][%0.3f,%0.3f,%0.3f][%0.3f,%0.3f,%0.3f]]\n",
          mDisplayName.string(), mType, mHwcDisplayId,
 -        mLayerStack, mDisplayWidth, mDisplayHeight, mNativeWindow.get(),
-+        mLayerStack, mDisplayWidth, mDisplayHeight,
++        mLayerStack, mDisplayWidth, mDisplayHeight, 
 +#ifndef STE_HARDWARE
-+        mNativeWindow.get(),
++	mNativeWindow.get(),
 +#endif
          mOrientation, tr.getType(), getPageFlipCount(),
-         mIsSecure, mSecureLayerVisible, mScreenAcquired, mVisibleLayersSortedByZ.size(),
-         mViewport.left, mViewport.top, mViewport.right, mViewport.bottom,
+         mIsSecure, mSecureLayerVisible, mPowerMode, mActiveConfig,
+         mVisibleLayersSortedByZ.size(),
 diff --git a/services/surfaceflinger/DisplayDevice.h b/services/surfaceflinger/DisplayDevice.h
-index 24ca033..170f392 100644
+index 76243f0..2345b24 100644
 --- a/services/surfaceflinger/DisplayDevice.h
 +++ b/services/surfaceflinger/DisplayDevice.h
-@@ -171,7 +171,9 @@ private:
+@@ -186,7 +186,9 @@ private:
      wp<IBinder> mDisplayToken;
  
      // ANativeWindow this display is rendering into
@@ -824,12 +864,12 @@ index 24ca033..170f392 100644
 +#endif
      sp<DisplaySurface> mDisplaySurface;
  
-     EGLDisplay      mDisplay;
+     EGLConfig       mConfig;
 diff --git a/services/surfaceflinger/SurfaceFlinger.cpp b/services/surfaceflinger/SurfaceFlinger.cpp
-index d105282..04cc09e 100644
+index 714a9f6..8a4b703 100644
 --- a/services/surfaceflinger/SurfaceFlinger.cpp
 +++ b/services/surfaceflinger/SurfaceFlinger.cpp
-@@ -2982,6 +2982,7 @@ class GraphicProducerWrapper : public BBinder, public MessageHandler {
+@@ -3305,6 +3305,7 @@ class GraphicProducerWrapper : public BBinder, public MessageHandler {
      uint32_t code;
      Parcel const* data;
      Parcel* reply;
@@ -837,19 +877,19 @@ index d105282..04cc09e 100644
  
      enum {
          MSG_API_CALL,
-@@ -2994,6 +2995,7 @@ class GraphicProducerWrapper : public BBinder, public MessageHandler {
+@@ -3318,6 +3319,7 @@ class GraphicProducerWrapper : public BBinder, public MessageHandler {
       */
      virtual status_t transact(uint32_t code,
-             const Parcel& data, Parcel* reply, uint32_t flags) {
-+        mLock.lock();
+             const Parcel& data, Parcel* reply, uint32_t /* flags */) {
++        mLock.lock(); 
          this->code = code;
          this->data = &data;
          this->reply = reply;
-@@ -3006,6 +3008,7 @@ class GraphicProducerWrapper : public BBinder, public MessageHandler {
+@@ -3335,6 +3337,7 @@ class GraphicProducerWrapper : public BBinder, public MessageHandler {
              looper->sendMessage(this, Message(MSG_API_CALL));
              barrier.wait();
          }
 +        mLock.unlock();
-         return NO_ERROR;
+         return result;
      }
  

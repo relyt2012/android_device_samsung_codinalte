@@ -1,3 +1,166 @@
+From cc921bf1d169c5f2d8604218a21ebe0de223b2c8 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sun, 30 Nov 2014 15:58:45 -0600
+Subject: [PATCH] core patch
+
+Change-Id: Id6459a0e1157a2d396977cc7b66cefab979eeccf
+---
+ healthd/Android.mk               |  4 +++
+ healthd/healthd_mode_charger.cpp | 73 ++++++++++++++++++++++++++++++++++++++--
+ include/utils/Flattenable.h      | 22 ++++++++++++
+ libutils/Android.mk              |  6 ++++
+ libutils/Flattenable.cpp         | 24 +++++++++++++
+ rootdir/init.rc                  |  4 +--
+ 6 files changed, 129 insertions(+), 4 deletions(-)
+ create mode 100644 libutils/Flattenable.cpp
+
+diff --git a/healthd/Android.mk b/healthd/Android.mk
+index 2e3270d..7e87677 100644
+--- a/healthd/Android.mk
++++ b/healthd/Android.mk
+@@ -27,6 +27,10 @@ LOCAL_UNSTRIPPED_PATH := $(TARGET_ROOT_OUT_SBIN_UNSTRIPPED)
+ 
+ LOCAL_CFLAGS := -D__STDC_LIMIT_MACROS -Werror
+ 
++ifneq ($(BOARD_CHARGER_CUSTOM_BACKLIGHT_PATH),)
++LOCAL_CFLAGS += -DBOARD_CHARGER_CUSTOM_BACKLIGHT_PATH=\"$(BOARD_CHARGER_CUSTOM_BACKLIGHT_PATH)\"
++endif
++
+ ifeq ($(strip $(BOARD_CHARGER_DISABLE_INIT_BLANK)),true)
+ LOCAL_CFLAGS += -DCHARGER_DISABLE_INIT_BLANK
+ endif
+diff --git a/healthd/healthd_mode_charger.cpp b/healthd/healthd_mode_charger.cpp
+index 9be1627..4e8a1f2 100644
+--- a/healthd/healthd_mode_charger.cpp
++++ b/healthd/healthd_mode_charger.cpp
+@@ -70,13 +70,21 @@ char *locale;
+ #define BATTERY_FULL_THRESH     95
+ #define SCREEN_ON_BATTERY_THRESH 0
+ 
++#define TIMEZONE_PERSIST_PROP_FILE "/data/property/persist.sys.timezone"
++
+ #define LAST_KMSG_PATH          "/proc/last_kmsg"
+ #define LAST_KMSG_PSTORE_PATH   "/sys/fs/pstore/console-ramoops"
+ #define LAST_KMSG_MAX_SZ        (32 * 1024)
+ #define RED_LED_PATH            "/sys/class/leds/red/brightness"
+ #define GREEN_LED_PATH          "/sys/class/leds/green/brightness"
+ #define BLUE_LED_PATH           "/sys/class/leds/blue/brightness"
+-#define BACKLIGHT_PATH          "/sys/class/leds/lcd-backlight/brightness"
++
++#ifdef BOARD_CHARGER_CUSTOM_BACKLIGHT_PATH
++#define BACKLIGHT_PATH BOARD_CHARGER_CUSTOM_BACKLIGHT_PATH
++#else
++#define BACKLIGHT_PATH "/sys/class/leds/lcd-backlight/brightness"
++#endif
++
+ #define CHARGING_ENABLED_PATH   "/sys/class/power_supply/battery/charging_enabled"
+ 
+ #define LOGE(x...) do { KLOG_ERROR("charger", x); } while (0)
+@@ -209,6 +217,9 @@ static int char_width;
+ static int char_height;
+ static bool minui_inited;
+ 
++static bool show_datetime = false;
++static bool no_suspend = false;
++
+ static int set_tricolor_led(int on, int color)
+ {
+     int fd, i;
+@@ -441,6 +452,20 @@ static void android_green(void)
+     gr_color(0xa4, 0xc6, 0x39, 255);
+ }
+ 
++static void draw_datetime()
++{
++    time_t t = time(NULL);
++    gmtime(&t);
++    struct tm *tmptr = localtime(&t);
++    if(tmptr->tm_hour > 12) tmptr->tm_hour -= 12; 
++    char *time = asctime(tmptr);
++    if(tmptr != NULL)
++    {
++	android_green();
++	gr_text(10, 30, time, 0);
++    }
++}
++
+ /* returns the last y-offset of where the surface ends */
+ static int draw_surface_centered(struct charger* /*charger*/, gr_surface surface)
+ {
+@@ -497,6 +522,10 @@ static void draw_capacity(struct charger *charger)
+     y = (gr_fb_height() + char_height) / 2;
+     android_green();
+     gr_text(x, y, cap_str, 0);
++    
++    if(show_datetime)
++	draw_datetime();
++
+ }
+ 
+ static void redraw_screen(struct charger *charger)
+@@ -558,7 +587,7 @@ static void update_screen_state(struct charger *charger, int64_t now)
+     }
+ 
+     /* animation is over, blank screen and leave */
+-    if (batt_anim->cur_cycle == batt_anim->num_cycles) {
++    if (batt_anim->cur_cycle == batt_anim->num_cycles && !no_suspend) {
+         reset_animation(batt_anim);
+         charger->next_screen_transition = -1;
+         gr_fb_blank(true);
+@@ -646,6 +675,41 @@ static void update_screen_state(struct charger *charger, int64_t now)
+     }
+ }
+ 
++
++static void dotimezone()
++{
++    /* Meticulus:
++     * Read the timezone and set it. Requires that /data and /system
++     * be mounted. The c library in android depends on the
++     * persist.sys.timezone property to determine local time.
++     * We are reading the property from the file on system and
++     * setting it using setprop.
++     */
++
++    char file_tzdata[256];
++    const char *env_prefix = "/system/bin/setprop persist.sys.timezone ";
++    char env_set[256];
++    if(access(TIMEZONE_PERSIST_PROP_FILE, R_OK) == 0)
++    {
++    	FILE *timezone_file  = fopen(TIMEZONE_PERSIST_PROP_FILE, "rt");
++    	if(fgets(file_tzdata, 255, timezone_file) != NULL)
++    	{
++		strcpy(env_set, env_prefix);
++		strcat(env_set, file_tzdata);
++       		system(env_set);
++    	} 
++    }
++}
++
++static void loadsettings()
++{
++    if(access("/data/misc/charger/charger_show_datetime", F_OK) == 0)
++	show_datetime = true;
++
++    if(access("/data/misc/charger/charger_no_suspend", F_OK) == 0)
++	no_suspend = true;
++}
++
+ static int set_key_callback(int code, int value, void *data)
+ {
+     struct charger *charger = (struct charger *)data;
+@@ -891,6 +955,11 @@ void healthd_mode_charger_init(struct healthd_config* /*config*/)
+     int i;
+     int epollfd;
+ 
++
++    loadsettings();
++    if(show_datetime)
++    	dotimezone();
++
+     dump_last_kmsg();
+ 
+     LOGI("--------------- STARTING CHARGER MODE ---------------\n");
 diff --git a/include/utils/Flattenable.h b/include/utils/Flattenable.h
 index 882a8b2..495b90d 100644
 --- a/include/utils/Flattenable.h
@@ -61,18 +224,20 @@ index 882a8b2..495b90d 100644
  /*
   * LightFlattenable is a protocol allowing object to serialize themselves out
 diff --git a/libutils/Android.mk b/libutils/Android.mk
-index 720443e..02e16b8 100644
+index b1dc1f8..44f69c1 100644
 --- a/libutils/Android.mk
 +++ b/libutils/Android.mk
-@@ -43,6 +43,10 @@ commonSources:= \
+@@ -44,6 +44,12 @@ commonSources:= \
  	VectorImpl.cpp \
  	misc.cpp
  
++
 +ifeq ($(BOARD_USES_STE_HARDWARE),true)
 +	commonSources += Flattenable.cpp
 +endif
 +
- host_commonCflags := -DLIBUTILS_NATIVE=1 $(TOOL_CFLAGS)
++
+ host_commonCflags := -DLIBUTILS_NATIVE=1 $(TOOL_CFLAGS) -Werror
  
  ifeq ($(HOST_OS),windows)
 diff --git a/libutils/Flattenable.cpp b/libutils/Flattenable.cpp
@@ -105,3 +270,22 @@ index 0000000..1f2ffaa
 +}
 +
 +}; // namespace android
+diff --git a/rootdir/init.rc b/rootdir/init.rc
+index afcdde3..9225d4b 100644
+--- a/rootdir/init.rc
++++ b/rootdir/init.rc
+@@ -196,9 +196,9 @@ on late-init
+ 
+ on post-fs
+     # once everything is setup, no need to modify /
+-    mount rootfs rootfs / ro remount
++    # mount rootfs rootfs / ro remount
+     # mount shared so changes propagate into child namespaces
+-    mount rootfs rootfs / shared rec
++    # mount rootfs rootfs / shared rec
+ 
+     # We chown/chmod /cache again so because mount is run as root + defaults
+     chown system cache /cache
+-- 
+1.9.1
+
