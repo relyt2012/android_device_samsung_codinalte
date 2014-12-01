@@ -127,7 +127,7 @@ BOARD_CHARGER_DISABLE_INIT_BLANK := false
 BOARD_CHARGER_CUSTOM_BACKLIGHT_PATH := /sys/class/backlight/panel/brightness
 
 # Needed for blobs
-COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
+COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS -DADD_LEGACY_ACQUIRE_BUFFER_SYMBOL
 
 # Recovery
 BOARD_UMS_LUNFILE := "/sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun0/file"
