@@ -691,8 +691,6 @@ struct audio_hw_device {
                              const char *address,
                              audio_source_t source);
 
-    void (*close_input_stream)(struct audio_hw_device *dev,
-                               struct audio_stream_in *stream_in);
 #else
     int (*open_input_stream)(struct audio_hw_device *dev, uint32_t devices,
                              int *format, uint32_t *channels,
@@ -700,6 +698,9 @@ struct audio_hw_device {
                              audio_in_acoustics_t acoustics,
                              struct audio_stream_in **stream_in);
 #endif
+    void (*close_input_stream)(struct audio_hw_device *dev,
+                               struct audio_stream_in *stream_in);
+
     /** This method dumps the state of the audio hardware */
     int (*dump)(const struct audio_hw_device *dev, int fd);
 #ifndef ICS_AUDIO_BLOB
