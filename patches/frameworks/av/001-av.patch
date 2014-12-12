@@ -61,10 +61,22 @@ index 64b4c2a..cc87129 100644
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
 old mode 100644
 new mode 100755
-index 4971d7e..ca26d87
+index 4971d7e..876d37a
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
-@@ -4475,7 +4475,7 @@ bool ACodec::BaseState::onOMXFillBufferDone(
+@@ -666,7 +666,11 @@ status_t ACodec::configureOutputBuffersFromNativeWindow(
+             mNativeWindow.get(),
+             def.format.video.nFrameWidth,
+             def.format.video.nFrameHeight,
++#ifdef STE_HARDWARE
++            OMXCodec::OmxToHALFormat(def.format.video.eColorFormat));
++#else
+             def.format.video.eColorFormat);
++#endif          
+ #endif
+ 
+     if (err != 0) {
+@@ -4475,7 +4479,7 @@ bool ACodec::BaseState::onOMXFillBufferDone(
                  mCodec->mSkipCutBuffer->submit(info->mData);
              }
              info->mData->meta()->setInt64("timeUs", timeUs);
@@ -133,7 +145,7 @@ index 89884a2..cfa55ad 100644
  const char *MEDIA_MIMETYPE_AUDIO_AMR_NB = "audio/3gpp";
  const char *MEDIA_MIMETYPE_AUDIO_AMR_WB = "audio/amr-wb";
 diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
-index 8e53d0e..399b2fd 100644
+index 8e53d0e..cc3c7ba 100644
 --- a/media/libstagefright/OMXCodec.cpp
 +++ b/media/libstagefright/OMXCodec.cpp
 @@ -261,6 +261,20 @@ static int CompareSoftwareCodecsFirst(
@@ -221,18 +233,18 @@ index 8e53d0e..399b2fd 100644
              && portIndex == kPortIndexInput) {
          err = mOMX->storeMetaDataInBuffers(mNode, kPortIndexInput, OMX_TRUE);
          if (err != OK) {
-@@ -2165,7 +2207,11 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
+@@ -2163,7 +2205,11 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
+             mNativeWindow.get(),
+             def.format.video.nFrameWidth,
              def.format.video.nFrameHeight,
-             def.format.video.eColorFormat);
- #else
 +#ifdef STE_HARDWARE
-+    OMX_COLOR_FORMATTYPE eNativeColorFormat = OmxToHALFormat(def.format.video.eColorFormat);
++            OmxToHALFormat(def.format.video.eColorFormat));
 +#else
-     OMX_COLOR_FORMATTYPE eNativeColorFormat = def.format.video.eColorFormat;
+             def.format.video.eColorFormat);
 +#endif
+ #else
+     OMX_COLOR_FORMATTYPE eNativeColorFormat = def.format.video.eColorFormat;
      setNativeWindowColorFormat(eNativeColorFormat);
- 
-     err = native_window_set_buffers_geometry(
 diff --git a/media/libstagefright/colorconversion/ColorConverter.cpp b/media/libstagefright/colorconversion/ColorConverter.cpp
 index 597167f..a85ad72 100644
 --- a/media/libstagefright/colorconversion/ColorConverter.cpp
