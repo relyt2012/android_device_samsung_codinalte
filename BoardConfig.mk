@@ -105,6 +105,7 @@ BOARD_BLUEDROID_VENDOR_CONF := device/samsung/codinalte/bluetooth/vnd_codinalte.
 
 # RIL
 BOARD_RIL_CLASS := ../../../device/samsung/codinalte/ril/
+COMMON_GLOBAL_CFLAGS += -DSAMSUNG_PROPRIETARY_RIL_WORKAROUND
 
 # Browser
 ENABLE_WEBGL := true
@@ -123,10 +124,13 @@ BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
 BOARD_VOLD_DISC_HAS_MULTIPLE_MAJORS := true
 
 # Charging mode
-BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
+COMMON_GLOBAL_FLAGS += -DCHARGING_ENABLED_PATH=$("/sys/class/power_supply/battery/charging_mode_booting")
+COMMON_GLOBAL_FLAGS += -DBACKLIGHT_PATH=$("/sys/class/backlight/s5p_bl/brightness")
 BOARD_CHARGER_ENABLE_SUSPEND := false
 BOARD_CHARGER_DISABLE_INIT_BLANK := false
-BOARD_CHARGER_CUSTOM_BACKLIGHT_PATH := /sys/class/backlight/panel/brightness
+# Legacy not used
+#BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
+#BOARD_CHARGER_CUSTOM_BACKLIGHT_PATH := /sys/class/backlight/panel/brightness
 
 # Needed for blobs
 COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS -DADD_LEGACY_ACQUIRE_BUFFER_SYMBOL
@@ -164,3 +168,24 @@ TW_CRYPTO_MNT_POINT := "/data"
 TW_CRYPTO_FS_OPTIONS := "noatime,nosuid,nodev,discard,noauto_da_alloc,journal_async_commit,errors=panic    wait,check"
 TW_CRYPTO_FS_FLAGS := "0x00000406"
 TW_CRYPTO_KEY_LOC := "footer"
+
+# SELinux
+BOARD_SEPOLICY_DIRS += \
+	device/samsung/codinalte/sepolicy
+
+BOARD_SEPOLICY_UNION += \
+	file_contexts \
+	admsrv.te \
+	bluetooth.te \
+	bootanim.te \
+	init.te \
+	init_shell.te \
+	mediaserver.te \
+	platform_app.te \
+	rild.te \
+	surfaceflinger.te \
+	system_app.te \
+	system_server.te \
+	untrusted_app.te \
+	wpa.te \
+	zygote.te
