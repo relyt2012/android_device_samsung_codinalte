@@ -662,7 +662,7 @@ enum {
     AUDIO_DEVICE_OUT_USB_DEVICE                = 0x4000,
     AUDIO_DEVICE_OUT_REMOTE_SUBMIX             = 0x8000,
     /* Telephony voice TX path */
-    AUDIO_DEVICE_OUT_TELEPHONY_TX              = 0x10000,
+    AUDIO_DEVICE_OUT_TELEPHONY_TX              = AUDIO_DEVICE_OUT_EARPIECE,
     /* Analog jack with line impedance detected */
     AUDIO_DEVICE_OUT_LINE                      = 0x20000,
     /* HDMI Audio Return Channel */
