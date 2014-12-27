@@ -13,10 +13,11 @@ allow admsrv shell_data_file:dir { read search setattr add_name remove_name writ
 allow admsrv shell_data_file:sock_file { create getattr setattr open read write unlink };
 allow admsrv shell_data_file:file { open getattr setattr read write unlink create lock };
 allow admsrv sysfs_wake_lock: file { open read write };
+allow admsrv sysfs_devices_system_cpu:file { write };
 allow admsrv system_file:file { entrypoint execute_no_trans };
 allow admsrv admsrv:process { execmem };
 allow admsrv shell_exec:file { execute open read execute_no_trans };
-allow admsrv system_data_file:dir { open read write remove_name add_name setattr };
+allow admsrv system_data_file:dir { open read write create remove_name add_name getattr setattr };
 allow admsrv system_data_file:file { create open rename read write link unlink lock setattr };
 allow admsrv device:file { open read write };
 allow admsrv device:chr_file { open read write ioctl };
