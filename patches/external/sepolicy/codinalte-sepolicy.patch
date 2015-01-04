@@ -12,7 +12,7 @@ index b9027fe..405f6ef 100644
  neverallow { appdomain -nfc } nfc_device:chr_file
      { read write };
 diff --git a/domain.te b/domain.te
-index 86dabe3..019023e 100644
+index 86dabe3..6d08b44 100644
 --- a/domain.te
 +++ b/domain.te
 @@ -231,7 +231,7 @@ neverallow { domain -init } kernel:security setsecparam;
@@ -33,3 +33,12 @@ index 86dabe3..019023e 100644
  
  # Limit what domains can mount filesystems or change their mount flags.
  # sdcard_type / vfat is exempt as a larger set of domains need
+@@ -291,7 +291,7 @@ neverallow { domain -recovery } { system_file exec_type }:dir_file_class_set
+     { create write setattr relabelfrom relabelto append unlink link rename };
+ 
+ # Nothing should be writing to files in the rootfs.
+-neverallow { domain -recovery } rootfs:file { create write setattr relabelto append unlink link rename };
++neverallow { domain -recovery -vold } rootfs:file { create write setattr relabelto append unlink link rename };
+ 
+ # Restrict context mounts to specific types marked with
+ # the contextmount_type attribute.

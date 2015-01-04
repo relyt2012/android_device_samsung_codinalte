@@ -190,5 +190,6 @@ BOARD_SEPOLICY_UNION += \
 	system_app.te \
 	system_server.te \
 	untrusted_app.te \
+	vold.te \
 	wpa.te \
 	zygote.te
