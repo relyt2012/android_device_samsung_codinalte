@@ -3,7 +3,7 @@ THISDIR=$PWD
 UNATTENDED=${1}
 TOPDIR="$THISDIR/../../../../"
 echo $TOPDIR
-for LINE in $(find -name *.patch)
+for LINE in $(find -name *.patch | sort )
 do
 	if [[ $UNATTENDED -ne 1 ]]; then
 		clear
@@ -53,7 +53,7 @@ do
 	cd $THISDIR
 done
 
-for LINE in $(find -name *.apply)
+for LINE in $(find -name *.apply | sort )
 do
 	if [[ $UNATTENDED -ne 1 ]]; then
 		clear
