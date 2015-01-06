@@ -59,6 +59,9 @@ on init
     # Prevents permission denied error for telephony
     chmod 0644 /proc/cmdline
 
+on charger
+    write /sys/class/power_supply/battery/batt_lp_charging 1
+
 on fs
 
     mount_all /fstab.samsungcodina
@@ -452,6 +455,12 @@ on boot
     # Modem
     class_start modem
     class_start default
+
+service charger /sbin/healthd -c
+    class charger
+    critical
+    seclabel u:r:healthd:s0
+
 
 # virtual sdcard daemon running as media_rw (1023)
 service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated

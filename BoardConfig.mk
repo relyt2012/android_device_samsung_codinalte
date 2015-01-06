@@ -126,12 +126,12 @@ BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
 BOARD_VOLD_DISC_HAS_MULTIPLE_MAJORS := true
 
 # Charging mode
-COMMON_GLOBAL_FLAGS += -DCHARGING_ENABLED_PATH=$("/sys/class/power_supply/battery/charging_mode_booting")
-COMMON_GLOBAL_FLAGS += -DBACKLIGHT_PATH=$("/sys/class/backlight/s5p_bl/brightness")
-BOARD_CHARGER_ENABLE_SUSPEND := false
-BOARD_CHARGER_DISABLE_INIT_BLANK := false
+#COMMON_GLOBAL_FLAGS += -DCHARGING_ENABLED_PATH=$("/sys/class/power_supply/battery/batt_lp_charging")
+#COMMON_GLOBAL_FLAGS += -DBACKLIGHT_PATH=$("/sys/class/backlight/panel/brightness")
+BOARD_CHARGER_ENABLE_SUSPEND := true
+#BOARD_CHARGER_DISABLE_INIT_BLANK := false
+BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
 # Legacy not used
-#BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
 #BOARD_CHARGER_CUSTOM_BACKLIGHT_PATH := /sys/class/backlight/panel/brightness
 
 # Needed for blobs
@@ -182,6 +182,7 @@ BOARD_SEPOLICY_UNION += \
 	bootanim.te \
 	init.te \
 	init_shell.te \
+	healthd.te \
 	mediaserver.te \
 	platform_app.te \
 	radio.te \
