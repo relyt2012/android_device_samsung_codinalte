@@ -182,11 +182,13 @@ BOARD_SEPOLICY_UNION += \
 	bootanim.te \
 	init.te \
 	init_shell.te \
+	isolated_app.te \
 	healthd.te \
 	mediaserver.te \
 	platform_app.te \
 	radio.te \
 	rild.te \
+	shared_relro.te \
 	surfaceflinger.te \
 	system_app.te \
 	system_server.te \
