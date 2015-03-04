@@ -648,13 +648,13 @@ index b4d0c1f..cf919a8 100644
 +        }
 +        /* allocate convert buffer if needed */
 +        if (mBlitSlots[mNextBlitSlot] == NULL) {
-+	    if(mGraphicBufferAlloc == NULL) {
++	    /*if(mGraphicBufferAlloc == NULL) {
 +		
-+		/* For some reason this is not being initialized in the constructor.
-+		   So, we will create it here if it's null. */
++		 For some reason this is not being initialized in the constructor.
++		   So, we will create it here if it's null.
 +    		sp<ISurfaceComposer> composer(ComposerService::getComposerService());
 +                mGraphicBufferAlloc = composer->createGraphicBufferAlloc();
-+	    }
++	    }*/
 +            status_t res;
 +            sp<GraphicBuffer> srcBuf = mSlots[buf].mGraphicBuffer;
 +            sp<GraphicBuffer> dstBuf(mGraphicBufferAlloc->createGraphicBuffer(srcBuf->getWidth(),
