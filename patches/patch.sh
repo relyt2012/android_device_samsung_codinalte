@@ -23,7 +23,7 @@ do
 	echo "repo = $REPO"
 	cd $TOPDIR
 	cd $REPO
-	RESULT=$(patch -p1 --no-backup-if-mismatch < $PATCH)
+	RESULT=$(patch -p1 --follow-symlinks --no-backup-if-mismatch < $PATCH)
 	echo -e "${RESULT}"
 	if [[ $(echo $RESULT | grep -c FAILED) -gt 0 ]] ; then
 		echo ""
