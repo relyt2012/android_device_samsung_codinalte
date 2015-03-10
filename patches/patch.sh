@@ -1,8 +1,15 @@
 #!/bin/bash
 THISDIR=$PWD
-UNATTENDED=${1}
+ROM=${1}
+UNATTENDED=${2}
 TOPDIR="$THISDIR/../../../../"
+if [[ "$ROM" == "" ]]; then
+	echo "ROM not specified, assuming cm!"
+	sleep 1
+	ROM="cm"
+fi
 echo $TOPDIR
+cd $ROM
 for LINE in $(find -name *.patch | sort )
 do
 	if [[ $UNATTENDED -ne 1 ]]; then
@@ -11,7 +18,7 @@ do
 	echo "------------------------------------------------------------------------"
 	echo "patch = $THISDIR/$LINE"
 	echo "------------------------------------------------------------------------"
-	PATCH=$THISDIR/$LINE
+	PATCH=$THISDIR/$ROM/$LINE
 	REPO=$(dirname $LINE)
 	echo "repo = $REPO"
 	cd $TOPDIR
@@ -53,6 +60,7 @@ do
 	cd $THISDIR
 done
 
+cd $ROM
 for LINE in $(find -name *.apply | sort )
 do
 	if [[ $UNATTENDED -ne 1 ]]; then
@@ -61,7 +69,7 @@ do
 	echo "------------------------------------------------------------------------"
 	echo "patch = $THISDIR/$LINE"
 	echo "------------------------------------------------------------------------"
-	PATCH=$THISDIR/$LINE
+	PATCH=$THISDIR/$ROM/$LINE
 	REPO=$(dirname $LINE)
 	echo "repo = $REPO"
 	cd $TOPDIR
@@ -81,3 +89,7 @@ do
 	fi
 	cd $THISDIR
 done
+cd $THISDIR
+if [[ "$ROM" != "common" ]];then
+	./patch.sh common
+fi

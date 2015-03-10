@@ -1,8 +1,15 @@
 #!/bin/bash
 THISDIR=$PWD
-UNATTENDED=${1}
+ROM=${1}
+UNATTENDED=${2}
 TOPDIR="$THISDIR/../../../../"
 echo $TOPDIR
+if [[ "$ROM" == "" ]]; then
+	echo "ROM not specified, assuming cm!"
+	sleep 1
+	ROM="cm"
+fi
+cd $ROM
 for LINE in $(echo $(find -name *.patch); echo $(find -name *.apply))
 do
 	if [[ $UNATTENDED -ne 1 ]]; then
@@ -21,3 +28,6 @@ do
 	git stash clear
 	cd $THISDIR
 done
+if [[ "$ROM" !=  "common" ]]; then
+	./clearpatches.sh common
+fi
