@@ -840,7 +840,7 @@ index aa92ea0..4d2de12 100644
 diff --git a/services/surfaceflinger/DisplayDevice.cpp b/services/surfaceflinger/DisplayDevice.cpp
 old mode 100644
 new mode 100755
-index aaffec4..8dc99ff
+index aaffec4..c60b8e9
 --- a/services/surfaceflinger/DisplayDevice.cpp
 +++ b/services/surfaceflinger/DisplayDevice.cpp
 @@ -26,6 +26,9 @@
@@ -853,7 +853,17 @@ index aaffec4..8dc99ff
  
  #include <gui/Surface.h>
  
-@@ -458,7 +461,12 @@ void DisplayDevice::setDisplaySize(const int newWidth, const int newHeight) {
+@@ -81,7 +84,9 @@ DisplayDevice::DisplayDevice(
+       mPowerMode(HWC_POWER_MODE_OFF),
+       mActiveConfig(0)
+ {
++#ifndef STE_HARDWARE
+     mNativeWindow = new Surface(producer, false);
++#endif
+ #ifndef EGL_NEEDS_FNW
+     ANativeWindow* const window = mNativeWindow.get();
+ #else
+@@ -458,7 +463,12 @@ void DisplayDevice::setDisplaySize(const int newWidth, const int newHeight) {
  
      mDisplaySurface->resizeBuffers(newWidth, newHeight);
  
@@ -866,7 +876,7 @@ index aaffec4..8dc99ff
      mSurface = eglCreateWindowSurface(mDisplay, mConfig, window, NULL);
      eglQuerySurface(mDisplay, mSurface, EGL_WIDTH,  &mDisplayWidth);
      eglQuerySurface(mDisplay, mSurface, EGL_HEIGHT, &mDisplayHeight);
-@@ -550,12 +558,19 @@ void DisplayDevice::dump(String8& result) const {
+@@ -550,12 +560,19 @@ void DisplayDevice::dump(String8& result) const {
      const Transform& tr(mGlobalTransform);
      result.appendFormat(
          "+ DisplayDevice: %s\n"
