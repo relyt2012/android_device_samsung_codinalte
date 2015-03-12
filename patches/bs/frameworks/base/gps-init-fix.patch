@@ -6,7 +6,7 @@ index d08894c..e41aad5 100644
                  Log.e(TAG, "unable to parse SUPL_PORT: " + portString);
              }
          }
-+        mLegacyGpsHAL = 1;
++        mLegacyGpsHAL = true;
          if (mSuplServerHost != null
                  && mSuplServerPort > TCP_MIN_PORT
                  && mSuplServerPort <= TCP_MAX_PORT
