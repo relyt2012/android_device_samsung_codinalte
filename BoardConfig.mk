@@ -181,10 +181,13 @@ BOARD_SEPOLICY_UNION += \
 	admsrv.te \
 	bluetooth.te \
 	bootanim.te \
+	drmserver.te \
+	healthd.te \
 	init.te \
 	init_shell.te \
 	isolated_app.te \
-	healthd.te \
+	installd.te \
+	keystore.te \
 	mediaserver.te \
 	platform_app.te \
 	radio.te \
