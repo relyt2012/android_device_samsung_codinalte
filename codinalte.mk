@@ -243,3 +243,31 @@ PRODUCT_AAPT_PREF_CONFIG := hdpi
 
 # We have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
+
+# init.d scripts for performance
+PRODUCT_COPY_FILES += \
+        device/samsung/codinalte/initd/init.d.cfg:system/etc/init.d.cfg \
+        device/samsung/codinalte/initd/00check:system/etc/init.d/00check \
+        device/samsung/codinalte/initd/01zipalign:system/etc/init.d/01zipalign \
+        device/samsung/codinalte/initd/02sysctl:system/etc/init.d/02sysctl \
+        device/samsung/codinalte/initd/03firstboot:system/etc/init.d/03firstboot \
+        device/samsung/codinalte/initd/05freemem:system/etc/init.d/05freemem \
+        device/samsung/codinalte/initd/06removecache:system/etc/init.d/06removecache \
+        device/samsung/codinalte/initd/07fixperms:system/etc/init.d/07fixperms \
+        device/samsung/codinalte/initd/09cron:system/etc/init.d/09cron \
+        device/samsung/codinalte/initd/10sdboost:system/etc/init.d/10sdboost \
+        device/samsung/codinalte/initd/11battery:system/etc/init.d/11battery \
+        device/samsung/codinalte/initd/12touch:system/etc/init.d/12touch \
+        device/samsung/codinalte/initd/13minfree:system/etc/init.d/12minfree \
+        device/samsung/codinalte/initd/14gpurender:system/etc/init.d/14gpurender \
+        device/samsung/codinalte/initd/15sleepers:system/etc/init.d/15sleepers \
+        device/samsung/codinalte/initd/16journalism:system/etc/init.d/16journalism \
+        device/samsung/codinalte/initd/17sqlite3:system/etc/init.d/17sqlite3 \
+        device/samsung/codinalte/initd/18wifisleep:system/etc/init.d/18wifisleep \
+        device/samsung/codinalte/initd/19iostats:system/etc/init.d/19iostats \
+        device/samsung/codinalte/initd/20setrenice:system/etc/init.d/20setrenice \
+        device/samsung/codinalte/initd/21tweaks:system/etc/init.d/21tweaks \
+        device/samsung/codinalte/initd/24speedy_modified:system/etc/init.d/24speedy_modified \
+        device/samsung/codinalte/initd/25loopy_smoothness_tweak:system/etc/init.d/25loopy_smoothness_tweak \
+        device/samsung/codinalte/initd/98tweaks:system/etc/init.d/98tweaks
+
