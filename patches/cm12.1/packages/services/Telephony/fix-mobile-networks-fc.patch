@@ -1,0 +1,14 @@
+diff --git a/src/com/android/phone/MobileNetworkSettings.java b/src/com/android/phone/MobileNetworkSettings.java
+index 4103111..6449c0d 100644
+--- a/src/com/android/phone/MobileNetworkSettings.java
++++ b/src/com/android/phone/MobileNetworkSettings.java
+@@ -739,7 +739,8 @@ public class MobileNetworkSettings extends PreferenceActivity
+ 
+         private void resetNetworkModeToDefault() {
+             //set the mButtonPreferredNetworkMode
+-            mButtonPreferredNetworkMode.setValue(Integer.toString(preferredNetworkMode));
++            if(mButtonPreferredNetworkMode != null)
++		mButtonPreferredNetworkMode.setValue(Integer.toString(preferredNetworkMode));
+             mButtonEnabledNetworks.setValue(Integer.toString(preferredNetworkMode));
+             //set the Settings.System
+             setPreferredNetworkSetting(preferredNetworkMode);
