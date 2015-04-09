@@ -1,1 +1,1 @@
-add_lunch_combo cm_codinalte-user
+add_lunch_combo cm_codinalte-userdebug
