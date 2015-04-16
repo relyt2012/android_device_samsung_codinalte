@@ -126,6 +126,9 @@ BOARD_VOLD_MAX_PARTITIONS := 25
 BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
 BOARD_VOLD_DISC_HAS_MULTIPLE_MAJORS := true
 
+# Meticulus patches switch
+COMMON_GLOBAL_CFLAGS += -DMETICULUS_CODINALTE
+
 # Charging mode
 #COMMON_GLOBAL_FLAGS += -DCHARGING_ENABLED_PATH=$("/sys/class/power_supply/battery/batt_lp_charging")
 #COMMON_GLOBAL_FLAGS += -DBACKLIGHT_PATH=$("/sys/class/backlight/panel/brightness")
@@ -178,7 +181,6 @@ BOARD_SEPOLICY_DIRS += \
 
 BOARD_SEPOLICY_UNION += \
 	file_contexts \
-	admsrv.te \
 	bluetooth.te \
 	bootanim.te \
 	drmserver.te \
