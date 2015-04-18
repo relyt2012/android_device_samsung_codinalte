@@ -126,6 +126,9 @@ BOARD_VOLD_MAX_PARTITIONS := 25
 BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
 BOARD_VOLD_DISC_HAS_MULTIPLE_MAJORS := true
 
+# libutils
+COMMON_GLOBAL_CFLAGS += -DREFBASE_JB_MR1_COMPAT_SYMBOLS
+
 # Meticulus patches switch
 COMMON_GLOBAL_CFLAGS += -DMETICULUS_CODINALTE
 
@@ -196,6 +199,7 @@ BOARD_SEPOLICY_UNION += \
 	rild.te \
 	shared_relro.te \
 	surfaceflinger.te \
+	sysinit.te \
 	system_app.te \
 	system_server.te \
 	untrusted_app.te \
