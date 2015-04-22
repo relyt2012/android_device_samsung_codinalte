@@ -83,6 +83,13 @@ ui_print "CODENAME = $CODENAME"
 ui_print "MODEL    = $VERSION"
 ui_print ""
 ui_print "Installing vendor files..."
+
+mount /system
+
+if [[ ! -e /system/build.prop ]]; then
+	ui_print "Could not find build.prop! (abort)!"
+fi
+
 if [[ -e "/tmp/$CODENAME" ]]
 then
 	cp -rf /tmp/$CODENAME/* /system
