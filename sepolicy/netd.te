@@ -1,0 +1,4 @@
+allow netd netd:netlink_socket { create };
+allow netd netd:capability { fsetid };
+allow netd unlabeled:dir { search };
+allow netd system_data_file: dir { write };

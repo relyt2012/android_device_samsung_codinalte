@@ -194,6 +194,7 @@ BOARD_SEPOLICY_UNION += \
 	installd.te \
 	keystore.te \
 	mediaserver.te \
+	netd.te \
 	platform_app.te \
 	radio.te \
 	rild.te \
