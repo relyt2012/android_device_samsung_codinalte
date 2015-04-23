@@ -136,8 +136,9 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/etc/wifi/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf
 
 PRODUCT_PACKAGES += \
+    dhcpcd.conf \
     hostapd \
-    hostapd.conf \
+    hostapd_default.conf \
     libnetcmdiface \
     wpa_supplicant \
     wpa_supplicant.conf
