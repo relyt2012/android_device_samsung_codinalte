@@ -1,4 +1,4 @@
-allow netd netd:netlink_socket { create setopt bind getattr };
+allow netd netd:netlink_socket { create setopt bind getattr read write };
 allow netd netd:capability { fsetid };
 allow netd unlabeled:dir { search };
 allow netd unlabeled:file { open read write };
