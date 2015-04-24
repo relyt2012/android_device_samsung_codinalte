@@ -1,5 +1,6 @@
-allow netd netd:netlink_socket { create setopt };
+allow netd netd:netlink_socket { create setopt bind };
 allow netd netd:capability { fsetid };
 allow netd unlabeled:dir { search };
-allow netd unlabeled:file { read write };
-allow netd system_data_file: dir { write add_name};
+allow netd unlabeled:file { open read write };
+allow netd system_data_file:dir { write add_namei };
+allow netd system_data_file:file { create };
