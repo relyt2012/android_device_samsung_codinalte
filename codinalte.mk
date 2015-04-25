@@ -145,7 +145,8 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
     wifi.interface=wlan0 \
-    wifi.supplicant_scan_interval=150
+    wifi.supplicant_scan_interval=150 \
+    ro.wifihal.screenstate=0
 
 # Bluetooth
 PRODUCT_COPY_FILES += \
