@@ -161,7 +161,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.call_ring.multiple=false \
     ro.telephony.ril_class=SamsungU8500RIL \
     ro.telephony.sends_barcount=1 \
-    ro.telephony.default_network=0
+    ro.telephony.default_network=0 \
+    ro.telephony.ipasgatew=1
 
 
 # GPS
