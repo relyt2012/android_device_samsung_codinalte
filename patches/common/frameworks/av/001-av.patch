@@ -1,3 +1,21 @@
+From ce25037f012287cd60a5ca26830ca743f5a4d6a6 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Fri, 24 Apr 2015 17:16:29 -0500
+Subject: [PATCH] 001-av
+
+Change-Id: Iedaefff36b8ff274eea5ace3e0cddecf26baa85a
+---
+ include/media/stagefright/ColorConverter.h         |   5 +
+ include/media/stagefright/MediaDefs.h              |   6 +
+ include/media/stagefright/OMXCodec.h               |   7 +
+ media/libstagefright/ACodec.cpp                    |  13 +-
+ media/libstagefright/CameraSource.cpp              |  15 +++
+ media/libstagefright/MediaDefs.cpp                 |   6 +
+ media/libstagefright/OMXCodec.cpp                  |  46 +++++++
+ .../colorconversion/ColorConverter.cpp             | 145 +++++++++++++++++++++
+ 8 files changed, 241 insertions(+), 2 deletions(-)
+ mode change 100644 => 100755 media/libstagefright/ACodec.cpp
+
 diff --git a/include/media/stagefright/ColorConverter.h b/include/media/stagefright/ColorConverter.h
 index 85ba920..e34791c 100644
 --- a/include/media/stagefright/ColorConverter.h
@@ -15,10 +33,10 @@ index 85ba920..e34791c 100644
      status_t convertYUV420SemiPlanar(
              const BitmapParams &src, const BitmapParams &dst);
 diff --git a/include/media/stagefright/MediaDefs.h b/include/media/stagefright/MediaDefs.h
-index 361b8be..ed5fcb4 100644
+index bab6432..9164af1 100644
 --- a/include/media/stagefright/MediaDefs.h
 +++ b/include/media/stagefright/MediaDefs.h
-@@ -29,8 +29,14 @@ extern const char *MEDIA_MIMETYPE_VIDEO_HEVC;
+@@ -48,8 +48,14 @@ extern const char *MEDIA_MIMETYPE_VIDEO_HEVC;
  extern const char *MEDIA_MIMETYPE_VIDEO_MPEG4;
  extern const char *MEDIA_MIMETYPE_VIDEO_MPEG4_DP;
  extern const char *MEDIA_MIMETYPE_VIDEO_H263;
@@ -34,10 +52,10 @@ index 361b8be..ed5fcb4 100644
  extern const char *MEDIA_MIMETYPE_AUDIO_AMR_NB;
  extern const char *MEDIA_MIMETYPE_AUDIO_AMR_WB;
 diff --git a/include/media/stagefright/OMXCodec.h b/include/media/stagefright/OMXCodec.h
-index 64b4c2a..cc87129 100644
+index b57b491..df23858 100644
 --- a/include/media/stagefright/OMXCodec.h
 +++ b/include/media/stagefright/OMXCodec.h
-@@ -95,6 +95,10 @@ struct OMXCodec : public MediaSource,
+@@ -114,6 +114,10 @@ struct OMXCodec : public MediaSource,
      // from MediaBufferObserver
      virtual void signalBufferReturned(MediaBuffer *buffer);
  
@@ -48,7 +66,7 @@ index 64b4c2a..cc87129 100644
      enum Quirks {
          kNeedsFlushBeforeDisable              = 1,
          kWantsNALFragments                    = 2,
-@@ -109,6 +113,9 @@ struct OMXCodec : public MediaSource,
+@@ -128,6 +132,9 @@ struct OMXCodec : public MediaSource,
          kSupportsMultipleFramesPerInputBuffer = 1024,
          kRequiresLargerEncoderOutputBuffer    = 2048,
          kOutputBuffersAreUnreadable           = 4096,
@@ -61,10 +79,10 @@ index 64b4c2a..cc87129 100644
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
 old mode 100644
 new mode 100755
-index 4971d7e..876d37a
+index f5a6fbd..4bc6ce2
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
-@@ -666,7 +666,11 @@ status_t ACodec::configureOutputBuffersFromNativeWindow(
+@@ -716,7 +716,11 @@ status_t ACodec::configureOutputBuffersFromNativeWindow(
              mNativeWindow.get(),
              def.format.video.nFrameWidth,
              def.format.video.nFrameHeight,
@@ -76,17 +94,31 @@ index 4971d7e..876d37a
  #endif
  
      if (err != 0) {
-@@ -4475,7 +4479,7 @@ bool ACodec::BaseState::onOMXFillBufferDone(
+@@ -3668,6 +3672,10 @@ bool ACodec::describeColorFormat(
+         const sp<IOMX> &omx, IOMX::node_id node,
+         DescribeColorFormatParams &describeParams)
+ {
++#ifdef STE_HARDWARE
++    return false;
++#endif
++
+     OMX_INDEXTYPE describeColorFormatIndex;
+     if (omx->getExtensionIndex(
+             node, "OMX.google.android.index.describeColorFormat",
+@@ -4923,8 +4931,9 @@ bool ACodec::BaseState::onOMXFillBufferDone(
                  mCodec->mSkipCutBuffer->submit(info->mData);
              }
              info->mData->meta()->setInt64("timeUs", timeUs);
 -            info->mData->meta()->setObject("graphic-buffer", info->mGraphicBuffer);
-+            //info->mData->meta()->setObject("graphic-buffer", (android::RefBase*)&info->mGraphicBuffer);
- 
+-
++#ifndef STE_HARDWARE
++	    info->mData->meta()->setObject("graphic-buffer", info->mGraphicBuffer);
++#endif
              sp<AMessage> notify = mCodec->mNotify->dup();
              notify->setInt32("what", CodecBase::kWhatDrainThisBuffer);
+             notify->setInt32("buffer-id", info->mBufferID);
 diff --git a/media/libstagefright/CameraSource.cpp b/media/libstagefright/CameraSource.cpp
-index 75999d6..69ad6c7 100644
+index 3671aac..bd31c2e 100644
 --- a/media/libstagefright/CameraSource.cpp
 +++ b/media/libstagefright/CameraSource.cpp
 @@ -128,6 +128,12 @@ static int32_t getColorFormat(const char* colorFormat) {
@@ -102,7 +134,7 @@ index 75999d6..69ad6c7 100644
      if (!strcmp(colorFormat, CameraParameters::PIXEL_FORMAT_ANDROID_OPAQUE)) {
          return OMX_COLOR_FormatAndroidOpaque;
      }
-@@ -576,13 +582,22 @@ status_t CameraSource::initWithCameraAccess(
+@@ -577,13 +583,22 @@ status_t CameraSource::initWithCameraAccess(
  
      // XXX: query camera for the stride and slice height
      // when the capability becomes available.
@@ -126,10 +158,10 @@ index 75999d6..69ad6c7 100644
  
      ExtendedUtils::HFR::setHFRIfEnabled(params, mMeta);
 diff --git a/media/libstagefright/MediaDefs.cpp b/media/libstagefright/MediaDefs.cpp
-index 89884a2..cfa55ad 100644
+index 54ebb6c..7d9851e 100644
 --- a/media/libstagefright/MediaDefs.cpp
 +++ b/media/libstagefright/MediaDefs.cpp
-@@ -27,8 +27,14 @@ const char *MEDIA_MIMETYPE_VIDEO_HEVC = "video/hevc";
+@@ -46,8 +46,14 @@ const char *MEDIA_MIMETYPE_VIDEO_HEVC = "video/hevc";
  const char *MEDIA_MIMETYPE_VIDEO_MPEG4 = "video/mp4v-es";
  const char *MEDIA_MIMETYPE_VIDEO_MPEG4_DP = "video/mp4v-esdp";
  const char *MEDIA_MIMETYPE_VIDEO_H263 = "video/3gpp";
@@ -145,10 +177,10 @@ index 89884a2..cfa55ad 100644
  const char *MEDIA_MIMETYPE_AUDIO_AMR_NB = "audio/3gpp";
  const char *MEDIA_MIMETYPE_AUDIO_AMR_WB = "audio/amr-wb";
 diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
-index 8e53d0e..cc3c7ba 100644
+index 4c1249f..409f781 100644
 --- a/media/libstagefright/OMXCodec.cpp
 +++ b/media/libstagefright/OMXCodec.cpp
-@@ -261,6 +261,20 @@ static int CompareSoftwareCodecsFirst(
+@@ -315,6 +315,20 @@ static int CompareSoftwareCodecsFirst(
      return 0;
  }
  
@@ -169,7 +201,7 @@ index 8e53d0e..cc3c7ba 100644
  // static
  void OMXCodec::findMatchingCodecs(
          const char *mime,
-@@ -361,6 +375,11 @@ uint32_t OMXCodec::getComponentQuirks(
+@@ -417,6 +431,11 @@ uint32_t OMXCodec::getComponentQuirks(
          quirks |= kRequiresGlobalFlush;
      }
  
@@ -181,7 +213,7 @@ index 8e53d0e..cc3c7ba 100644
  #ifdef ENABLE_AV_ENHANCEMENTS
      quirks |= ExtendedCodec::getComponentQuirks(info);
  #endif
-@@ -1023,6 +1042,10 @@ static size_t getFrameSize(
+@@ -1101,6 +1120,10 @@ static size_t getFrameSize(
          case OMX_COLOR_FormatYUV420Planar:
          case OMX_COLOR_FormatYUV420SemiPlanar:
          case OMX_TI_COLOR_FormatYUV420PackedSemiPlanar:
@@ -192,7 +224,7 @@ index 8e53d0e..cc3c7ba 100644
          /*
          * FIXME: For the Opaque color format, the frame size does not
          * need to be (w*h*3)/2. It just needs to
-@@ -1810,6 +1833,10 @@ void OMXCodec::setComponentRole(
+@@ -1887,6 +1910,10 @@ void OMXCodec::setComponentRole(
              "video_decoder.mpeg4", NULL },
          { MEDIA_MIMETYPE_VIDEO_H263,
              "video_decoder.h263", "video_encoder.h263" },
@@ -203,7 +235,7 @@ index 8e53d0e..cc3c7ba 100644
          { MEDIA_MIMETYPE_VIDEO_VP8,
              "video_decoder.vp8", "video_encoder.vp8" },
          { MEDIA_MIMETYPE_VIDEO_VP9,
-@@ -1900,6 +1927,16 @@ status_t OMXCodec::init() {
+@@ -1987,6 +2014,16 @@ status_t OMXCodec::init() {
      CHECK_EQ((int)mState, (int)LOADED);
  
      status_t err;
@@ -220,7 +252,7 @@ index 8e53d0e..cc3c7ba 100644
      if (!(mQuirks & kRequiresLoadedToIdleAfterAllocation)) {
          err = mOMX->sendCommand(mNode, OMX_CommandStateSet, OMX_StateIdle);
          CHECK_EQ(err, (status_t)OK);
-@@ -1962,7 +1999,12 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
+@@ -2049,7 +2086,12 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
      }
  
      status_t err = OK;
@@ -233,7 +265,7 @@ index 8e53d0e..cc3c7ba 100644
              && portIndex == kPortIndexInput) {
          err = mOMX->storeMetaDataInBuffers(mNode, kPortIndexInput, OMX_TRUE);
          if (err != OK) {
-@@ -2163,7 +2205,11 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
+@@ -2265,8 +2307,12 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
              mNativeWindow.get(),
              def.format.video.nFrameWidth,
              def.format.video.nFrameHeight,
@@ -241,10 +273,11 @@ index 8e53d0e..cc3c7ba 100644
 +            OmxToHALFormat(def.format.video.eColorFormat));
 +#else
              def.format.video.eColorFormat);
+ #endif
 +#endif
- #else
-     OMX_COLOR_FORMATTYPE eNativeColorFormat = def.format.video.eColorFormat;
-     setNativeWindowColorFormat(eNativeColorFormat);
+ 
+     if (err != 0) {
+         ALOGE("native_window_set_buffers_geometry failed: %s (%d)",
 diff --git a/media/libstagefright/colorconversion/ColorConverter.cpp b/media/libstagefright/colorconversion/ColorConverter.cpp
 index 597167f..a85ad72 100644
 --- a/media/libstagefright/colorconversion/ColorConverter.cpp
@@ -415,3 +448,6 @@ index 597167f..a85ad72 100644
  uint8_t *ColorConverter::initClip() {
      static const signed kClipMin = -278;
      static const signed kClipMax = 535;
+-- 
+1.9.1
+

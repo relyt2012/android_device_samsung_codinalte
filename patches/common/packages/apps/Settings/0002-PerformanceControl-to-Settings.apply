@@ -1,0 +1,162 @@
+From f4c3b01f7938e23f686f160bee2674a00ff24295 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Mon, 4 Jul 2016 15:37:09 -0500
+Subject: [PATCH] PerformanceControl to Settings
+
+Change-Id: Idd85e9e2cad8b6a79fa28d70e2db2f22aac10754
+---
+ Android.mk                                    |  11 ++++--
+ AndroidManifest.xml                           |  50 ++++++++++++++++++++++++++
+ res/drawable-hdpi/ic_settings_performance.png | Bin 0 -> 416 bytes
+ res/values/meticulus_strings.xml              |   2 +-
+ res/xml/dashboard_categories.xml              |  11 ++++++
+ 5 files changed, 70 insertions(+), 4 deletions(-)
+ create mode 100644 res/drawable-hdpi/ic_settings_performance.png
+
+diff --git a/Android.mk b/Android.mk
+index c0c141a..7f119d1 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -14,11 +14,13 @@ LOCAL_MODULE_TAGS := optional
+ LOCAL_SRC_FILES := \
+         $(call all-java-files-under, src) \
+         src/com/android/settings/EventLogTags.logtags \
+-	$(call all-java-files-under, ../CodinalteParts/java)
++	$(call all-java-files-under, ../CodinalteParts/java)\
++	$(call all-java-files-under, ../PerformanceControl/src)
+ 
+ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res \
+     frameworks/support/v7/cardview/res \
+-    packages/apps/CodinalteParts/res
++    packages/apps/CodinalteParts/res \
++    packages/apps/PerformanceControl/res
+ 
+ LOCAL_SRC_FILES += \
+         src/com/android/location/XT/IXTSrv.aidl \
+@@ -36,7 +38,10 @@ LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+ LOCAL_AAPT_FLAGS := \
+     --auto-add-overlay \
+     --extra-packages android.support.v7.cardview \
+-    --extra-packages com.meticulus.codinalteparts.app
++    --extra-packages com.meticulus.codinalteparts.app \
++    --extra-packages com.brewcrewfoo.performance
++
++LOCAL_ASSET_DIR += $(LOCAL_PATH)/../PerformanceControl/assets
+ 
+ include frameworks/opt/setupwizard/navigationbar/common.mk
+ include $(BUILD_PACKAGE)
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index c748002..fa71829 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -130,6 +130,56 @@
+             android:exported="true" >
+         </service>
+ 
++        <!-- PerformanceControl activities -->
++
++        <activity android:name="com.brewcrewfoo.performance.activities.MainActivity"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.MemUsageActivity"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.PCSettings"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.PackActivity"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.FlasherActivity"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.FileChooser"
++                  android:configChanges="keyboardHidden|orientation|screenSize"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.HideTabs"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.TouchScreenSettings"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.KSMActivity"
++                  android:windowSoftInputMode="stateHidden"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.ZramActivity"
++            android:windowSoftInputMode="stateHidden"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.PFKActivity"
++            android:windowSoftInputMode="stateHidden"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.FreezerActivity"
++                  android:configChanges="keyboardHidden|orientation|screenSize"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.ParamActivity"
++            android:configChanges="keyboardHidden|orientation|screenSize"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.GovSetActivity"
++            android:configChanges="keyboardHidden|orientation|screenSize"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.IOSetActivity"
++            android:configChanges="keyboardHidden|orientation|screenSize"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.VMSettings"
++            android:configChanges="keyboardHidden|orientation|screenSize"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.BuildPropEditor"
++                  android:configChanges="keyboardHidden|orientation|screenSize"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.ResidualsActivity"
++            android:configChanges="keyboardHidden|orientation|screenSize"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.iResidualsActivity"
++            android:configChanges="keyboardHidden|orientation|screenSize"/>
++        <activity android:name="com.brewcrewfoo.performance.activities.SysctlEditor"
++            android:configChanges="keyboardHidden|orientation|screenSize"/>
++        <receiver android:name="com.brewcrewfoo.performance.service.BootReceiver">
++            <intent-filter>
++                <action android:name="android.intent.action.BOOT_COMPLETED"/>
++            </intent-filter>
++        </receiver>
++
++        <service android:name="com.brewcrewfoo.performance.service.BootService"/>
++
++        <receiver android:name="com.brewcrewfoo.performance.service.PowerConnectionReceiver">
++            <intent-filter>
++                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
++                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
++            </intent-filter>
++        </receiver>
++
+         <!-- Screen color Settings Controls -->
+         <activity android:name=".ScreenColorSettings" android:label="@string/screencolor"
+             android:configChanges="orientation|keyboardHidden|screenSize"
+diff --git a/res/drawable-hdpi/ic_settings_performance.png b/res/drawable-hdpi/ic_settings_performance.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..42a550c6335030c5481abf6b3bef1d96dfb2c92c
+GIT binary patch
+literal 416
+zcmV;R0bl-!P)<h;3K|Lk000e1NJLTq001xm001xu1^@s6R|5Hm00006VoOIv0RI60
+z0RN!9r;`8x010qNS#tmY5_A9n5_AFHW*>L}000McNliru;0FX0Aq@`Gn3n(m0WC>H
+zK~!ko?U_pw0wD}U)6|^SxqzHNFQCU2H|j!}G2{bGReEJvC3(#!2}l$Qg+d{P;4<p%
+zQmWst8FL%h0(UfmuHX(vFbv+v1l+*aj3#qJBQS@5gLK+fFbB8TS`8*J9ekq+sNlDP
+zSQua$N!A0GQmDt?=NtH*%{5~$81C01h8LJfWGK<>E9-!%f#%sasKm>V7Sga6vRi=x
+zjog?OFmAO|*V%Vaq8X&vR%!U`&y+?-WTV9mf^%Ou>=~G{4oF+?L#=?rvr1|X>UmWZ
+zjLkj7g@}OHhfkmyR1M-Eydo8|woo~p6A}G3%bdU(c*d%=Ug{s4zo|W=>;V`ZbeLwC
+z&hRn=8VHBtrb}yFAjhg4kGo<cMn$df9~@5A*j3_(u23ixI)t8yJC!J=Q^;ii0000<
+KMNUMnLSTZD45xko
+
+literal 0
+HcmV?d00001
+
+diff --git a/res/values/meticulus_string.xml b/res/values/meticulus_string.xml
+index b371915..2213aa7 100644
+--- a/res/values/meticulus_string.xml
++++ b/res/values/meticulus_string.xml
+@@ -18,5 +18,5 @@
+ <string name="header_category_meticulus">Meticulus Development</string>
+ <string name="meticulus_mods_title">Extras</string>
+ <string name="meticulus_sponsors_title">Sponsors</string>
+-
++<string name="meticulus_performance_title">Performance</string>
+ </resources>
+diff --git a/res/xml/dashboard_categories.xml b/res/xml/dashboard_categories.xml
+index 0bc664b..e78a751 100644
+--- a/res/xml/dashboard_categories.xml
++++ b/res/xml/dashboard_categories.xml
+@@ -119,6 +119,17 @@
+                 android:targetPackage="com.android.settings"
+                 android:targetClass="com.meticulus.codinalteparts.app.Sponsors" />
+         </dashboard-tile>
++
++	<dashboard-tile
++            android:id="@+id/meticulus_performance"
++            android:title="@string/meticulus_performance_title"
++            android:icon="@drawable/ic_settings_performance">
++            <intent
++                android:action="android.intent.action.MAIN"
++                android:targetPackage="com.android.settings"
++                android:targetClass="com.brewcrewfoo.performance.activities.MainActivity" />
++        </dashboard-tile>
++
+     </dashboard-category> 
+ 
+     <!-- DEVICE -->
+-- 
+1.9.1
+

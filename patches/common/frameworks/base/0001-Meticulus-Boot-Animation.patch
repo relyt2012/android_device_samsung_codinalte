@@ -1,0 +1,49 @@
+From 4cca826cc02d8d2dfb164f304db3fe9f652ce7ce Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Mon, 4 Jul 2016 09:01:34 -0500
+Subject: [PATCH] Meticulus Boot Animation
+
+Change-Id: I0c753162ddd65ecd5f675edb412a61dde9a62aa8
+---
+ cmds/bootanimation/BootAnimation.cpp | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/cmds/bootanimation/BootAnimation.cpp b/cmds/bootanimation/BootAnimation.cpp
+index 62cc47c..e8ce9a3 100644
+--- a/cmds/bootanimation/BootAnimation.cpp
++++ b/cmds/bootanimation/BootAnimation.cpp
+@@ -47,6 +47,9 @@
+ #include <SkBitmap.h>
+ #include <SkStream.h>
+ #include <SkImageDecoder.h>
++#include <SkCanvas.h>
++#include <SkColor.h>
++
+ 
+ #include <GLES/gl.h>
+ #include <GLES/glext.h>
+@@ -286,6 +289,7 @@ status_t BootAnimation::initTexture(void* buffer, size_t len)
+     //StopWatch watch("blah");
+ 
+     SkBitmap bitmap;
++    
+     SkMemoryStream  stream(buffer, len);
+     SkImageDecoder* codec = SkImageDecoder::Factory(&stream);
+     if (codec) {
+@@ -299,7 +303,12 @@ status_t BootAnimation::initTexture(void* buffer, size_t len)
+                 SkImageDecoder::kDecodePixels_Mode);
+         delete codec;
+     }
+-
++    SkPaint paint;
++    paint.setColor(SK_ColorBLACK);
++    paint.setTextSize(SkIntToScalar(10));
++    SkCanvas* canvas = new SkCanvas(bitmap);
++    canvas->drawText("Meticulus",9,SkIntToScalar((bitmap.width() / 2) - 25),SkIntToScalar(300),paint);
++    canvas->save();
+     // ensure we can call getPixels(). No need to call unlock, since the
+     // bitmap will go out of scope when we return from this method.
+     bitmap.lockPixels();
+-- 
+1.9.1
+

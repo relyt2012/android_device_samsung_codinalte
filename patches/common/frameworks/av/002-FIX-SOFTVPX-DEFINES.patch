@@ -1,0 +1,29 @@
+From 510c98cb790858a9f9608fcfec621a8b847ebd06 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sat, 2 Jul 2016 09:24:48 -0500
+Subject: [PATCH] FIX SOFTVPX DEFINES
+
+Change-Id: I01ec05dde36910df26942923840ba8c105857b4d
+---
+ media/libstagefright/codecs/on2/dec/SoftVPX.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/media/libstagefright/codecs/on2/dec/SoftVPX.h b/media/libstagefright/codecs/on2/dec/SoftVPX.h
+index 8f68693..3dbe3c5 100644
+--- a/media/libstagefright/codecs/on2/dec/SoftVPX.h
++++ b/media/libstagefright/codecs/on2/dec/SoftVPX.h
+@@ -24,6 +24,11 @@
+ #include "vpx/vpx_codec.h"
+ #include "vpx/vp8dx.h"
+ 
++#define IMG_FMT_I420 0x102
++#define PLANE_Y 0
++#define PLANE_U 1
++#define PLANE_V 2 
++
+ namespace android {
+ 
+ struct SoftVPX : public SoftVideoDecoderOMXComponent {
+-- 
+1.9.1
+

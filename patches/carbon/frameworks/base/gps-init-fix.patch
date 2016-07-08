@@ -1,0 +1,12 @@
+diff --git a/services/core/java/com/android/server/location/GpsLocationProvider.java b/services/core/java/com/android/server/location/GpsLocationProvider.java
+index bdd7d23..5bb2f12 100644
+--- a/services/core/java/com/android/server/location/GpsLocationProvider.java
++++ b/services/core/java/com/android/server/location/GpsLocationProvider.java
+@@ -1120,6 +1120,7 @@ public class GpsLocationProvider implements LocationProviderInterface {
+             }
+         }
+         if (mSuplServerHost != null
++		&& !SystemProperties.get("ro.product.name", "").endsWith("codinalte")
+                 && mSuplServerPort > TCP_MIN_PORT
+                 && mSuplServerPort <= TCP_MAX_PORT) {
+             native_set_agps_server(AGPS_TYPE_SUPL, mSuplServerHost, mSuplServerPort);

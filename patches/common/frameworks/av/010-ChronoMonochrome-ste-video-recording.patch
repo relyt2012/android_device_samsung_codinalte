@@ -1,0 +1,316 @@
+From 3c33c9bdb7e24f22575cbb1ac21e78ebe5b8f718 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Fri, 8 Jul 2016 12:21:36 -0500
+Subject: [PATCH] ChronoMonochrome ste video recording
+
+Huge ups to @ChronoMonochrome! Great work bro...
+
+Change-Id: I4711a34bf06fbac7c3cab23344af55d2cb720457
+---
+ include/media/mediarecorder.h                      |  2 +-
+ .../libmediaplayerservice/MediaRecorderClient.cpp  |  4 +-
+ .../libmediaplayerservice/StagefrightRecorder.cpp  | 75 ++++++++++++++--------
+ media/libmediaplayerservice/StagefrightRecorder.h  |  4 ++
+ media/libstagefright/MPEG4Writer.cpp               | 13 ++--
+ media/libstagefright/OMXCodec.cpp                  |  7 +-
+ .../tests/SurfaceMediaSource_test.cpp              |  9 +--
+ 7 files changed, 75 insertions(+), 39 deletions(-)
+ mode change 100755 => 100644 include/media/mediarecorder.h
+
+diff --git a/include/media/mediarecorder.h b/include/media/mediarecorder.h
+old mode 100755
+new mode 100644
+index bd29d74..a4c935f
+--- a/include/media/mediarecorder.h
++++ b/include/media/mediarecorder.h
+@@ -40,7 +40,7 @@ typedef void (*media_completion_f)(status_t status, void *cookie);
+ enum video_source {
+     VIDEO_SOURCE_DEFAULT = 0,
+     VIDEO_SOURCE_CAMERA = 1,
+-    VIDEO_SOURCE_SURFACE = 2,
++    VIDEO_SOURCE_GRALLOC_BUFFER = 2,
+ 
+     VIDEO_SOURCE_LIST_END  // must be last - used to validate audio source type
+ };
+diff --git a/media/libmediaplayerservice/MediaRecorderClient.cpp b/media/libmediaplayerservice/MediaRecorderClient.cpp
+index 8c34a47..de52bdd 100644
+--- a/media/libmediaplayerservice/MediaRecorderClient.cpp
++++ b/media/libmediaplayerservice/MediaRecorderClient.cpp
+@@ -95,8 +95,8 @@ status_t MediaRecorderClient::setPreviewSurface(const sp<IGraphicBufferProducer>
+ status_t MediaRecorderClient::setVideoSource(int vs)
+ {
+     ALOGV("setVideoSource(%d)", vs);
+-    // Check camera permission for sources other than SURFACE
+-    if (vs != VIDEO_SOURCE_SURFACE && !checkPermission(cameraPermission)) {
++    // Check camera permission
++    if (!checkPermission(cameraPermission)) {
+         return PERMISSION_DENIED;
+     }
+     Mutex::Autolock lock(mLock);
+diff --git a/media/libmediaplayerservice/StagefrightRecorder.cpp b/media/libmediaplayerservice/StagefrightRecorder.cpp
+index 90d4a25..4806b5c 100644
+--- a/media/libmediaplayerservice/StagefrightRecorder.cpp
++++ b/media/libmediaplayerservice/StagefrightRecorder.cpp
+@@ -123,7 +123,7 @@ status_t StagefrightRecorder::init() {
+ // while encoding GL Frames
+ sp<IGraphicBufferProducer> StagefrightRecorder::querySurfaceMediaSource() const {
+     ALOGV("Get SurfaceMediaSource");
+-    return mGraphicBufferProducer;
++    return mSurfaceMediaSource->getProducer();
+ }
+ 
+ status_t StagefrightRecorder::setAudioSource(audio_source_t as) {
+@@ -868,9 +868,6 @@ status_t StagefrightRecorder::prepareInternal() {
+ }
+ 
+ status_t StagefrightRecorder::prepare() {
+-    if (mVideoSource == VIDEO_SOURCE_SURFACE) {
+-        return prepareInternal();
+-    }
+     return OK;
+ }
+ 
+@@ -903,11 +900,9 @@ status_t StagefrightRecorder::start() {
+     }
+     status_t status = OK;
+ 
+-    if (mVideoSource != VIDEO_SOURCE_SURFACE) {
+-        status = prepareInternal();
+-        if (status != OK) {
+-            return status;
+-        }
++    status = prepareInternal();
++    if (status != OK) {
++        return status;
+     }
+ 
+     if (mAudioSource != AUDIO_SOURCE_CNT) {
+@@ -1554,14 +1549,49 @@ status_t StagefrightRecorder::setupMediaSource(
+             return err;
+         }
+         *mediaSource = cameraSource;
+-    } else if (mVideoSource == VIDEO_SOURCE_SURFACE) {
+-        *mediaSource = NULL;
++    } else if (mVideoSource == VIDEO_SOURCE_GRALLOC_BUFFER) {
++        // If using GRAlloc buffers, setup surfacemediasource.
++        // Later a handle to that will be passed
++        // to the client side when queried
++        status_t err = setupSurfaceMediaSource();
++        if (err != OK) {
++            return err;
++        }
++        *mediaSource = mSurfaceMediaSource;
+     } else {
+         return INVALID_OPERATION;
+     }
+     return OK;
+ }
+ 
++// setupSurfaceMediaSource creates a source with the given
++// width and height and framerate.
++// TODO: This could go in a static function inside SurfaceMediaSource
++// similar to that in CameraSource
++status_t StagefrightRecorder::setupSurfaceMediaSource() {
++    status_t err = OK;
++    mSurfaceMediaSource = new SurfaceMediaSource(mVideoWidth, mVideoHeight);
++    if (mSurfaceMediaSource == NULL) {
++        return NO_INIT;
++    }
++
++    if (mFrameRate == -1) {
++        int32_t frameRate = 0;
++        CHECK (mSurfaceMediaSource->getFormat()->findInt32(
++                                        kKeyFrameRate, &frameRate));
++        ALOGI("Frame rate is not explicitly set. Use the current frame "
++             "rate (%d fps)", frameRate);
++        mFrameRate = frameRate;
++    } else {
++        err = mSurfaceMediaSource->setFrameRate(mFrameRate);
++    }
++    CHECK(mFrameRate != -1);
++
++    mIsMetaDataStoredInVideoBuffers =
++        mSurfaceMediaSource->isMetaDataStoredInVideoBuffers();
++    return err;
++}
++
+ status_t StagefrightRecorder::setupCameraSource(
+         sp<CameraSource> *cameraSource) {
+     ExtendedStats::AutoProfile autoProfile(
+@@ -1634,23 +1664,25 @@ status_t StagefrightRecorder::setupVideoEncoder(
+ 
+     source->clear();
+ 
+-    sp<AMessage> format = new AMessage();
++    sp<MetaData> enc_meta = new MetaData;
++    enc_meta->setInt32(kKeyBitRate, mVideoBitRate);
++    enc_meta->setInt32(kKeyFrameRate, mFrameRate);
+ 
+     switch (mVideoEncoder) {
+         case VIDEO_ENCODER_H263:
+-            format->setString("mime", MEDIA_MIMETYPE_VIDEO_H263);
++            enc_meta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_H263);
+             break;
+ 
+         case VIDEO_ENCODER_MPEG_4_SP:
+-            format->setString("mime", MEDIA_MIMETYPE_VIDEO_MPEG4);
++            enc_meta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_MPEG4);
+             break;
+ 
+         case VIDEO_ENCODER_H264:
+-            format->setString("mime", MEDIA_MIMETYPE_VIDEO_AVC);
++            enc_meta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_AVC);
+             break;
+ 
+         case VIDEO_ENCODER_VP8:
+-            format->setString("mime", MEDIA_MIMETYPE_VIDEO_VP8);
++            enc_meta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_VP8);
+             break;
+ 
+         case VIDEO_ENCODER_H265:
+@@ -1851,13 +1883,8 @@ status_t StagefrightRecorder::setupMPEG4orWEBMRecording() {
+     if (mMaxFileSizeBytes != 0) {
+         writer->setMaxFileSize(mMaxFileSizeBytes);
+     }
+-    if (mVideoSource == VIDEO_SOURCE_DEFAULT
+-            || mVideoSource == VIDEO_SOURCE_CAMERA) {
+-        mStartTimeOffsetMs = mEncoderProfiles->getStartTimeOffsetMs(mCameraId);
+-    } else if (mVideoSource == VIDEO_SOURCE_SURFACE) {
+-        // surface source doesn't need large initial delay
+-        mStartTimeOffsetMs = 200;
+-    }
++
++    mStartTimeOffsetMs = mEncoderProfiles->getStartTimeOffsetMs(mCameraId);
+     if (mStartTimeOffsetMs > 0) {
+         writer->setStartTimeOffsetMs(mStartTimeOffsetMs);
+     }
+@@ -1953,8 +1980,6 @@ status_t StagefrightRecorder::stop() {
+         mWriter.clear();
+     }
+ 
+-    mGraphicBufferProducer.clear();
+-
+     if (mOutputFd >= 0) {
+         ::close(mOutputFd);
+         mOutputFd = -1;
+diff --git a/media/libmediaplayerservice/StagefrightRecorder.h b/media/libmediaplayerservice/StagefrightRecorder.h
+index 527b645..e446caa 100644
+--- a/media/libmediaplayerservice/StagefrightRecorder.h
++++ b/media/libmediaplayerservice/StagefrightRecorder.h
+@@ -141,6 +141,7 @@ private:
+     // will be sent to the client side using which the
+     // frame buffers will be queued and dequeued
+     sp<IGraphicBufferProducer> mGraphicBufferProducer;
++    sp<SurfaceMediaSource> mSurfaceMediaSource;
+     sp<ALooper> mLooper;
+ 
+     sp<RecorderExtendedStats> mRecorderExtendedStats;
+@@ -162,6 +163,9 @@ private:
+     // depending on the videosource type
+     status_t setupMediaSource(sp<MediaSource> *mediaSource);
+     status_t setupCameraSource(sp<CameraSource> *cameraSource);
++    // setup the surfacemediasource for the encoder
++    status_t setupSurfaceMediaSource();
++
+     status_t setupAudioEncoder(const sp<MediaWriter>& writer);
+     status_t setupVideoEncoder(sp<MediaSource> cameraSource, sp<MediaSource> *source);
+ 
+diff --git a/media/libstagefright/MPEG4Writer.cpp b/media/libstagefright/MPEG4Writer.cpp
+index b94e334..a818402 100644
+--- a/media/libstagefright/MPEG4Writer.cpp
++++ b/media/libstagefright/MPEG4Writer.cpp
+@@ -1839,7 +1839,7 @@ status_t MPEG4Writer::Track::pause() {
+ }
+ 
+ status_t MPEG4Writer::Track::stop() {
+-    ALOGD("%s track stopping", mIsAudio? "Audio": "Video");
++    ALOGD("Stopping %s track", mIsAudio? "Audio": "Video");
+     if (!mStarted) {
+         ALOGE("Stop() called but track is not started");
+         return ERROR_END_OF_STREAM;
+@@ -1850,14 +1850,17 @@ status_t MPEG4Writer::Track::stop() {
+     }
+     mDone = true;
+ 
+-    ALOGD("%s track source stopping", mIsAudio? "Audio": "Video");
+-    mSource->stop();
+-    ALOGD("%s track source stopped", mIsAudio? "Audio": "Video");
+-
+     void *dummy;
+     pthread_join(mThread, &dummy);
+     status_t err = static_cast<status_t>(reinterpret_cast<uintptr_t>(dummy));
+ 
++    ALOGD("Stopping %s track source", mIsAudio? "Audio": "Video");
++    {
++        status_t status = mSource->stop();
++        if (err == OK && status != OK && status != ERROR_END_OF_STREAM) {
++            err = status;
++        }
++    }
+     if (mOwner->exceedsFileSizeLimit() && mStszTableEntries->count() == 0) {
+         ALOGE(" Filesize limit exceeded and zero samples written ");
+         return ERROR_END_OF_STREAM;
+diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
+index 64b42c3..d21f16a 100644
+--- a/media/libstagefright/OMXCodec.cpp
++++ b/media/libstagefright/OMXCodec.cpp
+@@ -1193,7 +1193,7 @@ status_t OMXCodec::findTargetColorFormat(
+ status_t OMXCodec::isColorFormatSupported(
+         OMX_COLOR_FORMATTYPE colorFormat, int portIndex) {
+     ALOGV("isColorFormatSupported: %d", static_cast<int>(colorFormat));
+-
++    return OK;
+     // Enumerate all the color formats supported by
+     // the omx component to see whether the given
+     // color format is supported.
+@@ -1267,9 +1267,12 @@ void OMXCodec::setVideoInputFormat(
+             CHECK(!"Should not be here. Not a supported video mime type.");
+         }
+     }
+-
++#ifdef STE_HARDWARE
++    OMX_COLOR_FORMATTYPE colorFormat = OMX_STE_COLOR_FormatYUV420PackedSemiPlanarMB;
++#else
+     OMX_COLOR_FORMATTYPE colorFormat;
+     CHECK_EQ((status_t)OK, findTargetColorFormat(meta, &colorFormat));
++#endif
+ 
+     status_t err;
+     OMX_PARAM_PORTDEFINITIONTYPE def;
+diff --git a/media/libstagefright/tests/SurfaceMediaSource_test.cpp b/media/libstagefright/tests/SurfaceMediaSource_test.cpp
+index fd889f9..6778a47 100644
+--- a/media/libstagefright/tests/SurfaceMediaSource_test.cpp
++++ b/media/libstagefright/tests/SurfaceMediaSource_test.cpp
+@@ -744,8 +744,9 @@ TEST_F(SurfaceMediaSourceTest, DISABLED_EncodingFromCpuYV12BufferNpotWriteMediaS
+     CHECK(fd >= 0);
+ 
+     sp<MediaRecorder> mr = SurfaceMediaSourceGLTest::setUpMediaRecorder(fd,
+-            VIDEO_SOURCE_SURFACE, OUTPUT_FORMAT_MPEG_4, VIDEO_ENCODER_H264,
+-            mYuvTexWidth, mYuvTexHeight, 30);
++            VIDEO_SOURCE_GRALLOC_BUFFER,
++            OUTPUT_FORMAT_MPEG_4, VIDEO_ENCODER_H264, mYuvTexWidth,
++            mYuvTexHeight, 30);
+     // get the reference to the surfacemediasource living in
+     // mediaserver that is created by stagefrightrecorder
+     sp<IGraphicBufferProducer> iST = mr->querySurfaceMediaSourceFromMediaServer();
+@@ -877,7 +878,7 @@ TEST_F(SurfaceMediaSourceGLTest, EncodingFromGLRgbaSameImageEachBufNpotWrite) {
+     }
+     CHECK(fd >= 0);
+ 
+-    sp<MediaRecorder> mr = setUpMediaRecorder(fd, VIDEO_SOURCE_SURFACE,
++    sp<MediaRecorder> mr = setUpMediaRecorder(fd, VIDEO_SOURCE_GRALLOC_BUFFER,
+             OUTPUT_FORMAT_MPEG_4, VIDEO_ENCODER_H264, mYuvTexWidth, mYuvTexHeight, 30);
+ 
+     // get the reference to the surfacemediasource living in
+@@ -920,7 +921,7 @@ TEST_F(SurfaceMediaSourceGLTest, EncodingFromGLRgbaDiffImageEachBufNpotWrite) {
+     }
+     CHECK(fd >= 0);
+ 
+-    sp<MediaRecorder> mr = setUpMediaRecorder(fd, VIDEO_SOURCE_SURFACE,
++    sp<MediaRecorder> mr = setUpMediaRecorder(fd, VIDEO_SOURCE_GRALLOC_BUFFER,
+             OUTPUT_FORMAT_MPEG_4, VIDEO_ENCODER_H264, mYuvTexWidth, mYuvTexHeight, 30);
+ 
+     // get the reference to the surfacemediasource living in
+-- 
+1.9.1
+

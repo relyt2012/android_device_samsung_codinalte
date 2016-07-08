@@ -1,0 +1,27 @@
+From 0c9ffb221c1c1b894b1a90e7053d59c586fb1128 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sat, 2 Jul 2016 16:15:32 -0500
+Subject: [PATCH] FIX MISSING DEFAULT WIFI IDLE
+
+Change-Id: Ie8c65d75d7c8ea349a888a881a252d08c0a3f575
+---
+ service/java/com/android/server/wifi/WifiController.java | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/service/java/com/android/server/wifi/WifiController.java b/service/java/com/android/server/wifi/WifiController.java
+index 0467e7c..d4f2374 100644
+--- a/service/java/com/android/server/wifi/WifiController.java
++++ b/service/java/com/android/server/wifi/WifiController.java
+@@ -133,8 +133,7 @@ class WifiController extends StateMachine {
+         mWifiStateMachine = service.mWifiStateMachine;
+         mSettingsStore = service.mSettingsStore;
+         mLocks = service.mLocks;
+-        mDefaultWifiIdleMs = context.getResources().getInteger(com.android.internal.
+-            R.integer.def_wifi_idle_ms);
++        mDefaultWifiIdleMs = 10;
+ 
+         mAlarmManager = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
+         Intent idleIntent = new Intent(ACTION_DEVICE_IDLE, null);
+-- 
+1.9.1
+

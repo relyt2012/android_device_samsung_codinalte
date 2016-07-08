@@ -1,0 +1,35 @@
+From 8d0bab7b5601db443e6c7b4c08762b77fda32201 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sun, 3 Jul 2016 07:41:30 -0500
+Subject: [PATCH] FIX MUSIC TILE
+
+Change-Id: I40f1cb87cbbd86ed47dfa8c59664f1c876e6ac18
+---
+ packages/SystemUI/src/com/android/systemui/qs/tiles/MusicTile.java | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/tiles/MusicTile.java b/packages/SystemUI/src/com/android/systemui/qs/tiles/MusicTile.java
+index 2f4790c..d9882d9 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/tiles/MusicTile.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/tiles/MusicTile.java
+@@ -204,7 +204,7 @@ public class MusicTile extends QSTile<QSTile.BooleanState> {
+             mClientIdLost = false;
+             playbackStateUpdate(state);
+         }
+-
++	/*
+         @Override
+         public void onClientFolderInfoBrowsedPlayer(String stringUri) { }
+ 
+@@ -216,7 +216,7 @@ public class MusicTile extends QSTile<QSTile.BooleanState> {
+ 
+         @Override
+         public void onClientPlayItemResponse(boolean success) { }
+-
++	*/
+         @Override
+         public void onClientMetadataUpdate(RemoteController.MetadataEditor data) {
+             mMetadata.trackTitle = data.getString(MediaMetadataRetriever.METADATA_KEY_TITLE,
+-- 
+1.9.1
+

@@ -1,0 +1,25 @@
+From 4546b1b8c09fd88c16b70b6cf06fdd70b0e7b1ae Mon Sep 17 00:00:00 2001
+From: DoloresPark <dolorespark@e-vertise.com>
+Date: Sat, 15 Nov 2014 00:19:52 -0500
+Subject: [PATCH] minui: add missing png headers
+
+---
+ minui/resources.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/minui/resources.c b/minui/resources.c
+index 2bae4de..603e89c 100644
+--- a/minui/resources.c
++++ b/minui/resources.c
+@@ -28,6 +28,8 @@
+ #include <linux/kd.h>
+ 
+ #include <png.h>
++#include <pngstruct.h>
++#include <pnginfo.h>
+ 
+ #include "minui.h"
+ 
+-- 
+1.7.9.5
+

@@ -4,9 +4,9 @@ ROM=${1}
 UNATTENDED=${2}
 TOPDIR="$THISDIR/../../../../"
 if [[ "$ROM" == "" ]]; then
-	echo "ROM not specified, assuming cm!"
+	echo "ROM not specified, assuming carbon!"
 	sleep 1
-	ROM="cm"
+	ROM="carbon"
 fi
 echo $TOPDIR
 cd $ROM

@@ -1,0 +1,206 @@
+From c5f2f8144f7e2682c11a3ce7e17648ffa0e6afe1 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Thu, 7 Jul 2016 12:07:23 -0500
+Subject: [PATCH] Add support for ICS audio blobs
+
+Change-Id: Ica85f88cd7fef83c80364e96dd59d84678a60fbe
+---
+ services/audioflinger/AudioFlinger.cpp             | 56 +++++++++++++++++-----
+ .../audiopolicy/AudioPolicyInterfaceImplLegacy.cpp | 10 +++-
+ 2 files changed, 53 insertions(+), 13 deletions(-)
+
+diff --git a/services/audioflinger/AudioFlinger.cpp b/services/audioflinger/AudioFlinger.cpp
+index 0c9b646..cc04dc4 100644
+--- a/services/audioflinger/AudioFlinger.cpp
++++ b/services/audioflinger/AudioFlinger.cpp
+@@ -201,7 +201,7 @@ static int load_audio_interface(const char *if_name, audio_hw_device_t **dev)
+     return 0;
+ 
+ out:
+-    *dev = NULL;
++    //*dev = NULL;
+     return rc;
+ }
+ 
+@@ -1030,7 +1030,7 @@ status_t AudioFlinger::setMasterMute(bool muted)
+ 
+     Mutex::Autolock _l(mLock);
+     mMasterMute = muted;
+-
++#ifndef ICS_AUDIO_BLOB
+     // Set master mute in the HALs which support it.
+     for (size_t i = 0; i < mAudioHwDevs.size(); i++) {
+         AutoMutex lock(mHardwareLock);
+@@ -1053,7 +1053,7 @@ status_t AudioFlinger::setMasterMute(bool muted)
+         }
+         mPlaybackThreads.valueAt(i)->setMasterMute(muted);
+     }
+-
++#endif
+     return NO_ERROR;
+ }
+ 
+@@ -1428,7 +1428,11 @@ size_t AudioFlinger::getInputBufferSize(uint32_t sampleRate, audio_format_t form
+     config.format = format;
+ 
+     audio_hw_device_t *dev = mPrimaryHardwareDev->hwDevice();
+-    size_t size = dev->get_input_buffer_size(dev, &config);
++#ifndef ICS_AUDIO_BLOB
++     size_t size = dev->get_input_buffer_size(dev, &config);
++#else
++    size_t size = dev->get_input_buffer_size(dev, sampleRate, format, popcount(channelMask));
++#endif
+     mHardwareStatus = AUDIO_HW_IDLE;
+     return size;
+ }
+@@ -1873,7 +1877,7 @@ audio_module_handle_t AudioFlinger::loadHwModule_l(const char *name)
+     AudioHwDevice::Flags flags = static_cast<AudioHwDevice::Flags>(0);
+     {  // scope for auto-lock pattern
+         AutoMutex lock(mHardwareLock);
+-
++#if !defined(ICS_AUDIO_BLOB) && !defined(MR0_AUDIO_BLOB)
+         if (0 == mAudioHwDevs.size()) {
+             mHardwareStatus = AUDIO_HW_GET_MASTER_VOLUME;
+             if (NULL != dev->get_master_volume) {
+@@ -1891,21 +1895,21 @@ audio_module_handle_t AudioFlinger::loadHwModule_l(const char *name)
+                 }
+             }
+         }
+-
++#endif
+         mHardwareStatus = AUDIO_HW_SET_MASTER_VOLUME;
+         if ((NULL != dev->set_master_volume) &&
+             (OK == dev->set_master_volume(dev, mMasterVolume))) {
+             flags = static_cast<AudioHwDevice::Flags>(flags |
+                     AudioHwDevice::AHWD_CAN_SET_MASTER_VOLUME);
+         }
+-
++#if !defined(ICS_AUDIO_BLOB) && !defined(MR0_AUDIO_BLOB)
+         mHardwareStatus = AUDIO_HW_SET_MASTER_MUTE;
+         if ((NULL != dev->set_master_mute) &&
+             (OK == dev->set_master_mute(dev, mMasterMute))) {
+             flags = static_cast<AudioHwDevice::Flags>(flags |
+                     AudioHwDevice::AHWD_CAN_SET_MASTER_MUTE);
+         }
+-
++#endif
+         mHardwareStatus = AUDIO_HW_IDLE;
+     }
+ 
+@@ -2062,7 +2066,7 @@ sp<AudioFlinger::PlaybackThread> AudioFlinger::openOutput_l(audio_module_handle_
+             //        AUDIO_CHANNEL_REPRESENTATION_INDEX, (1 << 4) - 1);  // another 4ch example
+         }
+     }
+-
++#ifndef ICS_AUDIO_BLOB
+     status_t status = hwDevHal->open_output_stream(hwDevHal,
+                                                    *output,
+                                                    devices,
+@@ -2070,7 +2074,16 @@ sp<AudioFlinger::PlaybackThread> AudioFlinger::openOutput_l(audio_module_handle_
+                                                    config,
+                                                    &outStream,
+                                                    address.string());
+-
++#else
++    status_t status = hwDevHal->open_output_stream(hwDevHal,
++                                          devices,
++                                          (int *)&config.format,
++                                          &config.channel_mask,
++                                          &config.sample_rate,
++                                          &outStream);
++    uint32_t newflags = flags | AUDIO_OUTPUT_FLAG_PRIMARY;
++    flags = (audio_output_flags_t)newflags;
++#endif
+ #ifdef QCOM_DIRECTTRACK
+     /* if (flags & AUDIO_OUTPUT_FLAG_LPA || flags & AUDIO_OUTPUT_FLAG_TUNNEL ) {
+         AudioSessionDescriptor *desc = new AudioSessionDescriptor(hwDevHal, outStream, flags);
+@@ -2160,7 +2173,12 @@ status_t AudioFlinger::openOutput(audio_module_handle_t module,
+         thread->audioConfigChanged(AudioSystem::OUTPUT_OPENED);
+ 
+         // the first primary output opened designates the primary hw device
++#ifdef STE_HARDWARE
++        if ( mPrimaryHardwareDev == NULL ) {
++#else
+         if ((mPrimaryHardwareDev == NULL) && (flags & AUDIO_OUTPUT_FLAG_PRIMARY)) {
++#endif
++
+             ALOGI("Using module %d has the primary audio interface", module);
+             mPrimaryHardwareDev = thread->getOutput()->audioHwDev;
+ 
+@@ -2377,9 +2395,17 @@ sp<AudioFlinger::RecordThread> AudioFlinger::openInput_l(audio_module_handle_t m
+     audio_config_t halconfig = *config;
+     audio_hw_device_t *inHwHal = inHwDev->hwDevice();
+     audio_stream_in_t *inStream = NULL;
++#ifndef ICS_AUDIO_BLOB
+     status_t status = inHwHal->open_input_stream(inHwHal, *input, device, &halconfig,
+                                         &inStream, flags, address.string(), source);
+-    ALOGV("openInput_l() openInputStream returned input %p, SamplingRate %d"
++#else
++    status_t status = inHwHal->open_input_stream(inHwHal, device, 
++                                        (int *)&config.format, 
++                                        &config.channel_mask,
++                                        &config.sample_rate, (audio_in_acoustics_t)0,
++                                        &inStream);
++#endif
++   ALOGV("openInput_l() openInputStream returned input %p, SamplingRate %d"
+            ", Format %#x, Channels %x, flags %#x, status %d addr %s",
+             inStream,
+             halconfig.sample_rate,
+@@ -2399,8 +2425,16 @@ sp<AudioFlinger::RecordThread> AudioFlinger::openInput_l(audio_module_handle_t m
+         // FIXME describe the change proposed by HAL (save old values so we can log them here)
+         ALOGV("openInput_l() reopening with proposed sampling rate and channel mask");
+         inStream = NULL;
++#ifndef ICS_AUDIO_BLOB
+         status = inHwHal->open_input_stream(inHwHal, *input, device, &halconfig,
+                                             &inStream, flags, address.string(), source);
++#else
++        status = inHwHal->open_input_stream(inHwHal, device, 
++                                        (int *)&config.format, 
++                                        &config.channel_mask,
++                                        &config.sample_rate, (audio_in_acoustics_t)0,
++                                        &inStream);
++#endif
+         // FIXME log this new status; HAL should not propose any further changes
+     }
+ 
+diff --git a/services/audiopolicy/AudioPolicyInterfaceImplLegacy.cpp b/services/audiopolicy/AudioPolicyInterfaceImplLegacy.cpp
+index 1467188..b2d76f4 100644
+--- a/services/audiopolicy/AudioPolicyInterfaceImplLegacy.cpp
++++ b/services/audiopolicy/AudioPolicyInterfaceImplLegacy.cpp
+@@ -368,12 +368,15 @@ status_t AudioPolicyService::setStreamVolumeIndex(audio_stream_type_t stream,
+         return BAD_VALUE;
+     }
+     Mutex::Autolock _l(mLock);
++#ifndef ICS_AUDIO_BLOB
+     if (mpAudioPolicy->set_stream_volume_index_for_device) {
+         return mpAudioPolicy->set_stream_volume_index_for_device(mpAudioPolicy,
+                                                                 stream,
+                                                                 index,
+                                                                 device);
+-    } else {
++    } else 
++#endif
++    {
+         return mpAudioPolicy->set_stream_volume_index(mpAudioPolicy, stream, index);
+     }
+ }
+@@ -389,12 +392,15 @@ status_t AudioPolicyService::getStreamVolumeIndex(audio_stream_type_t stream,
+         return BAD_VALUE;
+     }
+     Mutex::Autolock _l(mLock);
++#ifndef ICS_AUDIO_BLOB
+     if (mpAudioPolicy->get_stream_volume_index_for_device) {
+         return mpAudioPolicy->get_stream_volume_index_for_device(mpAudioPolicy,
+                                                                 stream,
+                                                                 index,
+                                                                 device);
+-    } else {
++    } else 
++#endif
++    {
+         return mpAudioPolicy->get_stream_volume_index(mpAudioPolicy, stream, index);
+     }
+ }
+-- 
+1.9.1
+
