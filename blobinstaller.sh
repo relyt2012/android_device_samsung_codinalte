@@ -56,7 +56,11 @@ then
 		if [[ "$PROPERTY" == "MODEM_SW_VER" ]]
 		then
 			ui_print "BASEBAND = $VALUE"
-			if [[ "$VALUE" == "T599NUVAMD4" ]]
+			if [[ "$VALUE" == "T599NUVAMD4" ]] 
+			then
+				CODENAME="codinamtr"
+				VERSION="SGH-T599N"
+			elif [[ "$VALUE" == "T599NUVAOH1" ]] 
 			then
 				CODENAME="codinamtr"
 				VERSION="SGH-T599N"
