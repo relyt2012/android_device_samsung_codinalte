@@ -1,0 +1,35 @@
+From d9173ca9cb8bdad12d4b9c603ff5951e1c88d5a4 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Thu, 14 Jul 2016 16:59:57 -0500
+Subject: [PATCH] fix move to sd
+
+Change-Id: I1ac4d66f1f58223b0bcb4d13671ed737b9b3df0d
+---
+ Volume.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Volume.cpp b/Volume.cpp
+index a2db960..ce19ac8 100644
+--- a/Volume.cpp
++++ b/Volume.cpp
+@@ -586,7 +586,7 @@ int Volume::mountVol() {
+         extractMetadata(devicePath);
+ 
+ #ifndef MINIVOLD
+-        if (providesAsec && mountAsecExternal() != 0) {
++        if (mountAsecExternal() != 0) {
+             SLOGE("Failed to mount secure area (%s)", strerror(errno));
+             umount(getMountpoint());
+             setState(Volume::State_Idle);
+@@ -703,7 +703,7 @@ int Volume::unmountVol(bool force, bool revert, bool detach) {
+ 
+     // TODO: determine failure mode if FUSE times out
+ 
+-    if (providesAsec && doUnmount(Volume::SEC_ASECDIR_EXT, force, detach) != 0) {
++    if (doUnmount(Volume::SEC_ASECDIR_EXT, force, detach) != 0) {
+         SLOGE("Failed to unmount secure area on %s (%s)", getMountpoint(), strerror(errno));
+         goto out_mounted;
+     }
+-- 
+1.9.1
+

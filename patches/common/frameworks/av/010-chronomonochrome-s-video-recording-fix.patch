@@ -1,20 +1,19 @@
-From 3c33c9bdb7e24f22575cbb1ac21e78ebe5b8f718 Mon Sep 17 00:00:00 2001
+From 21bba1cb13fcd2fe31e57726dbc6eca913dc6e29 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Fri, 8 Jul 2016 12:21:36 -0500
-Subject: [PATCH] ChronoMonochrome ste video recording
+Date: Mon, 11 Jul 2016 09:01:26 -0500
+Subject: [PATCH] chronomonochrome's video recording fix - Modified for Carbon
+ lp 5.1.1 Excellent work @Chronomonochrome !
 
-Huge ups to @ChronoMonochrome! Great work bro...
-
-Change-Id: I4711a34bf06fbac7c3cab23344af55d2cb720457
+Change-Id: I881e9ebf814b94f718d4be855b3c42ba27b42130
 ---
- include/media/mediarecorder.h                      |  2 +-
- .../libmediaplayerservice/MediaRecorderClient.cpp  |  4 +-
- .../libmediaplayerservice/StagefrightRecorder.cpp  | 75 ++++++++++++++--------
- media/libmediaplayerservice/StagefrightRecorder.h  |  4 ++
- media/libstagefright/MPEG4Writer.cpp               | 13 ++--
- media/libstagefright/OMXCodec.cpp                  |  7 +-
- .../tests/SurfaceMediaSource_test.cpp              |  9 +--
- 7 files changed, 75 insertions(+), 39 deletions(-)
+ include/media/mediarecorder.h                      |   2 +-
+ .../libmediaplayerservice/MediaRecorderClient.cpp  |   4 +-
+ .../libmediaplayerservice/StagefrightRecorder.cpp  | 161 ++++++++++++---------
+ media/libmediaplayerservice/StagefrightRecorder.h  |   4 +
+ media/libstagefright/MPEG4Writer.cpp               |  14 +-
+ media/libstagefright/OMXCodec.cpp                  |   5 +-
+ .../tests/SurfaceMediaSource_test.cpp              |   9 +-
+ 7 files changed, 119 insertions(+), 80 deletions(-)
  mode change 100755 => 100644 include/media/mediarecorder.h
 
 diff --git a/include/media/mediarecorder.h b/include/media/mediarecorder.h
@@ -48,10 +47,29 @@ index 8c34a47..de52bdd 100644
      }
      Mutex::Autolock lock(mLock);
 diff --git a/media/libmediaplayerservice/StagefrightRecorder.cpp b/media/libmediaplayerservice/StagefrightRecorder.cpp
-index 90d4a25..4806b5c 100644
+index 90d4a25..8fdeb62 100644
 --- a/media/libmediaplayerservice/StagefrightRecorder.cpp
 +++ b/media/libmediaplayerservice/StagefrightRecorder.cpp
-@@ -123,7 +123,7 @@ status_t StagefrightRecorder::init() {
+@@ -16,6 +16,8 @@
+ 
+ //#define LOG_NDEBUG 0
+ #define LOG_TAG "StagefrightRecorder"
++#include <media/stagefright/SurfaceMediaSource.h>
++#include <gui/Surface.h>
+ #include <inttypes.h>
+ #include <utils/Log.h>
+ 
+@@ -90,7 +92,8 @@ StagefrightRecorder::StagefrightRecorder()
+       mVideoSource(VIDEO_SOURCE_LIST_END),
+       mCaptureTimeLapse(false),
+       mStarted(false),
+-      mRecPaused(false) {
++      mRecPaused(false), 
++      mSurfaceMediaSource(NULL) {
+ 
+     ALOGV("Constructor");
+     reset();
+@@ -123,7 +126,7 @@ status_t StagefrightRecorder::init() {
  // while encoding GL Frames
  sp<IGraphicBufferProducer> StagefrightRecorder::querySurfaceMediaSource() const {
      ALOGV("Get SurfaceMediaSource");
@@ -60,7 +78,7 @@ index 90d4a25..4806b5c 100644
  }
  
  status_t StagefrightRecorder::setAudioSource(audio_source_t as) {
-@@ -868,9 +868,6 @@ status_t StagefrightRecorder::prepareInternal() {
+@@ -868,9 +871,6 @@ status_t StagefrightRecorder::prepareInternal() {
  }
  
  status_t StagefrightRecorder::prepare() {
@@ -70,7 +88,7 @@ index 90d4a25..4806b5c 100644
      return OK;
  }
  
-@@ -903,11 +900,9 @@ status_t StagefrightRecorder::start() {
+@@ -903,11 +903,9 @@ status_t StagefrightRecorder::start() {
      }
      status_t status = OK;
  
@@ -85,7 +103,7 @@ index 90d4a25..4806b5c 100644
      }
  
      if (mAudioSource != AUDIO_SOURCE_CNT) {
-@@ -1554,14 +1549,49 @@ status_t StagefrightRecorder::setupMediaSource(
+@@ -1554,14 +1552,49 @@ status_t StagefrightRecorder::setupMediaSource(
              return err;
          }
          *mediaSource = cameraSource;
@@ -137,7 +155,7 @@ index 90d4a25..4806b5c 100644
  status_t StagefrightRecorder::setupCameraSource(
          sp<CameraSource> *cameraSource) {
      ExtendedStats::AutoProfile autoProfile(
-@@ -1634,23 +1664,25 @@ status_t StagefrightRecorder::setupVideoEncoder(
+@@ -1634,29 +1667,31 @@ status_t StagefrightRecorder::setupVideoEncoder(
  
      source->clear();
  
@@ -166,9 +184,138 @@ index 90d4a25..4806b5c 100644
 -            format->setString("mime", MEDIA_MIMETYPE_VIDEO_VP8);
 +            enc_meta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_VP8);
              break;
- 
+-
++	/*
          case VIDEO_ENCODER_H265:
-@@ -1851,13 +1883,8 @@ status_t StagefrightRecorder::setupMPEG4orWEBMRecording() {
+-            format->setString("mime", MEDIA_MIMETYPE_VIDEO_HEVC);
++            enc_meta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_HEVC);
+             break;
+-
++	*/
+         default:
+             CHECK(!"Should not be here, unsupported video encoding.");
+             break;
+@@ -1672,38 +1707,29 @@ status_t StagefrightRecorder::setupVideoEncoder(
+         CHECK(meta->findInt32(kKeySliceHeight, &sliceHeight));
+         CHECK(meta->findInt32(kKeyColorFormat, &colorFormat));
+ 
+-        format->setInt32("width", width);
+-        format->setInt32("height", height);
+-        format->setInt32("stride", stride);
+-        format->setInt32("slice-height", sliceHeight);
+-        format->setInt32("color-format", colorFormat);
++        enc_meta->setInt32(kKeyWidth, width);
++        enc_meta->setInt32(kKeyHeight, height);
++        enc_meta->setInt32(kKeyIFramesInterval, mIFramesIntervalSec);
++        enc_meta->setInt32(kKeyStride, stride);
++        enc_meta->setInt32(kKeySliceHeight, sliceHeight);
++        enc_meta->setInt32(kKeyColorFormat, colorFormat);
+     } else {
+-        format->setInt32("width", mVideoWidth);
+-        format->setInt32("height", mVideoHeight);
+-        format->setInt32("stride", mVideoWidth);
+-        format->setInt32("slice-height", mVideoWidth);
+-        format->setInt32("color-format", OMX_COLOR_FormatAndroidOpaque);
+-
+-        // set up time lapse/slow motion for surface source
+-        if (mCaptureTimeLapse) {
+-            if (mTimeBetweenTimeLapseFrameCaptureUs <= 0) {
+-                ALOGE("Invalid mTimeBetweenTimeLapseFrameCaptureUs value: %lld",
+-                    mTimeBetweenTimeLapseFrameCaptureUs);
+-                return BAD_VALUE;
+-            }
+-            format->setInt64("time-lapse",
+-                    mTimeBetweenTimeLapseFrameCaptureUs);
+-        }
++        enc_meta->setInt32(kKeyWidth, mVideoWidth);
++        enc_meta->setInt32(kKeyHeight, mVideoHeight);
++        enc_meta->setInt32(kKeyIFramesInterval, mIFramesIntervalSec);
++        enc_meta->setInt32(kKeyStride, mVideoWidth);
++        enc_meta->setInt32(kKeySliceHeight, mVideoWidth);
++        enc_meta->setInt32(kKeyColorFormat, OMX_COLOR_FormatAndroidOpaque);   
+     }
+ 
+-    format->setInt32("bitrate", mVideoBitRate);
+-    format->setInt32("frame-rate", mFrameRate);
+-    format->setInt32("i-frame-interval", mIFramesIntervalSec);
++    enc_meta->setInt32(kKeyBitRate, mVideoBitRate);
++    enc_meta->setInt32(kKeyFrameRate, mFrameRate);
++    enc_meta->setInt32(kKeyIFramesInterval, mIFramesIntervalSec);
+ 
+     if (mVideoTimeScale > 0) {
+-        format->setInt32("time-scale", mVideoTimeScale);
++        enc_meta->setInt32(kKeyTimeScale, mVideoTimeScale);
+     }
+-
++    /*
+     if (cameraSource != NULL) {
+         sp<MetaData> meta = cameraSource->getFormat();
+         status_t retVal = ExtendedUtils::HFR::initializeHFR(
+@@ -1712,31 +1738,39 @@ status_t StagefrightRecorder::setupVideoEncoder(
+             return retVal;
+         }
+     }
+-
++    
+     ExtendedUtils::ShellProp::setEncoderProfile(mVideoEncoder,
+             mVideoEncoderProfile, mVideoEncoderLevel);
+-
++    */
+     if (mVideoEncoderProfile != -1) {
+-        format->setInt32("profile", mVideoEncoderProfile);
++        enc_meta->setInt32(kKeyVideoProfile, mVideoEncoderProfile);
+     }
+     if (mVideoEncoderLevel != -1) {
+-        format->setInt32("level", mVideoEncoderLevel);
++        enc_meta->setInt32(kKeyVideoLevel, mVideoEncoderLevel);
+     }
+ 
+-    uint32_t flags = 0;
++    OMXClient client;
++    CHECK_EQ(client.connect(), (status_t)OK);
++
++    uint32_t encoder_flags = 0;
+     if (mIsMetaDataStoredInVideoBuffers) {
+-        flags |= MediaCodecSource::FLAG_USE_METADATA_INPUT;
++        encoder_flags |= OMXCodec::kStoreMetaDataInVideoBuffers;
+     }
+-
++    /*
+     if (cameraSource == NULL) {
+         flags |= MediaCodecSource::FLAG_USE_SURFACE_INPUT;
+     }
+-
+     if (mRecorderExtendedStats != NULL) {
+         format->setObject(MEDIA_EXTENDED_STATS, mRecorderExtendedStats);
+     }
+-    sp<MediaCodecSource> encoder =
+-            MediaCodecSource::Create(mLooper, format, cameraSource, flags);
++    */
++    if (mCaptureTimeLapse) {
++        encoder_flags |= OMXCodec::kOnlySubmitOneInputBufferAtOneTime;
++    }
++    sp<MediaSource> encoder = OMXCodec::Create(
++            client.interface(), enc_meta,
++            true /* createEncoder */, cameraSource,
++            NULL, encoder_flags);
+     if (encoder == NULL) {
+         ALOGE("Failed to create video encoder");
+         // When the encoder fails to be created, we need
+@@ -1747,11 +1781,11 @@ status_t StagefrightRecorder::setupVideoEncoder(
+         }
+         return UNKNOWN_ERROR;
+     }
+-
++    /*
+     if (cameraSource == NULL) {
+         mGraphicBufferProducer = encoder->getGraphicBufferProducer();
+     }
+-
++    */
+     mVideoSourceNode = cameraSource;
+     mVideoEncoderOMX = encoder;
+     *source = encoder;
+@@ -1851,13 +1885,8 @@ status_t StagefrightRecorder::setupMPEG4orWEBMRecording() {
      if (mMaxFileSizeBytes != 0) {
          writer->setMaxFileSize(mMaxFileSizeBytes);
      }
@@ -184,7 +331,7 @@ index 90d4a25..4806b5c 100644
      if (mStartTimeOffsetMs > 0) {
          writer->setStartTimeOffsetMs(mStartTimeOffsetMs);
      }
-@@ -1953,8 +1980,6 @@ status_t StagefrightRecorder::stop() {
+@@ -1953,8 +1982,6 @@ status_t StagefrightRecorder::stop() {
          mWriter.clear();
      }
  
@@ -216,7 +363,7 @@ index 527b645..e446caa 100644
      status_t setupVideoEncoder(sp<MediaSource> cameraSource, sp<MediaSource> *source);
  
 diff --git a/media/libstagefright/MPEG4Writer.cpp b/media/libstagefright/MPEG4Writer.cpp
-index b94e334..a818402 100644
+index b94e334..b517036 100644
 --- a/media/libstagefright/MPEG4Writer.cpp
 +++ b/media/libstagefright/MPEG4Writer.cpp
 @@ -1839,7 +1839,7 @@ status_t MPEG4Writer::Track::pause() {
@@ -228,7 +375,7 @@ index b94e334..a818402 100644
      if (!mStarted) {
          ALOGE("Stop() called but track is not started");
          return ERROR_END_OF_STREAM;
-@@ -1850,14 +1850,17 @@ status_t MPEG4Writer::Track::stop() {
+@@ -1850,14 +1850,18 @@ status_t MPEG4Writer::Track::stop() {
      }
      mDone = true;
  
@@ -247,36 +394,27 @@ index b94e334..a818402 100644
 +            err = status;
 +        }
 +    }
++
      if (mOwner->exceedsFileSizeLimit() && mStszTableEntries->count() == 0) {
          ALOGE(" Filesize limit exceeded and zero samples written ");
          return ERROR_END_OF_STREAM;
 diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
-index 64b42c3..d21f16a 100644
+index 64b42c3..097524c 100644
 --- a/media/libstagefright/OMXCodec.cpp
 +++ b/media/libstagefright/OMXCodec.cpp
-@@ -1193,7 +1193,7 @@ status_t OMXCodec::findTargetColorFormat(
- status_t OMXCodec::isColorFormatSupported(
-         OMX_COLOR_FORMATTYPE colorFormat, int portIndex) {
-     ALOGV("isColorFormatSupported: %d", static_cast<int>(colorFormat));
--
-+    return OK;
-     // Enumerate all the color formats supported by
-     // the omx component to see whether the given
-     // color format is supported.
-@@ -1267,9 +1267,12 @@ void OMXCodec::setVideoInputFormat(
-             CHECK(!"Should not be here. Not a supported video mime type.");
-         }
-     }
+@@ -1179,8 +1179,11 @@ status_t OMXCodec::findTargetColorFormat(
+         const sp<MetaData>& meta, OMX_COLOR_FORMATTYPE *colorFormat) {
+     ALOGV("findTargetColorFormat");
+     CHECK(mIsEncoder);
 -
 +#ifdef STE_HARDWARE
-+    OMX_COLOR_FORMATTYPE colorFormat = OMX_STE_COLOR_FormatYUV420PackedSemiPlanarMB;
++    *colorFormat = OMX_STE_COLOR_FormatYUV420PackedSemiPlanarMB;
 +#else
-     OMX_COLOR_FORMATTYPE colorFormat;
-     CHECK_EQ((status_t)OK, findTargetColorFormat(meta, &colorFormat));
+     *colorFormat = OMX_COLOR_FormatYUV420SemiPlanar;
 +#endif
- 
-     status_t err;
-     OMX_PARAM_PORTDEFINITIONTYPE def;
+     int32_t targetColorFormat;
+     if (meta->findInt32(kKeyColorFormat, &targetColorFormat)) {
+         *colorFormat = (OMX_COLOR_FORMATTYPE) targetColorFormat;
 diff --git a/media/libstagefright/tests/SurfaceMediaSource_test.cpp b/media/libstagefright/tests/SurfaceMediaSource_test.cpp
 index fd889f9..6778a47 100644
 --- a/media/libstagefright/tests/SurfaceMediaSource_test.cpp
