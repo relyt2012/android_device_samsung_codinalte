@@ -16,7 +16,9 @@
 
 # External Sdcard
 /devices/sdi0/mmc_host/mmc1/mmc1                      auto         auto    defaults               voldmanaged=sdcard1:auto
-/devices/platform/musb-ux500.0/musb-hdrc  	      /storage/usbdisk   auto    defaults		voldmanaged=usbdisk:auto
+
+# OTG
+/devices/platform/musb-ux500.0/musb-hdrc  	      auto	   auto	    defaults		  voldmanaged=usbdisk:auto
 
 # zRAM
 /dev/block/zram0                                      none         swap    defaults               zramsize=134217728
