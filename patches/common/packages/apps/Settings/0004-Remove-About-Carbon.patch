@@ -1,0 +1,31 @@
+From 9591550ef97b0fed678ede37d7da33d98c034e36 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Fri, 22 Jul 2016 12:41:34 -0500
+Subject: [PATCH] Remove About Carbon
+
+- I did not want to remove this but it is too buggy on an
+unofficial device
+
+Change-Id: I138dbd4a7ac4af0d5d35a85330e8b15f69dc30b8
+---
+ res/xml/carbon_settings.xml | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/res/xml/carbon_settings.xml b/res/xml/carbon_settings.xml
+index de36afa..6aed49d 100644
+--- a/res/xml/carbon_settings.xml
++++ b/res/xml/carbon_settings.xml
+@@ -59,10 +59,4 @@
+         android:icon="@drawable/ic_settings_advanced_teal"
+         android:fragment="com.android.settings.carbon.CarbonMoreDeviceSettings" />
+ 
+-    <PreferenceScreen
+-        android:id="@+id/carbon_about"
+-        android:title="@string/carbon_about_title"
+-        android:icon="@drawable/ic_settings_carbonfibers_teal"
+-        android:fragment="com.android.settings.carbon.CarbonAbout" />
+-
+ </PreferenceScreen>
+-- 
+1.9.1
+
