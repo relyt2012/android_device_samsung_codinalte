@@ -1,0 +1,38 @@
+From d1e775774402a82a27bc04ae3395152f5dbc0bfb Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Thu, 21 Jul 2016 09:21:05 -0500
+Subject: [PATCH] twrp - fix blank screen on boot
+
+---
+ minuitwrp/graphics.cpp | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/minuitwrp/graphics.cpp b/minuitwrp/graphics.cpp
+index 47325d0..16d27e0 100644
+--- a/minuitwrp/graphics.cpp
++++ b/minuitwrp/graphics.cpp
+@@ -292,7 +292,7 @@ static void get_memory_surface(GGLSurface* ms) {
+     ms->format = gr_draw->format;
+ }
+ 
+-int gr_init(void)
++int gr_init_real(void)
+ {
+     gr_draw = NULL;
+ 
+@@ -363,6 +363,12 @@ int gr_init(void)
+     return 0;
+ }
+ 
++int gr_init() {
++	gr_init_real();
++	gr_init_real();
++	return 0;
++}
++
+ void gr_exit(void)
+ {
+     gr_backend->exit(gr_backend);
+-- 
+1.9.1
+
