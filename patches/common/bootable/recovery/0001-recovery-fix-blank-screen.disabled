@@ -1,0 +1,68 @@
+From 30fe5613a1560d0cd258320178014e8503b559f0 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Wed, 20 Jul 2016 12:48:18 -0500
+Subject: [PATCH] recovery fix blank screen
+
+Change-Id: Iec8a7c9b72bb08be3e0ad7a1f695ac20e95e400d
+---
+ minui/graphics.c       |  9 ++++++++-
+ minui/graphics_fbdev.c | 16 +++++++++++++++-
+ 2 files changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/minui/graphics.c b/minui/graphics.c
+index 3109e0d..877f711 100644
+--- a/minui/graphics.c
++++ b/minui/graphics.c
+@@ -487,7 +487,7 @@ void gr_flip() {
+     gr_draw = gr_backend->flip(gr_backend);
+ }
+ 
+-int gr_init(void)
++int gr_init_real(void)
+ {
+     gr_init_font();
+ 
+@@ -527,6 +527,13 @@ int gr_init(void)
+     return 0;
+ }
+ 
++int gr_init(void)
++{
++	gr_init_real();
++	gr_init_real();
++	return 0;
++}
++
+ void gr_exit(void)
+ {
+     gr_backend->exit(gr_backend);
+diff --git a/minui/graphics_fbdev.c b/minui/graphics_fbdev.c
+index 1f77de2..a089230 100644
+--- a/minui/graphics_fbdev.c
++++ b/minui/graphics_fbdev.c
+@@ -107,7 +107,21 @@ static gr_surface fbdev_init(minui_backend* backend) {
+         close(fd);
+         return NULL;
+     }
+-
++    vi.bits_per_pixel = 4* 8;
++      vi.red.offset     = 24;
++      vi.red.length     = 8;
++      vi.green.offset   = 16;
++      vi.green.length   = 8;
++      vi.blue.offset    = 8;
++      vi.blue.length    = 8;
++      vi.transp.offset  = 0;
++      vi.transp.length  = 8;
++
++    if (ioctl(fd, FBIOPUT_VSCREENINFO, &vi) < 0) {
++        perror("failed to put fb0 info");
++        close(fd);
++        return -1;
++    }
+     // We print this out for informational purposes only, but
+     // throughout we assume that the framebuffer device uses an RGBX
+     // pixel format.  This is the case for every development device I
+-- 
+1.9.1
+
