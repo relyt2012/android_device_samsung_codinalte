@@ -145,7 +145,7 @@ BOARD_UMS_LUNFILE := "/sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun0/f
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun%d/file"
 TARGET_RECOVERY_FSTAB := device/samsung/codinalte/rootdir/fstab.samsungcodina
 BOARD_HAS_NO_MISC_PARTITION := true
-#BOARD_CUSTOM_GRAPHICS := ../../../device/samsung/codinalte/recovery/graphics.c
+
 BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_RECOVERY_SWIPE := true
 BOARD_SUPPRESS_EMMC_WIPE := true
@@ -154,7 +154,6 @@ BOARD_RECOVERY_NEEDS_REL_INPUT := true
 BOARD_HAS_DOWNLOAD_MODE := true
 
 # TWRP Recovery defines
-#TW_BOARD_CUSTOM_GRAPHICS := ../../../device/samsung/codinalte/recovery/twrp-graphics.c
 DEVICE_RESOLUTION := 480x800
 TW_THEME := portrait_mdpi
 TARGET_RECOVERY_FORCE_PIXEL_FORMAT := RGB_565
