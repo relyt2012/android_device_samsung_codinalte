@@ -1,0 +1,157 @@
+From 4b33db08753a7d7ee23d8c977a1108ae8c4b3244 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Mon, 25 Jul 2016 11:10:56 -0500
+Subject: [PATCH] super charger
+
+Change-Id: I147f38d240dea4f03cb322e7f1c8013c929e3b40
+---
+ healthd/healthd_mode_charger.cpp | 88 +++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 86 insertions(+), 2 deletions(-)
+
+diff --git a/healthd/healthd_mode_charger.cpp b/healthd/healthd_mode_charger.cpp
+index c828cd6..be94dfd 100644
+--- a/healthd/healthd_mode_charger.cpp
++++ b/healthd/healthd_mode_charger.cpp
+@@ -69,6 +69,8 @@ char *locale;
+ 
+ #define BATTERY_FULL_THRESH     95
+ 
++#define TIMEZONE_PERSIST_PROP_FILE "/data/property/persist.sys.timezone"
++
+ #define LAST_KMSG_PATH          "/proc/last_kmsg"
+ #define LAST_KMSG_PSTORE_PATH   "/sys/fs/pstore/console-ramoops"
+ #define LAST_KMSG_MAX_SZ        (32 * 1024)
+@@ -218,6 +220,9 @@ static int char_width;
+ static int char_height;
+ static bool minui_inited;
+ 
++static bool show_datetime = false;
++static bool no_suspend = false;
++
+ static int set_tricolor_led(int on, int color)
+ {
+     int fd, i;
+@@ -453,10 +458,37 @@ static int draw_text(const char *str, int x, int y)
+ 
+     return y + char_height;
+ }
++static void android_black(void)
++{
++    gr_color(0x00, 0x00, 0x00, 255);
++}
++
++static void android_blue(void)
++{
++    gr_color(0x14, 0x48, 0x9e, 255);
++}
+ 
+ static void android_green(void)
+ {
+-    gr_color(0xa4, 0xc6, 0x39, 255);
++    android_blue();
++}
++
++static void draw_datetime()
++{
++    time_t t = time(NULL);
++    gmtime(&t);
++    struct tm *tmptr = localtime(&t);
++    if(tmptr->tm_hour > 12) tmptr->tm_hour -= 12; 
++    char *time = asctime(tmptr);
++    if(tmptr != NULL)
++    {
++	/* Clear black first */
++        android_black();
++        gr_fill(10,30,750,60);
++       
++	android_blue();
++	gr_text(10, 30, time, 0);
++    }
+ }
+ 
+ /* returns the last y-offset of where the surface ends */
+@@ -516,6 +548,10 @@ static void draw_capacity(struct charger *charger)
+     y = (gr_fb_height() + char_height) / 2;
+     android_green();
+     gr_text(x, y, cap_str, 0);
++    
++    if(show_datetime)
++	draw_datetime();
++
+ }
+ #endif
+ 
+@@ -581,7 +617,7 @@ static void update_screen_state(struct charger *charger, int64_t now)
+     }
+ 
+     /* animation is over, blank screen and leave */
+-    if (batt_anim->cur_cycle == batt_anim->num_cycles) {
++    if (batt_anim->cur_cycle == batt_anim->num_cycles && !no_suspend) {
+         reset_animation(batt_anim);
+         charger->next_screen_transition = -1;
+         set_backlight(false);
+@@ -668,6 +704,49 @@ static void update_screen_state(struct charger *charger, int64_t now)
+     }
+ }
+ 
++
++static void dotimezone()
++{
++    /* Meticulus:
++     * Read the timezone and set it. Requires that /data and /system
++     * be mounted. The c library in android depends on the
++     * persist.sys.timezone property to determine local time.
++     * We are reading the property from the file on system and
++     * setting it using setprop.
++     */
++
++    char file_tzdata[256];
++    const char *env_prefix = "/system/bin/setprop persist.sys.timezone ";
++    char env_set[256];
++    if(access(TIMEZONE_PERSIST_PROP_FILE, R_OK) == 0)
++    {
++    	FILE *timezone_file  = fopen(TIMEZONE_PERSIST_PROP_FILE, "rt");
++    	if(fgets(file_tzdata, 255, timezone_file) != NULL)
++    	{
++		strcpy(env_set, env_prefix);
++		strcat(env_set, file_tzdata);
++       		system(env_set);
++    	} 
++    }
++}
++
++static void loadsettings()
++{
++
++    int wait = 0;
++    while(access("/data/misc/", F_OK) != 0 && wait < 10) {
++    	sleep(1);
++	wait ++;
++	LOGW("/data/misc/ is not there... waiting...\n");
++    }
++
++    if(access("/data/misc/charger/charger_show_datetime", F_OK) == 0)
++	show_datetime = true;
++
++    if(access("/data/misc/charger/charger_no_suspend", F_OK) == 0)
++	no_suspend = true;
++}
++
+ static int set_key_callback(int code, int value, void *data)
+ {
+     struct charger *charger = (struct charger *)data;
+@@ -920,6 +999,11 @@ void healthd_mode_charger_init(struct healthd_config* config)
+     int i;
+     int epollfd;
+ 
++
++    loadsettings();
++    if(show_datetime)
++    	dotimezone();
++
+     dump_last_kmsg();
+ 
+     LOGW("--------------- STARTING CHARGER MODE ---------------\n");
+-- 
+1.9.1
+

@@ -42,7 +42,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/rootdir/fstab.samsungcodina:root/fstab.samsungcodina \
     $(LOCAL_PATH)/rootdir/init.ste.rc:root/init.ste.rc \
     $(LOCAL_PATH)/rootdir/init.samsungcodina.usb.rc:root/init.samsungcodina.usb.rc \
-    $(LOCAL_PATH)/rootdir/lpm.rc:root/lpm.rc
 
 # Recovery ramdisk, libraries and modules.
 PRODUCT_COPY_FILES += \

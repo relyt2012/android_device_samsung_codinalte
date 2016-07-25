@@ -132,13 +132,10 @@ COMMON_GLOBAL_CFLAGS += -DREFBASE_JB_MR1_COMPAT_SYMBOLS
 COMMON_GLOBAL_CFLAGS += -DMETICULUS_CODINALTE
 
 # Charging mode
-#COMMON_GLOBAL_FLAGS += -DCHARGING_ENABLED_PATH=$("/sys/class/power_supply/battery/batt_lp_charging")
-#COMMON_GLOBAL_FLAGS += -DBACKLIGHT_PATH=$("/sys/class/backlight/panel/brightness")
 BOARD_CHARGER_ENABLE_SUSPEND := true
-#BOARD_CHARGER_DISABLE_INIT_BLANK := false
-BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
-# Legacy not used
-#BOARD_CHARGER_CUSTOM_BACKLIGHT_PATH := /sys/class/backlight/panel/brightness
+BOARD_CHARGER_SHOW_PERCENTAGE := true
+BACKLIGHT_PATH := "/sys/devices/platform/pri_bl_ktd253/backlight/panel/brightness"
+CHARGING_ENABLED_PATH := "/sys/class/power_supply/battery/batt_lp_charging"
 
 # Needed for blobs
 COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS -DADD_LEGACY_ACQUIRE_BUFFER_SYMBOL

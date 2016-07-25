@@ -1,14 +1,68 @@
-From d1e775774402a82a27bc04ae3395152f5dbc0bfb Mon Sep 17 00:00:00 2001
+From 7c5ef1978cdf649f8e81644c78425ac873064fca Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Thu, 21 Jul 2016 09:21:05 -0500
-Subject: [PATCH] twrp - fix blank screen on boot
+Date: Sun, 24 Jul 2016 06:36:23 -0500
+Subject: [PATCH] twrp fix blank screen on boot
 
 ---
+ minui.old/graphics.c   | 8 +++++++-
+ minui/graphics.cpp     | 8 +++++++-
  minuitwrp/graphics.cpp | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ 3 files changed, 21 insertions(+), 3 deletions(-)
 
+diff --git a/minui.old/graphics.c b/minui.old/graphics.c
+index 580af29..08e6350 100644
+--- a/minui.old/graphics.c
++++ b/minui.old/graphics.c
+@@ -403,7 +403,7 @@ static void gr_init_font(void)
+     gr_font->texture->format = GGL_PIXEL_FORMAT_A_8;
+ }
+ 
+-int gr_init(void)
++int gr_init_real(void)
+ {
+     gglInit(&gr_context);
+     GGLContext *gl = gr_context;
+@@ -450,6 +450,12 @@ int gr_init(void)
+     return 0;
+ }
+ 
++int gr_init(void) {
++    gr_init_real();
++    gr_init_real();
++    return 0;
++}
++
+ void gr_exit(void)
+ {
+     free_overlay(gr_fb_fd);
+diff --git a/minui/graphics.cpp b/minui/graphics.cpp
+index eceaeee..eb454c7 100644
+--- a/minui/graphics.cpp
++++ b/minui/graphics.cpp
+@@ -472,7 +472,7 @@ void gr_flip() {
+     gr_draw = gr_backend->flip(gr_backend);
+ }
+ 
+-int gr_init(void)
++int gr_init_real(void)
+ {
+     gr_init_font();
+     gr_draw = NULL;
+@@ -526,6 +526,12 @@ int gr_init(void)
+     return 0;
+ }
+ 
++int gr_init(void) {
++    gr_init_real();
++    gr_init_real();
++    return 0;
++}
++
+ void gr_exit(void)
+ {
+     gr_backend->exit(gr_backend);
 diff --git a/minuitwrp/graphics.cpp b/minuitwrp/graphics.cpp
-index 47325d0..16d27e0 100644
+index 47325d0..0934249 100644
 --- a/minuitwrp/graphics.cpp
 +++ b/minuitwrp/graphics.cpp
 @@ -292,7 +292,7 @@ static void get_memory_surface(GGLSurface* ms) {
@@ -24,7 +78,7 @@ index 47325d0..16d27e0 100644
      return 0;
  }
  
-+int gr_init() {
++int gr_init(voi) {
 +	gr_init_real();
 +	gr_init_real();
 +	return 0;
