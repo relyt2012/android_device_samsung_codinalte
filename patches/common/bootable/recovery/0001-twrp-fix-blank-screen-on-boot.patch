@@ -78,7 +78,7 @@ index 47325d0..0934249 100644
      return 0;
  }
  
-+int gr_init(voi) {
++int gr_init(void) {
 +	gr_init_real();
 +	gr_init_real();
 +	return 0;
