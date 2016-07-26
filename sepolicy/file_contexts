@@ -1,8 +1,23 @@
 # Graphics
 /dev/hwmem		u:object_r:graphics_device:s0
 /dev/comp0		u:object_r:graphics_device:s0
-/dev/mali		u:object_r:graphics_device:s0
+/dev/mali			u:object_r:graphics_device:s0
 /dev/b2r2_blt		u:object_r:graphics_device:s0
 
 # admsrv
 /system/bin/admsrv	u:object_r:admsrv_exec:s0	
+
+# CodinalteParts
+/sys/module/doubletap2wake/parameters/use_wakelock				u:object_r:codinalteparts_sysfs:s0
+/sys/module/doubletap2wake/parameters/enable						u:object_r:codinalteparts_sysfs:s0
+/sys/module/sweep2wake/parameters/use_wakelock					u:object_r:codinalteparts_sysfs:s0
+/sys/module/sweep2wake/parameters/enable							u:object_r:codinalteparts_sysfs:s0
+/sys/devices/virtual/misc/backlightnotification/enabled					u:object_r:codinalteparts_sysfs:s0
+/sys/devices/virtual/misc/backlightnotification/blink_mode				u:object_r:codinalteparts_sysfs:s0
+/sys/module/lowmemorykiller/parameters/donotkill_sysproc			u:object_r:codinalteparts_sysfs:s0
+/sys/module/lowmemorykiller/parameters/donotkill_sysproc_names	u:object_r:codinalteparts_sysfs:s0
+/sys/devices/platform/ab8505-i2c.0/ab8500-usb.0/reset				u:object_r:codinalteparts_sysfs:s0
+/sys/devices/platform/musb-ux500.0/musb-hdrc/mode					u:object_r:codinalteparts_sysfs:s0
+/sys/module/board_codina_sdi/parameters/wlan_mac					u:object_r:codinalteparts_sysfs:s0
+/data/misc/charger/charger_show_datetime 							u:object_r:codinalteparts_sysfs:s0
+/data/misc/charger/charger_no_suspend 								u:object_r:codinalteparts_sysfs:s0
