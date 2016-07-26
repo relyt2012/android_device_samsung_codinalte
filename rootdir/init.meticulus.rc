@@ -17,36 +17,36 @@ on post-fs
     # CodinalteParts
     
     chown system system /sys/module/doubletap2wake/parameters/use_wakelock
-    chmod 0666 /sys/module/doubletap2wake/parameters/use_waklock
+    chmod 0660 /sys/module/doubletap2wake/parameters/use_waklock
 
     chown system system /sys/module/doubletap2wake/parameters/enable
-    chmod 0666 /sys/module/doubletap2wake/parameters/enable
+    chmod 0660 /sys/module/doubletap2wake/parameters/enable
 
     chown system system /sys/module/sweep2wake/parameters/use_wakelock
-    chmod 0666 /sys/module/sweep2wake/parameters/use_waklock
+    chmod 0660 /sys/module/sweep2wake/parameters/use_waklock
 
     chown system system /sys/module/sweep2wake/parameters/enable
-    chmod 0666 /sys/module/sweep2wake/parameters/enable
+    chmod 0660 /sys/module/sweep2wake/parameters/enable
 
     chown system system /sys/devices/virtual/misc/backlightnotification/enabled
-    chmod 0666 /sys/devices/virtual/misc/backlightnotification/enabled
+    chmod 0660 /sys/devices/virtual/misc/backlightnotification/enabled
 
     chown system system /sys/devices/virtual/misc/backlightnotification/blink_mode
-    chmod 0666 /sys/devices/virtual/misc/backlightnotification/blink_mode
+    chmod 0660 /sys/devices/virtual/misc/backlightnotification/blink_mode
 
     chown system system /sys/module/lowmemorykiller/parameters/donotkill_sysproc
-    chmod 0666 /sys/module/lowmemorykiller/parameters/donotkill_sysproc
+    chmod 0660 /sys/module/lowmemorykiller/parameters/donotkill_sysproc
 
     chown system system /sys/module/lowmemorykiller/parameters/donotkill_sysproc_names
-    chmod 0666 /sys/module/lowmemorykiller/parameters/donotkill_sysproc_names
+    chmod 0660 /sys/module/lowmemorykiller/parameters/donotkill_sysproc_names
 
     chown system system /sys/devices/platform/ab8505-i2c.0/ab8500-usb.0/reset
-    chmod 0666 /sys/devices/platform/ab8505-i2c.0/ab8500-usb.0/reset
+    chmod 0660 /sys/devices/platform/ab8505-i2c.0/ab8500-usb.0/reset
 
     chown system system /sys/devices/platform/musb-ux500.0/musb-hdrc/mode
-    chmod 0666 /sys/devices/platform/musb-ux500.0/musb-hdrc/mode
+    chmod 0660 /sys/devices/platform/musb-ux500.0/musb-hdrc/mode
 
     chown system system /sys/module/board_codina_sdi/parameters/wlan_mac
-    chmod 0666 /sys/module/board_codina_sdi/parameters/wlan_mac
+    chmod 0660 /sys/module/board_codina_sdi/parameters/wlan_mac
 
     # PerformanceControl
