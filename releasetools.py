@@ -90,11 +90,6 @@ def FullOTA_InstallEnd(info):
   info.script.AppendExtra('assert(run_program("/tmp/blobinstaller.sh") == 0);')
   info.script.AppendExtra('assert(run_program("/tmp/restorecon.sh") == 0);')
 
-#Enable root for apps and adb by default.
-  info.script.AppendExtra('run_program("/sbin/mkdir -p /data/property")')
-  info.script.AppendExtra('run_program("/sbin/printf 3 > /data/propety/persist.sys.root_access")')
-  info.script.AppendExtra('run_program("/sbin/chmod 600 /data/property/persis.sys.root_access")')
-
 # We have to reset all permissions after install blobs on system and this is the only way I could find to do it.
 # It would be better if FullOTA_InstallEnd(info) was called before system permissions are set
 # But I am unsure what "other" consequences of doing that would be.
