@@ -131,6 +131,10 @@ COMMON_GLOBAL_CFLAGS += -DREFBASE_JB_MR1_COMPAT_SYMBOLS
 # Meticulus patches switch
 COMMON_GLOBAL_CFLAGS += -DMETICULUS_CODINALTE
 
+#init
+BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
+
+
 # Charging mode
 BOARD_CHARGER_ENABLE_SUSPEND := true
 BOARD_CHARGER_SHOW_PERCENTAGE := true
