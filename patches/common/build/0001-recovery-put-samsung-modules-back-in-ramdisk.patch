@@ -1,0 +1,27 @@
+From f50f32257eaff6957d06ea78c8ee29442258f8ee Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Fri, 29 Jul 2016 12:44:17 -0500
+Subject: [PATCH] recovery: put samsung modules back in ramdisk
+
+Change-Id: I53c135e0f722f8d45423577f199e01981ba3c5e1
+---
+ core/Makefile | 3 ++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/core/Makefile b/core/Makefile
+index efaa73a..4eb1a23 100644
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -986,6 +986,9 @@ $(recovery_uncompressed_ramdisk): $(MKBOOTFS) \
+ 		$(recovery_build_prop) $(recovery_resource_deps) $(recovery_root_deps) \
+ 		$(recovery_fstab) \
+ 		$(RECOVERY_INSTALL_OTA_KEYS)
++	mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/lib/modules
++	cp -f $(TARGET_OUT)/lib/modules/j4fs.ko $(TARGET_RECOVERY_ROOT_OUT)/lib/modules/j4fs.ko
++	cp -f $(TARGET_OUT)/lib/modules/param.ko $(TARGET_RECOVERY_ROOT_OUT)/lib/modules/param.ko	
+ 	$(call build-recoveryramdisk)
+ 	@echo -e ${PRT_IMG}"----- Making uncompressed recovery ramdisk ------"${CL_RST}
+ 	$(hide) $(MKBOOTFS) $(TARGET_RECOVERY_ROOT_OUT) > $@
+-- 
+1.9.1
+

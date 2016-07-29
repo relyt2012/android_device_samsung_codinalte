@@ -1,0 +1,40 @@
+From 285f754bf86cc615cab2cb991754eb5c08892e2c Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Fri, 29 Jul 2016 12:37:46 -0500
+Subject: [PATCH] fix recovery blank screen
+
+Change-Id: I085c41515c8ff57d0cd6959ff11e4b0d79950912
+---
+ minui/graphics.cpp | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/minui/graphics.cpp b/minui/graphics.cpp
+index c0eea9e..43888ad 100644
+--- a/minui/graphics.cpp
++++ b/minui/graphics.cpp
+@@ -356,7 +356,7 @@ void gr_flip() {
+     gr_draw = gr_backend->flip(gr_backend);
+ }
+ 
+-int gr_init(void)
++int gr_init_real(void)
+ {
+     gr_init_font();
+ 
+@@ -390,6 +390,13 @@ int gr_init(void)
+     return 0;
+ }
+ 
++int gr_init(void)
++{
++    gr_init_real();
++    gr_init_real();
++    return 0;
++}
++
+ void gr_exit(void)
+ {
+     gr_backend->exit(gr_backend);
+-- 
+1.9.1
+

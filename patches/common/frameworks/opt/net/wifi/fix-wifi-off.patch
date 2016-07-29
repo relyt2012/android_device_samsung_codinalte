@@ -1,18 +1,29 @@
+From 593b8866fe98439877b8d1e30678b3a7acb9bccc Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Mon, 18 Jul 2016 10:52:07 -0500
+Subject: [PATCH] fix-wifi-off
+
+Change-Id: I5b780483f55cbbaf0d639c5e4a475532cc39aa88
+---
+ service/java/com/android/server/wifi/WifiStateMachine.java | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
 diff --git a/service/java/com/android/server/wifi/WifiStateMachine.java b/service/java/com/android/server/wifi/WifiStateMachine.java
-index 08f67d4..7f25772 100755
+index 4e40f73..aca74d1 100644
 --- a/service/java/com/android/server/wifi/WifiStateMachine.java
 +++ b/service/java/com/android/server/wifi/WifiStateMachine.java
-@@ -4682,8 +4682,11 @@ public class WifiStateMachine extends StateMachine {
-                     startNextBatchedScan();
+@@ -5573,7 +5573,10 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiPno
+                     maybeRegisterNetworkFactory();
                      break;
                  case CMD_SCREEN_STATE_CHANGED:
--                    handleScreenStateChanged(message.arg1 != 0,
--                            /* startBackgroundScanIfNeeded = */ false);
+-                    handleScreenStateChanged(message.arg1 != 0);
 +		    WifiManager manager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
 +		    if(manager.isWifiEnabled()) {
-+                        handleScreenStateChanged(message.arg1 != 0,
-+                                /* startBackgroundScanIfNeeded = */ false);
++                    	handleScreenStateChanged(message.arg1 != 0);
 +		    }
                      break;
                      /* Discard */
                  case CMD_START_SCAN:
+-- 
+1.9.1
+
