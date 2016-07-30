@@ -1,0 +1,41 @@
+From 862b235b4d1239a993beb41826c1e41dca8a0302 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sat, 30 Jul 2016 16:02:42 -0500
+Subject: [PATCH] GpsLocationProvider: Force use AGpsInterfacev1
+
+-Apparently our old JB blob does support the legacy detection
+method. Force the old way.
+
+Change-Id: Ifc2f85fb37cca9c646e76e34fddd29194db278ab
+---
+ .../core/jni/com_android_server_location_GpsLocationProvider.cpp  | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/services/core/jni/com_android_server_location_GpsLocationProvider.cpp b/services/core/jni/com_android_server_location_GpsLocationProvider.cpp
+index 0d3fdf6..eff35c8 100644
+--- a/services/core/jni/com_android_server_location_GpsLocationProvider.cpp
++++ b/services/core/jni/com_android_server_location_GpsLocationProvider.cpp
+@@ -749,16 +749,16 @@ static void android_location_GpsLocationProvider_agps_data_conn_open(
+     }
+ 
+     const char *apnStr = env->GetStringUTFChars(apn, NULL);
+-
++/*
+     size_t interface_size = sAGpsInterface->size;
+     if (interface_size == sizeof(AGpsInterface_v2)) {
+         sAGpsInterface->data_conn_open_with_apn_ip_type(apnStr, apnIpType);
+-    } else if (interface_size == sizeof(AGpsInterface_v1)) {
++    } else if (interface_size == sizeof(AGpsInterface_v1)) {*/
+         sAGpsInterface->data_conn_open(apnStr);
+-    } else {
++    /*} else {
+         ALOGE("Invalid size of AGpsInterface found: %d.", interface_size);
+     }
+-
++    */
+     env->ReleaseStringUTFChars(apn, apnStr);
+ }
+ 
+-- 
+1.9.1
+
