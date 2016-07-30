@@ -1,0 +1,26 @@
+From afb455b16deaca76a79e1839bbf958344adf61e2 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sat, 30 Jul 2016 11:14:33 -0500
+Subject: [PATCH] SpnOverride: fix path to xml
+
+Change-Id: Ic842936332823e88463527587d6aa0d6ec0489d6
+---
+ src/java/com/android/internal/telephony/uicc/SpnOverride.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/java/com/android/internal/telephony/uicc/SpnOverride.java b/src/java/com/android/internal/telephony/uicc/SpnOverride.java
+index 9c83390..57422fa 100644
+--- a/src/java/com/android/internal/telephony/uicc/SpnOverride.java
++++ b/src/java/com/android/internal/telephony/uicc/SpnOverride.java
+@@ -36,7 +36,7 @@ public class SpnOverride {
+ 
+ 
+     static final String LOG_TAG = "SpnOverride";
+-    static final String PARTNER_SPN_OVERRIDE_PATH ="etc/spn-conf.xml";
++    static final String PARTNER_SPN_OVERRIDE_PATH ="etc/selective-spn-conf.xml";
+ 
+     public SpnOverride () {
+         mCarrierSpnMap = new HashMap<String, String>();
+-- 
+1.9.1
+
