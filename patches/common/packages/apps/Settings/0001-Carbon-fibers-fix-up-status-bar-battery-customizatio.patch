@@ -1,0 +1,28 @@
+From 0d894c4e994129bbc99f7055d58bfabd1fc62403 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sat, 30 Jul 2016 09:11:56 -0500
+Subject: [PATCH] Carbon fibers: fix up status bar battery customizations 2
+
+-Default back to default
+
+Change-Id: Iea11a09d6054e29eba4439e9b86fbab0113ef6b9
+---
+ src/com/android/settings/carbon/StatusBarBatteryStatusSettings.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/com/android/settings/carbon/StatusBarBatteryStatusSettings.java b/src/com/android/settings/carbon/StatusBarBatteryStatusSettings.java
+index 16f5c58..56c48a3 100644
+--- a/src/com/android/settings/carbon/StatusBarBatteryStatusSettings.java
++++ b/src/com/android/settings/carbon/StatusBarBatteryStatusSettings.java
+@@ -130,7 +130,7 @@ public class StatusBarBatteryStatusSettings extends SettingsPreferenceFragment i
+             mPercentStyle =
+                     (ListPreference) findPreference(PREF_PERCENT_STYLE);
+             int percentStyle = Settings.System.getInt(mResolver,
+-                   Settings.System.STATUS_BAR_SHOW_BATTERY_PERCENT, 2);
++                   Settings.System.STATUS_BAR_SHOW_BATTERY_PERCENT, 0);
+             mPercentStyle.setValue(String.valueOf(percentStyle));
+             mPercentStyle.setSummary(mPercentStyle.getEntry());
+             mPercentStyle.setOnPreferenceChangeListener(this);
+-- 
+1.9.1
+

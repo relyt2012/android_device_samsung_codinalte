@@ -1,0 +1,49 @@
+From 5808c720de479bb3383029aed559097ff3e4c8a9 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sat, 30 Jul 2016 09:06:50 -0500
+Subject: [PATCH] Carbon fibers: fix up status bar battery customizations
+
+-It seem that the default behaviour is to turn on battery
+percentage next to the battery icon when charging dispite
+the users settings. You can end up having battery percentage
+inside the batter icon and next to it... Who wants that?
+
+-Set the default back to the DEFAULT. Duh?
+
+Change-Id: I0e4a0a90310358d653ca4673c6a6dde10f045bd4
+---
+ packages/SystemUI/src/com/android/systemui/BatteryLevelTextView.java | 4 +---
+ packages/SystemUI/src/com/android/systemui/BatteryMeterView.java     | 2 +-
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/BatteryLevelTextView.java b/packages/SystemUI/src/com/android/systemui/BatteryLevelTextView.java
+index 9de91d3b..cd752e7 100644
+--- a/packages/SystemUI/src/com/android/systemui/BatteryLevelTextView.java
++++ b/packages/SystemUI/src/com/android/systemui/BatteryLevelTextView.java
+@@ -191,9 +191,7 @@ public class BatteryLevelTextView extends TextView implements
+     public void updateVisibility() {
+         boolean showNextPercent = mBatteryPresent &&
+             mStyle != BatteryController.STYLE_GONE && (
+-                (mPercentMode == BatteryController.PERCENTAGE_MODE_OUTSIDE) ||
+-                (mBatteryCharging && mPercentMode ==
+-                    BatteryController.PERCENTAGE_MODE_INSIDE));
++                (mPercentMode == BatteryController.PERCENTAGE_MODE_OUTSIDE));
+         if (mStyle == BatteryController.STYLE_TEXT) {
+             showNextPercent = true;
+         } else if (mPercentMode == BatteryController.PERCENTAGE_MODE_OFF ||
+diff --git a/packages/SystemUI/src/com/android/systemui/BatteryMeterView.java b/packages/SystemUI/src/com/android/systemui/BatteryMeterView.java
+index 8d54bdf..89f2db7 100755
+--- a/packages/SystemUI/src/com/android/systemui/BatteryMeterView.java
++++ b/packages/SystemUI/src/com/android/systemui/BatteryMeterView.java
+@@ -339,7 +339,7 @@ public class BatteryMeterView extends View implements DemoMode,
+ 
+         boolean showInsidePercent = Settings.System.getIntForUser(mResolver,
+                 Settings.System.STATUS_BAR_SHOW_BATTERY_PERCENT,
+-                2, currentUserId) == 1;
++                0, currentUserId) == 1;
+ 
+         int batteryStyle = Settings.System.getIntForUser(mResolver,
+                 Settings.System.STATUS_BAR_BATTERY_STYLE,
+-- 
+1.9.1
+
