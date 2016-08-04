@@ -1,0 +1,58 @@
+From 55c4275e7459bdc08474e09c2c7b42f46227f8c1 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Wed, 3 Aug 2016 18:21:56 -0500
+Subject: [PATCH] Legacy dmcrypt support.
+
+The version of dm-crypt in the 3.0.31 kernel we are using
+ONLY accepts 5 parameters and parameters 6+ may be safely
+ignorned.
+
+Change-Id: I83edf05ec84d5dd52846c11fbf07b3c03e16e692
+---
+ cryptfs.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/cryptfs.c b/cryptfs.c
+index c8ad321..041aad0 100755
+--- a/cryptfs.c
++++ b/cryptfs.c
+@@ -97,6 +97,8 @@ static char *saved_mount_point;
+ static int  master_key_saved = 0;
+ static struct crypt_persist_data *persist_data = NULL;
+ 
++static bool legacy_dm_crypt = false;
++
+ #ifdef MINIVOLD
+ inline int release_wake_lock(const char* id) { return 0; };
+ inline int acquire_wake_lock(int lock, const char* id) { return 0; };
+@@ -1035,8 +1037,14 @@ static int load_crypto_mapping_table(struct crypt_mnt_ftr *crypt_ftr, unsigned c
+ #else
+   convert_key_to_hex_ascii(master_key, crypt_ftr->keysize, master_key_ascii);
+ #endif
+-  sprintf(crypt_params, "%s %s 0 %s 0 %s 0", crypt_ftr->crypto_type_name,
+-          master_key_ascii, real_blk_name, extra_params);
++  if(!legacy_dm_crypt) {
++    sprintf(crypt_params, "%s %s 0 %s 0 %s 0", crypt_ftr->crypto_type_name,
++            master_key_ascii, real_blk_name, extra_params);
++  } else {
++    sprintf(crypt_params, "%s %s 0 %s 0", crypt_ftr->crypto_type_name,
++            master_key_ascii, real_blk_name);
++  }
++    
+ 
+   SLOGI("%s: target_type = %s\n", __func__, tgt->target_type);
+   SLOGI("%s: real_blk_name = %s, extra_params = %s\n", __func__, real_blk_name, extra_params);
+@@ -1173,6 +1181,10 @@ static int create_crypto_blk_dev(struct crypt_mnt_ftr *crypt_ftr, unsigned char
+           extra_params = "1 allow_discards";
+           SLOGI("Enabling support for allow_discards in dmcrypt.\n");
+       }
++      if ((version[0] == 1) && (version[1] <= 10)) {
++          legacy_dm_crypt = true;
++          SLOGI("Enabling support for legacy dmcrypt\n"); 
++      }
+   }
+ #endif
+ 
+-- 
+1.9.1
+
