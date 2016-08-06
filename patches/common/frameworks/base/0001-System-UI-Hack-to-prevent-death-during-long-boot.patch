@@ -1,0 +1,47 @@
+From aef5473987713265a6b6d226fe4a743b35c59fd8 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sat, 6 Aug 2016 09:51:29 -0500
+Subject: [PATCH] System UI - Hack to prevent death during long boot
+
+-During first boot or an encryption boot, SystemUI tends to
+get killed prematurely due to a detected ANR. I'm not quite
+sure what causes the false ANR detection and I have tried to
+add more time before ANR procedures are initiated and this
+did allow the initial "Welcome Screen" during the first boot
+but the ANR dialog was showing too. While not the best solution,
+this allows for the appearance of normal (expected) behavior (i.e
+no ANR dialog at "Welcome Screen"). However, this prevents the
+system from killing SystemUI in an ANR situation under legitimate
+circumstances. I have not noticed any ill effects yet...
+
+Change-Id: I47e443c34b7645d276d0053fcc303c33e73440d4
+---
+ services/core/java/com/android/server/am/ProcessRecord.java | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/services/core/java/com/android/server/am/ProcessRecord.java b/services/core/java/com/android/server/am/ProcessRecord.java
+index b18b057..1387cdc 100644
+--- a/services/core/java/com/android/server/am/ProcessRecord.java
++++ b/services/core/java/com/android/server/am/ProcessRecord.java
+@@ -37,6 +37,7 @@ import android.os.Bundle;
+ import android.os.IBinder;
+ import android.os.Process;
+ import android.os.SystemClock;
++import android.os.SystemProperties;
+ import android.os.UserHandle;
+ import android.util.ArrayMap;
+ import android.util.PrintWriterPrinter;
+@@ -522,6 +523,10 @@ final class ProcessRecord {
+     }
+ 
+     void kill(String reason, boolean noisy) {
++	if(processName.equals("com.android.systemui")) {
++	    Slog.i("Meticulus"," NOT killing SystemUI!");
++	    return;
++	}
+         if (!killedByAm) {
+             if (noisy) {
+                 Slog.i(ActivityManagerService.TAG, "Killing " + toShortString() + " (adj " + setAdj
+-- 
+1.9.1
+
