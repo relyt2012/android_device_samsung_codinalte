@@ -1,0 +1,66 @@
+From c172892d471189b260abdafb195f64e00e8d838b Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sat, 6 Aug 2016 12:13:53 -0500
+Subject: [PATCH] Network Traffic Vector: fix bitmasks!
+
+-Strange to include both Network traffic & Network traffic VS.
+VS seem like a newer version rather than an addition...
+It They share SOME of the same bitmask variables but not all. The
+conflicting vars contained in "res/values/integers.xml" cause
+Network Traffic VS to behave improperly.
+
+-Gave unique names to the bitmask vars for Network Traffic VS.
+
+Change-Id: I00a1e80fed1a9b4557864786cb4b3f2da87635cf
+---
+ res/values/cr_integers.xml                                  | 12 ++++++------
+ src/com/android/settings/carbon/NetworkTrafficFragment.java | 12 ++++++------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/res/values/cr_integers.xml b/res/values/cr_integers.xml
+index 2c7688c..9362d99 100644
+--- a/res/values/cr_integers.xml
++++ b/res/values/cr_integers.xml
+@@ -1,10 +1,10 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+ 	<!-- Overlays for NetworkTraffic to use -->
+-	<integer name="maskMeter">0x00000001</integer>
+-	<integer name="maskText">0x00000002</integer>
+-	<integer name="maskUp">0x00000004</integer>
+-	<integer name="maskDown">0x00000008</integer>
+-	<integer name="maskUnit">0x00000010</integer>
+-	<integer name="maskPeriod">0xFFFF0000</integer>
++	<integer name="maskMeterV">0x00000001</integer>
++	<integer name="maskTextV">0x00000002</integer>
++	<integer name="maskUpV">0x00000004</integer>
++	<integer name="maskDownV">0x00000008</integer>
++	<integer name="maskUnitV">0x00000010</integer>
++	<integer name="maskPeriodV">0xFFFF0000</integer>
+ </resources>
+diff --git a/src/com/android/settings/carbon/NetworkTrafficFragment.java b/src/com/android/settings/carbon/NetworkTrafficFragment.java
+index 4671c0d..6969544 100644
+--- a/src/com/android/settings/carbon/NetworkTrafficFragment.java
++++ b/src/com/android/settings/carbon/NetworkTrafficFragment.java
+@@ -240,12 +240,12 @@ public class NetworkTrafficFragment extends SettingsPreferenceFragment implement
+ 
+     private void loadResources() {
+         Resources resources = getActivity().getResources();
+-        MASK_METER = resources.getInteger(R.integer.maskMeter);
+-        MASK_TEXT = resources.getInteger(R.integer.maskText);
+-        MASK_UP = resources.getInteger(R.integer.maskUp);
+-        MASK_DOWN = resources.getInteger(R.integer.maskDown);
+-        MASK_UNIT = resources.getInteger(R.integer.maskUnit);
+-        MASK_PERIOD = resources.getInteger(R.integer.maskPeriod);
++        MASK_METER = resources.getInteger(R.integer.maskMeterV);
++        MASK_TEXT = resources.getInteger(R.integer.maskTextV);
++        MASK_UP = resources.getInteger(R.integer.maskUpV);
++        MASK_DOWN = resources.getInteger(R.integer.maskDownV);
++        MASK_UNIT = resources.getInteger(R.integer.maskUnitV);
++        MASK_PERIOD = resources.getInteger(R.integer.maskPeriodV);
+     }
+ 
+     private void updateNetworkTrafficState(int mIndex) {
+-- 
+1.9.1
+

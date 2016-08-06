@@ -1,0 +1,40 @@
+From 52ecfdc427b07490dec06577008cf5a8832d450a Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sat, 6 Aug 2016 12:10:22 -0500
+Subject: [PATCH] SystemUI: Show network traffic vector when not connected
+
+Change-Id: I6b1297295179878ed40e914c644820b8df35e09b
+---
+ .../src/com/android/systemui/statusbar/policy/NetworkMeterView.java     | 2 +-
+ .../src/com/android/systemui/statusbar/policy/NetworkTextView.java      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/policy/NetworkMeterView.java b/packages/SystemUI/src/com/android/systemui/statusbar/policy/NetworkMeterView.java
+index 7cb1a8a..24c1546 100755
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/policy/NetworkMeterView.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/policy/NetworkMeterView.java
+@@ -258,7 +258,7 @@ public class NetworkMeterView extends ImageView implements Observer {
+         // Declare visibility
+         int visibility;
+         // Check if meter should be showed and device is connected
+-        if (showMeter&&isConnected()) {
++        if (showMeter) {
+             // Ensure view is attached
+             if (mAttached) {
+                 // Add as traffic observer
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/policy/NetworkTextView.java b/packages/SystemUI/src/com/android/systemui/statusbar/policy/NetworkTextView.java
+index f2442c8..1099115 100755
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/policy/NetworkTextView.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/policy/NetworkTextView.java
+@@ -239,7 +239,7 @@ public class NetworkTextView extends TextView implements Observer {
+         MB = KB*KB;
+         GB = MB*KB;
+ 
+-        if (NetworkTrafficSettings.isTextEnabled(mState) && getConnectAvailable()) {
++        if (NetworkTrafficSettings.isTextEnabled(mState)) {
+             if (mAttached) {
+                 NetworkTrafficMonitor.INSTANCE.addObserver(this);
+             }
+-- 
+1.9.1
+
