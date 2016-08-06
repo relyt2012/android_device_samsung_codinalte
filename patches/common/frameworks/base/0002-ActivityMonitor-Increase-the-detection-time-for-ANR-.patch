@@ -1,0 +1,48 @@
+From 00e3927a9bf5f8b045749a533220a2ec38836882 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sat, 6 Aug 2016 13:13:04 -0500
+Subject: [PATCH 2/2] ActivityMonitor: Increase the detection time for ANR's
+
+-Hack to work around ANR's happening during long boots
+
+Change-Id: I41642216506096cfaf20f528ba00900035ba52f2
+---
+ services/core/java/com/android/server/am/ActiveServices.java         | 4 ++--
+ services/core/java/com/android/server/am/ActivityManagerService.java | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/services/core/java/com/android/server/am/ActiveServices.java b/services/core/java/com/android/server/am/ActiveServices.java
+index 4e7aa77..97e1999 100755
+--- a/services/core/java/com/android/server/am/ActiveServices.java
++++ b/services/core/java/com/android/server/am/ActiveServices.java
+@@ -77,10 +77,10 @@ public final class ActiveServices {
+     static final String TAG_MU = ActivityManagerService.TAG_MU;
+ 
+     // How long we wait for a service to finish executing.
+-    static final int SERVICE_TIMEOUT = 20*1000;
++    static final int SERVICE_TIMEOUT = 20*1000*10;
+ 
+     // How long we wait for a service to finish executing.
+-    static final int SERVICE_BACKGROUND_TIMEOUT = SERVICE_TIMEOUT * 10;
++    static final int SERVICE_BACKGROUND_TIMEOUT = SERVICE_TIMEOUT * 10*10;
+ 
+     // How long a service needs to be running until restarting its process
+     // is no longer considered to be a relaunch of the service.
+diff --git a/services/core/java/com/android/server/am/ActivityManagerService.java b/services/core/java/com/android/server/am/ActivityManagerService.java
+index 9e49623..f9bdf59 100644
+--- a/services/core/java/com/android/server/am/ActivityManagerService.java
++++ b/services/core/java/com/android/server/am/ActivityManagerService.java
+@@ -346,8 +346,8 @@ public final class ActivityManagerService extends ActivityManagerNative
+     static final int CPU_MIN_CHECK_DURATION = (DEBUG_POWER_QUICK ? 1 : 5) * 60*1000;
+ 
+     // How long we allow a receiver to run before giving up on it.
+-    static final int BROADCAST_FG_TIMEOUT = 10*1000;
+-    static final int BROADCAST_BG_TIMEOUT = 60*1000;
++    static final int BROADCAST_FG_TIMEOUT = 10*1000*10;
++    static final int BROADCAST_BG_TIMEOUT = 60*1000*10;
+ 
+     // How long we wait until we timeout on key dispatching.
+     static final int KEY_DISPATCHING_TIMEOUT = 5*1000;
+-- 
+1.9.1
+
