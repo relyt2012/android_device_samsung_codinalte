@@ -169,7 +169,8 @@ PRODUCT_PACKAGES += \
 
 # Sensors
 PRODUCT_PACKAGES += \
-    lights.montblanc
+    lights.montblanc \
+    sensors.montblanc
 
 # Power
 PRODUCT_PACKAGES += \
