@@ -1,0 +1,65 @@
+From c8edbdba7d6c5d328b8637b254519726b222c8be Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sun, 7 Aug 2016 07:39:28 -0500
+Subject: [PATCH] NetworkTrafficSettings: align with defaults in settings
+
+Change-Id: I5884be1a7f7751ccef1c71b56fa59e1e393d9524
+---
+ .../statusbar/policy/NetworkTrafficSettings.java     | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/policy/NetworkTrafficSettings.java b/packages/SystemUI/src/com/android/systemui/statusbar/policy/NetworkTrafficSettings.java
+index a4f1776..2deb130 100755
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/policy/NetworkTrafficSettings.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/policy/NetworkTrafficSettings.java
+@@ -47,7 +47,10 @@ public class NetworkTrafficSettings {
+      * @return <code>true</code> if the meter is enabled, <code>false</code>.
+      */
+     public static boolean isMeterEnabled(int state) {
+-        return hasMask(state, METER_ENABLED_MASK);
++	if(state == 0)
++	    return true;
++	else
++            return hasMask(state, METER_ENABLED_MASK);
+     }
+ 
+     /**
+@@ -57,7 +60,10 @@ public class NetworkTrafficSettings {
+      * @return <code>true</code> if the text is enabled, <code>false</code>.
+      */
+     public static boolean isTextEnabled(int state) {
+-        return hasMask(state, TEXT_ENABLED_MASK);
++	if(state == 0)
++	    return false;
++	else
++            return hasMask(state, TEXT_ENABLED_MASK);
+     }
+ 
+     /**
+@@ -67,7 +73,10 @@ public class NetworkTrafficSettings {
+      * @return <code>true</code> if the up traffic is displayed, <code>false</code>.
+      */
+     public static boolean isUpTrafficDisplayed(int state) {
+-        return hasMask(state, UP_TRAFFIC_MASK);
++	if(state == 0)
++	    return false;
++	else
++            return hasMask(state, UP_TRAFFIC_MASK);
+     }
+ 
+     /**
+@@ -77,7 +86,10 @@ public class NetworkTrafficSettings {
+      * @return <code>true</code> if the down traffic is displayed, <code>false</code>.
+      */
+     public static boolean isDownTrafficDisplayed(int state) {
+-        return hasMask(state, DOWN_TRAFFIC_MASK);
++	if(state == 0)
++	    return true;
++	else
++            return hasMask(state, DOWN_TRAFFIC_MASK);
+     }
+ 
+     /**
+-- 
+1.9.1
+
