@@ -174,7 +174,8 @@ PRODUCT_PACKAGES += \
     power.montblanc \
     copybit.montblanc \
     gralloc.montblanc \
-    hwcomposer.montblanc
+    hwcomposer.montblanc \
+    libstelpcutils
 
 # Enable repeatable keys in cwm
 PRODUCT_PROPERTY_OVERRIDES += \
