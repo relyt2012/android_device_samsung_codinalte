@@ -167,14 +167,14 @@ PRODUCT_PACKAGES += \
     audio.usb.default \
     libasound
 
-# Sensors
+# Hardware
 PRODUCT_PACKAGES += \
     lights.montblanc \
-    sensors.montblanc
-
-# Power
-PRODUCT_PACKAGES += \
-    power.montblanc
+    sensors.montblanc \
+    power.montblanc \
+    copybit.montblanc \
+    gralloc.montblanc \
+    hwcomposer.montblanc
 
 # Enable repeatable keys in cwm
 PRODUCT_PROPERTY_OVERRIDES += \
