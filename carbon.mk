@@ -15,8 +15,9 @@
 # limitations under the License.
 #
 
-# Inherit CM common Phone stuff.
-$(call inherit-product-if-exists, vendor/carbon/config/common_phone.mk)
+# Inherit Carbon common Phone stuff.
+$(call inherit-product-if-exists, vendor/carbon/config/common.mk)
+$(call inherit-product-if-exists, vendor/carbon/config/gsm.mk)
 
 # Inherit device configuration
 $(call inherit-product, device/samsung/codinalte/full_codinalte.mk)
