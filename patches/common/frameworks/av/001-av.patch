@@ -1,9 +1,9 @@
-From 8fa3aef7d81e0b87e1803df353047400561f837b Mon Sep 17 00:00:00 2001
+From 589cdddc5785c0375b6a4c4217a42aa8423db158 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Mon, 18 Jul 2016 09:28:51 -0500
-Subject: [PATCH] av
+Date: Wed, 31 Aug 2016 10:04:37 -0500
+Subject: [PATCH] 001-av
 
-Change-Id: I6f5f211e5ffb4c5e8600fd0673f109ba523651ff
+Change-Id: I260324bc9820ba4f53879b9870e2b9ce8dea1f32
 ---
  include/media/stagefright/ColorConverter.h         |   5 +
  include/media/stagefright/MediaDefs.h              |   6 +
@@ -80,7 +80,7 @@ index b0404aa..8767c04 100644
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
 old mode 100644
 new mode 100755
-index 6399b79..a343ac1
+index 6399b79..e6ea508
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
 @@ -913,7 +913,11 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
@@ -88,7 +88,7 @@ index 6399b79..a343ac1
              def.format.video.nFrameWidth,
              def.format.video.nFrameHeight,
 +#ifdef STE_HARDWARE
-+            OMXCodec::OmxToHALFormat(def.format.video.eColorFormat)),
++            OMXCodec::OmxToHALFormat(def.format.video.eColorFormat),
 +#else
              def.format.video.eColorFormat,
 +#endif
@@ -166,7 +166,7 @@ index 2a50692..e81475b 100644
  const char *MEDIA_MIMETYPE_AUDIO_AMR_NB = "audio/3gpp";
  const char *MEDIA_MIMETYPE_AUDIO_AMR_WB = "audio/amr-wb";
 diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
-index 4618e21..5ff1f1e 100644
+index 4618e21..dc22501 100644
 --- a/media/libstagefright/OMXCodec.cpp
 +++ b/media/libstagefright/OMXCodec.cpp
 @@ -195,6 +195,20 @@ static int CompareSoftwareCodecsFirst(
@@ -260,7 +260,7 @@ index 4618e21..5ff1f1e 100644
              def.format.video.nFrameWidth,
              def.format.video.nFrameHeight,
 +#ifdef STE_HARDWARE
-+            OmxToHALFormat(def.format.video.eColorFormat)),
++            OmxToHALFormat(def.format.video.eColorFormat),
 +#else
              def.format.video.eColorFormat,
 +#endif

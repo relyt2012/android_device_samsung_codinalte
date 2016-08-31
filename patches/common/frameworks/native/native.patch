@@ -1,9 +1,9 @@
-From 932d666589fb27cc3ab3e5f826fa0a91125868a3 Mon Sep 17 00:00:00 2001
+From c0a530f5408a430d0dc4e00c5d9b8b5f666497ae Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Mon, 18 Jul 2016 10:43:47 -0500
+Date: Wed, 31 Aug 2016 09:33:52 -0500
 Subject: [PATCH] native
 
-Change-Id: Iaab26c457336514a1c73d4a46717a4875bec4a5a
+Change-Id: Id7311d412c245d1ca89dfa8f024fc0a2f67fd9da
 ---
  include/binder/MemoryBase.h                |   3 +
  include/binder/Parcel.h                    |  32 +++++-
@@ -17,9 +17,9 @@ Change-Id: Iaab26c457336514a1c73d4a46717a4875bec4a5a
  include/ui/GraphicBuffer.h                 |  10 +-
  include/ui/PixelFormat.h                   |   9 ++
  include/ui/Region.h                        |  24 ++++
- libs/binder/MemoryBase.cpp                 |  19 ++++
+ libs/binder/MemoryBase.cpp                 |  27 +++++
  libs/binder/Parcel.cpp                     |  14 +++
- libs/gui/Android.mk                        |   1 +
+ libs/gui/Android.mk                        |   3 +-
  libs/gui/BufferQueueProducer.cpp           |   4 +-
  libs/gui/ConsumerBase.cpp                  |   2 +-
  libs/gui/GLConsumer.cpp                    | 175 ++++++++++++++++++++++++++++-
@@ -29,7 +29,7 @@ Change-Id: Iaab26c457336514a1c73d4a46717a4875bec4a5a
  services/surfaceflinger/DisplayDevice.cpp  |  21 +++-
  services/surfaceflinger/DisplayDevice.h    |   2 +
  services/surfaceflinger/SurfaceFlinger.cpp |   3 +
- 24 files changed, 376 insertions(+), 13 deletions(-)
+ 24 files changed, 385 insertions(+), 14 deletions(-)
  mode change 100644 => 100755 services/surfaceflinger/DisplayDevice.cpp
 
 diff --git a/include/binder/MemoryBase.h b/include/binder/MemoryBase.h
@@ -423,7 +423,7 @@ index 2a14918..afefed5 100644
  
  #endif // ANDROID_UI_REGION_H
 diff --git a/libs/binder/MemoryBase.cpp b/libs/binder/MemoryBase.cpp
-index 033066b..04565c6 100644
+index 033066b..e6d6401 100644
 --- a/libs/binder/MemoryBase.cpp
 +++ b/libs/binder/MemoryBase.cpp
 @@ -25,6 +25,10 @@ namespace android {
@@ -437,7 +437,7 @@ index 033066b..04565c6 100644
  MemoryBase::MemoryBase(const sp<IMemoryHeap>& heap,
          ssize_t offset, size_t size)
      : mSize(size), mOffset(offset), mHeap(heap)
-@@ -42,5 +46,20 @@ MemoryBase::~MemoryBase()
+@@ -42,5 +46,28 @@ MemoryBase::~MemoryBase()
  {
  }
  
@@ -458,6 +458,14 @@ index 033066b..04565c6 100644
 +
  // ---------------------------------------------------------------------------
  }; // namespace android
++
++#ifndef __LP64__
++// Backwards compatibility for libdatabase_sqlcipher (http://b/8253769).
++extern "C" void _ZN7android10MemoryBaseC1ERKNS_2spINS_11IMemoryHeapEEEij(void*, void*, ssize_t, size_t);
++extern "C" void _ZN7android10MemoryBaseC1ERKNS_2spINS_11IMemoryHeapEEElj(void* obj, void* h, long o, unsigned int size) {
++    _ZN7android10MemoryBaseC1ERKNS_2spINS_11IMemoryHeapEEEij(obj, h, o, size);
++}
++#endif
 diff --git a/libs/binder/Parcel.cpp b/libs/binder/Parcel.cpp
 index 22d7ef3..331fefb 100644
 --- a/libs/binder/Parcel.cpp
@@ -491,9 +499,18 @@ index 22d7ef3..331fefb 100644
  {
      // size
 diff --git a/libs/gui/Android.mk b/libs/gui/Android.mk
-index 8a965dd..da85be6 100644
+index 8a965dd..80f348c 100644
 --- a/libs/gui/Android.mk
 +++ b/libs/gui/Android.mk
+@@ -16,7 +16,7 @@ LOCAL_PATH := $(call my-dir)
+ include $(CLEAR_VARS)
+ 
+ LOCAL_CLANG := true
+-LOCAL_CPPFLAGS := -std=c++1y -Weverything -Werror
++LOCAL_CPPFLAGS := -std=c++1y -Weverything
+ 
+ # The static constructors and destructors in this library have not been noted to
+ # introduce significant overheads
 @@ -79,6 +79,7 @@ LOCAL_SHARED_LIBRARIES := \
  	libsync \
  	libui \
@@ -531,7 +548,7 @@ index 04ab06b..b3e2e55 100644
          freeBufferLocked(i);
      }
 diff --git a/libs/gui/GLConsumer.cpp b/libs/gui/GLConsumer.cpp
-index 757e08a..9d85be2 100644
+index 757e08a..2000190 100644
 --- a/libs/gui/GLConsumer.cpp
 +++ b/libs/gui/GLConsumer.cpp
 @@ -144,6 +144,9 @@ GLConsumer::GLConsumer(const sp<IGraphicBufferConsumer>& bq, uint32_t tex,
@@ -559,7 +576,7 @@ index 757e08a..9d85be2 100644
 +    sp<ISurfaceComposer> composer(ComposerService::getComposerService());
 +          mGraphicBufferAlloc = composer->createGraphicBufferAlloc();
 +    if (mGraphicBufferAlloc == 0) {
-+        ST_LOGE("createGraphicBufferAlloc() failed in SurfaceTexture()");
++        GLC_LOGE("createGraphicBufferAlloc() failed in SurfaceTexture()");
 +    }
 +#endif
 +
@@ -591,7 +608,7 @@ index 757e08a..9d85be2 100644
 +    sp<ISurfaceComposer> composer(ComposerService::getComposerService());
 +          mGraphicBufferAlloc = composer->createGraphicBufferAlloc();
 +    if (mGraphicBufferAlloc == 0) {
-+        ST_LOGE("createGraphicBufferAlloc() failed in SurfaceTexture()");
++        GLC_LOGE("createGraphicBufferAlloc() failed in SurfaceTexture()");
 +    }
 +#endif
 +
@@ -604,7 +621,7 @@ index 757e08a..9d85be2 100644
  
 +#ifdef STE_HARDWARE
 +GLConsumer::~GLConsumer() {
-+    ST_LOGV("~GLConsumer");
++    GLC_LOGV("~GLConsumer");
 +    abandon();
 +
 +    if (mBlitEngine) {
@@ -679,18 +696,18 @@ index 757e08a..9d85be2 100644
 +                                                                              srcBuf->getUsage(),
 +                                                                              &res));
 +            if (dstBuf == 0) {
-+                ST_LOGE("updateAndRelease: createGraphicBuffer failed");
++                GLC_LOGE("updateAndRelease: createGraphicBuffer failed");
 +                return NO_MEMORY;
 +            }
 +            if (res != NO_ERROR) {
-+                ST_LOGW("updateAndRelease: createGraphicBuffer error=%#04x", res);
++                GLC_LOGW("updateAndRelease: createGraphicBuffer error=%#04x", res);
 +            }
 +            mBlitSlots[mNextBlitSlot] = dstBuf;
 +        }
 +
 +        /* convert buffer */
 +        if (convert(mSlots[buf].mGraphicBuffer, mBlitSlots[mNextBlitSlot]) != OK) {
-+            ST_LOGE("updateAndRelease: convert failed");
++            GLC_LOGE("updateAndRelease: convert failed");
 +            return UNKNOWN_ERROR;
 +        }
 +        textureBuffer = mBlitSlots[mNextBlitSlot];
