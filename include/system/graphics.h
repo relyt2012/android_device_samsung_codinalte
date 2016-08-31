@@ -386,19 +386,33 @@ enum {
 };
 
 /**
- * Colorspace Definitions
+ * Dataspace Definitions
  * ======================
  *
- * Colorspace is the definition of how pixel values should be interpreted.
- * It includes primaries (including white point) and the transfer
- * characteristic function, which describes both gamma curve and numeric
- * range (within the bit depth).
+ * Dataspace is the definition of how pixel values should be interpreted.
+ *
+ * For many formats, this is the colorspace of the image data, which includes
+ * primaries (including white point) and the transfer characteristic function,
+ * which describes both gamma curve and numeric range (within the bit depth).
+ *
+ * Other dataspaces include depth measurement data from a depth camera.
  */
 
-enum {
+typedef enum android_dataspace {
     /*
-     * Arbitrary colorspace with manually defined characteristics.
-     * Colorspace definition must be communicated separately.
+     * Default-assumption data space, when not explicitly specified.
+     *
+     * It is safest to assume the buffer is an image with sRGB primaries and
+     * encoding ranges, but the consumer and/or the producer of the data may
+     * simply be using defaults. No automatic gamma transform should be
+     * expected, except for a possible display gamma transform when drawn to a
+     * screen.
+     */
+    HAL_DATASPACE_UNKNOWN = 0x0,
+
+    /*
+     * Arbitrary dataspace with manually defined characteristics.  Definition
+     * for colorspaces or other meaning must be communicated separately.
      *
      * This is used when specifying primaries, transfer characteristics,
      * etc. separately.
@@ -407,7 +421,57 @@ enum {
      * where a colorspace can have separately defined primaries, transfer
      * characteristics, etc.
      */
-    HAL_COLORSPACE_ARBITRARY = 0x1,
+    HAL_DATASPACE_ARBITRARY = 0x1,
+
+    /*
+     * RGB Colorspaces
+     * -----------------
+     *
+     * Primaries are given using (x,y) coordinates in the CIE 1931 definition
+     * of x and y specified by ISO 11664-1.
+     *
+     * Transfer characteristics are the opto-electronic transfer characteristic
+     * at the source as a function of linear optical intensity (luminance).
+     */
+
+    /*
+     * sRGB linear encoding:
+     *
+     * The red, green, and blue components are stored in sRGB space, but
+     * are linear, not gamma-encoded.
+     * The RGB primaries and the white point are the same as BT.709.
+     *
+     * The values are encoded using the full range ([0,255] for 8-bit) for all
+     * components.
+     */
+    HAL_DATASPACE_SRGB_LINEAR = 0x200,
+
+    /*
+     * sRGB gamma encoding:
+     *
+     * The red, green and blue components are stored in sRGB space, and
+     * converted to linear space when read, using the standard sRGB to linear
+     * equation:
+     *
+     * Clinear = Csrgb / 12.92                  for Csrgb <= 0.04045
+     *         = (Csrgb + 0.055 / 1.055)^2.4    for Csrgb >  0.04045
+     *
+     * When written the inverse transformation is performed:
+     *
+     * Csrgb = 12.92 * Clinear                  for Clinear <= 0.0031308
+     *       = 1.055 * Clinear^(1/2.4) - 0.055  for Clinear >  0.0031308
+     *
+     *
+     * The alpha component, if present, is always stored in linear space and
+     * is left unmodified when read or written.
+     *
+     * The RGB primaries and the white point are the same as BT.709.
+     *
+     * The values are encoded using the full range ([0,255] for 8-bit) for all
+     * components.
+     *
+     */
+    HAL_DATASPACE_SRGB = 0x201,
 
     /*
      * YCbCr Colorspaces
@@ -437,7 +501,7 @@ enum {
      *  red             0.640   0.330
      *  white (D65)     0.3127  0.3290
      */
-    HAL_COLORSPACE_JFIF = 0x101,
+    HAL_DATASPACE_JFIF = 0x101,
 
     /*
      * ITU-R Recommendation 601 (BT.601) - 625-line
@@ -464,7 +528,7 @@ enum {
      *  red             0.640   0.330
      *  white (D65)     0.3127  0.3290
      */
-    HAL_COLORSPACE_BT601_625 = 0x102,
+    HAL_DATASPACE_BT601_625 = 0x102,
 
     /*
      * ITU-R Recommendation 601 (BT.601) - 525-line
@@ -491,7 +555,7 @@ enum {
      *  red             0.630   0.340
      *  white (D65)     0.3127  0.3290
      */
-    HAL_COLORSPACE_BT601_525 = 0x103,
+    HAL_DATASPACE_BT601_525 = 0x103,
 
     /*
      * ITU-R Recommendation 709 (BT.709)
@@ -512,8 +576,29 @@ enum {
      *  red             0.640   0.330
      *  white (D65)     0.3127  0.3290
      */
-    HAL_COLORSPACE_BT709 = 0x104,
-};
+    HAL_DATASPACE_BT709 = 0x104,
+
+    /*
+     * The buffer contains depth ranging measurements from a depth camera.
+     * This value is valid with formats:
+     *    HAL_PIXEL_FORMAT_Y16: 16-bit samples, consisting of a depth measurement
+     *       and an associated confidence value. The 3 MSBs of the sample make
+     *       up the confidence value, and the low 13 LSBs of the sample make up
+     *       the depth measurement.
+     *       For the confidence section, 0 means 100% confidence, 1 means 0%
+     *       confidence. The mapping to a linear float confidence value between
+     *       0.f and 1.f can be obtained with
+     *         float confidence = (((depthSample >> 13) - 1) & 0x7) / 7.0f;
+     *       The depth measurement can be extracted simply with
+     *         uint16_t range = (depthSample & 0x1FFF);
+     *    HAL_PIXEL_FORMAT_BLOB: A depth point cloud, as
+     *       a variable-length float (x,y,z, confidence) coordinate point list.
+     *       The point cloud will be represented with the android_depth_points
+     *       structure.
+     */
+    HAL_DATASPACE_DEPTH = 0x1000
+
+} android_dataspace_t;
 
 #ifdef __cplusplus
 }
