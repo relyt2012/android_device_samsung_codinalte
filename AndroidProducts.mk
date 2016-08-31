@@ -16,4 +16,4 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/full_codinalte.mk
+    $(LOCAL_DIR)/carbon_codinalte.mk
