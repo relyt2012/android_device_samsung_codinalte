@@ -184,48 +184,5 @@ TW_CRYPTO_FS_FLAGS := "0x00000406"
 TW_CRYPTO_KEY_LOC := "footer"
 
 # SELinux
-BOARD_SEPOLICY_DIRS += \
-	device/samsung/codinalte/sepolicy
-
-BOARD_SEPOLICY_IGNORE += \
-	external/sepolicy/app.te \
-        external/sepolicy/device.te \
-	external/sepolicy/domain.te \
-        external/sepolicy/init.te \
-	external/sepolicy/netd.te \
-	external/sepolicy/service.te \
-	external/sepolicy/su.te
-
-BOARD_SEPOLICY_UNION += \
-	app.te \
-        admsrv.te \
-	bluetooth.te \
-	bootanim.te \
-	codinalte_parts.te \
-        device.te \
-	domain.te \
-	drmserver.te \
-	file_contexts \
-	healthd.te \
-        init.te \
-	init_shell.te \
-	isolated_app.te \
-	installd.te \
-	keystore.te \
-	mediaserver.te \
-	netd.te \
-        performance.te \
-	platform_app.te \
-	radio.te \
-	rild.te \
-	service.te \
-	shared_relro.te \
-	surfaceflinger.te \
-	sysinit.te \
-	system_app.te \
-	system_server.te \
-	su.te \
-	untrusted_app.te \
-	vold.te \
-	wpa.te \
-	zygote.te
+#BOARD_SEPOLICY_DIRS += \
+#	device/samsung/codinalte/sepolicy
