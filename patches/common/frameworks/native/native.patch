@@ -1,9 +1,9 @@
-From c0a530f5408a430d0dc4e00c5d9b8b5f666497ae Mon Sep 17 00:00:00 2001
+From 0e9161b1c817d9d57d3c7ad8b24a9fdb456f3e67 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Wed, 31 Aug 2016 09:33:52 -0500
+Date: Thu, 1 Sep 2016 13:31:11 -0500
 Subject: [PATCH] native
 
-Change-Id: Id7311d412c245d1ca89dfa8f024fc0a2f67fd9da
+Change-Id: I5cd3e2759590d0dc482976ed2d5971c97ff8b07f
 ---
  include/binder/MemoryBase.h                |   3 +
  include/binder/Parcel.h                    |  32 +++++-
@@ -23,13 +23,15 @@ Change-Id: Id7311d412c245d1ca89dfa8f024fc0a2f67fd9da
  libs/gui/BufferQueueProducer.cpp           |   4 +-
  libs/gui/ConsumerBase.cpp                  |   2 +-
  libs/gui/GLConsumer.cpp                    | 175 ++++++++++++++++++++++++++++-
+ libs/ui/Android.mk                         |   2 +-
  opengl/include/EGL/eglext.h                |   2 +
- opengl/libs/EGL/eglApi.cpp                 |   4 +
+ opengl/libs/EGL/eglApi.cpp                 |   7 +-
  opengl/libs/EGL/egl_entries.in             |   2 +
- services/surfaceflinger/DisplayDevice.cpp  |  21 +++-
+ services/surfaceflinger/Android.mk         |   6 +-
+ services/surfaceflinger/DisplayDevice.cpp  |  23 +++-
  services/surfaceflinger/DisplayDevice.h    |   2 +
  services/surfaceflinger/SurfaceFlinger.cpp |   3 +
- 24 files changed, 385 insertions(+), 14 deletions(-)
+ 26 files changed, 393 insertions(+), 19 deletions(-)
  mode change 100644 => 100755 services/surfaceflinger/DisplayDevice.cpp
 
 diff --git a/include/binder/MemoryBase.h b/include/binder/MemoryBase.h
@@ -789,6 +791,19 @@ index 757e08a..2000190 100644
  static void mtxMul(float out[16], const float a[16], const float b[16]) {
      out[0] = a[0]*b[0] + a[4]*b[1] + a[8]*b[2] + a[12]*b[3];
      out[1] = a[1]*b[0] + a[5]*b[1] + a[9]*b[2] + a[13]*b[3];
+diff --git a/libs/ui/Android.mk b/libs/ui/Android.mk
+index 1ce8626..d5dbeb1 100644
+--- a/libs/ui/Android.mk
++++ b/libs/ui/Android.mk
+@@ -16,7 +16,7 @@ LOCAL_PATH := $(call my-dir)
+ include $(CLEAR_VARS)
+ 
+ LOCAL_CLANG := true
+-LOCAL_CPPFLAGS := -std=c++1y -Weverything -Werror
++LOCAL_CPPFLAGS := -std=c++1y -Weverything
+ 
+ # The static constructors and destructors in this library have not been noted to
+ # introduce significant overheads
 diff --git a/opengl/include/EGL/eglext.h b/opengl/include/EGL/eglext.h
 index b2abdb1..16fb3e4 100644
 --- a/opengl/include/EGL/eglext.h
@@ -810,7 +825,7 @@ index b2abdb1..16fb3e4 100644
  #if KHRONOS_SUPPORT_INT64 /* EGLuint64KHR requires 64-bit uint support */
  #ifndef EGL_KHR_stream
 diff --git a/opengl/libs/EGL/eglApi.cpp b/opengl/libs/EGL/eglApi.cpp
-index cdec565..e138364 100644
+index cdec565..e4b93ce 100644
 --- a/opengl/libs/EGL/eglApi.cpp
 +++ b/opengl/libs/EGL/eglApi.cpp
 @@ -151,11 +151,13 @@ static const extention_map_t sExtensionMap[] = {
@@ -827,7 +842,24 @@ index cdec565..e138364 100644
  
      // EGL_KHR_wait_sync
      { "eglWaitSyncKHR",
-@@ -1817,6 +1819,7 @@ EGLBoolean eglPresentationTimeANDROID(EGLDisplay dpy, EGLSurface surface,
+@@ -164,7 +166,7 @@ static const extention_map_t sExtensionMap[] = {
+     // EGL_ANDROID_presentation_time
+     { "eglPresentationTimeANDROID",
+             (__eglMustCastToProperFunctionPointerType)&eglPresentationTimeANDROID },
+-
++#ifndef STE_HARDWARE
+     // EGL_KHR_swap_buffers_with_damage
+     { "eglSwapBuffersWithDamageKHR",
+             (__eglMustCastToProperFunctionPointerType)&eglSwapBuffersWithDamageKHR },
+@@ -172,6 +174,7 @@ static const extention_map_t sExtensionMap[] = {
+     // EGL_KHR_partial_update
+     { "eglSetDamageRegionKHR",
+             (__eglMustCastToProperFunctionPointerType)&eglSetDamageRegionKHR },
++#endif
+ 
+     { "eglCreateStreamKHR",
+             (__eglMustCastToProperFunctionPointerType)&eglCreateStreamKHR },
+@@ -1817,6 +1820,7 @@ EGLBoolean eglPresentationTimeANDROID(EGLDisplay dpy, EGLSurface surface,
  // ----------------------------------------------------------------------------
  // NVIDIA extensions
  // ----------------------------------------------------------------------------
@@ -835,7 +867,7 @@ index cdec565..e138364 100644
  EGLuint64NV eglGetSystemTimeFrequencyNV()
  {
      clearError();
-@@ -1881,3 +1884,4 @@ EGLBoolean eglSetDamageRegionKHR(EGLDisplay dpy, EGLSurface surface,
+@@ -1881,3 +1885,4 @@ EGLBoolean eglSetDamageRegionKHR(EGLDisplay dpy, EGLSurface surface,
  
      return EGL_FALSE;
  }
@@ -855,10 +887,41 @@ index 498b2fc..2be43cb 100644
  
  /* IMG extensions */
  
+diff --git a/services/surfaceflinger/Android.mk b/services/surfaceflinger/Android.mk
+index 1901ef9..5969ef0 100644
+--- a/services/surfaceflinger/Android.mk
++++ b/services/surfaceflinger/Android.mk
+@@ -108,7 +108,7 @@ LOCAL_SHARED_LIBRARIES := \
+ 
+ LOCAL_MODULE := libsurfaceflinger
+ 
+-LOCAL_CFLAGS += -Wall -Werror -Wunused -Wunreachable-code
++LOCAL_CFLAGS += -Wall -Wunused -Wunreachable-code
+ 
+ include $(BUILD_SHARED_LIBRARY)
+ 
+@@ -145,7 +145,7 @@ ifdef TARGET_32_BIT_SURFACEFLINGER
+ LOCAL_32_BIT_ONLY := true
+ endif
+ 
+-LOCAL_CFLAGS += -Wall -Werror -Wunused -Wunreachable-code
++LOCAL_CFLAGS += -Wall -Wunused -Wunreachable-code
+ 
+ include $(BUILD_EXECUTABLE)
+ 
+@@ -169,7 +169,7 @@ LOCAL_SHARED_LIBRARIES := \
+ 
+ LOCAL_MODULE := libsurfaceflinger_ddmconnection
+ 
+-LOCAL_CFLAGS += -Wall -Werror -Wunused -Wunreachable-code
++LOCAL_CFLAGS += -Wall -Wunused -Wunreachable-code
+ 
+ include $(BUILD_SHARED_LIBRARY)
+ endif # libnativehelper
 diff --git a/services/surfaceflinger/DisplayDevice.cpp b/services/surfaceflinger/DisplayDevice.cpp
 old mode 100644
 new mode 100755
-index 13d44f3..ef5af35
+index 13d44f3..6a14a00
 --- a/services/surfaceflinger/DisplayDevice.cpp
 +++ b/services/surfaceflinger/DisplayDevice.cpp
 @@ -26,6 +26,9 @@
@@ -871,17 +934,20 @@ index 13d44f3..ef5af35
  
  #include <gui/Surface.h>
  
-@@ -88,7 +91,9 @@ DisplayDevice::DisplayDevice(
+@@ -88,8 +91,12 @@ DisplayDevice::DisplayDevice(
        mPowerMode(HWC_POWER_MODE_OFF),
        mActiveConfig(0)
  {
 +#ifndef STE_HARDWARE
      mNativeWindow = new Surface(producer, false);
-+#endif
      ANativeWindow* const window = mNativeWindow.get();
++#else
++    ANativeWindow* const window = new FramebufferNativeWindow();
++#endif
  
      /*
-@@ -416,7 +421,12 @@ void DisplayDevice::setDisplaySize(const int newWidth, const int newHeight) {
+      * Create our display's surface
+@@ -416,7 +423,12 @@ void DisplayDevice::setDisplaySize(const int newWidth, const int newHeight) {
  
      mDisplaySurface->resizeBuffers(newWidth, newHeight);
  
@@ -894,7 +960,7 @@ index 13d44f3..ef5af35
      mSurface = eglCreateWindowSurface(mDisplay, mConfig, window, NULL);
      eglQuerySurface(mDisplay, mSurface, EGL_WIDTH,  &mDisplayWidth);
      eglQuerySurface(mDisplay, mSurface, EGL_HEIGHT, &mDisplayHeight);
-@@ -500,12 +510,19 @@ void DisplayDevice::dump(String8& result) const {
+@@ -500,12 +512,19 @@ void DisplayDevice::dump(String8& result) const {
      const Transform& tr(mGlobalTransform);
      result.appendFormat(
          "+ DisplayDevice: %s\n"

@@ -1,16 +1,16 @@
-From e683b00148750d055bb18d917b20d143724fcc8d Mon Sep 17 00:00:00 2001
+From 8300b31df2008c4dba1d413d44c6533fc6e3de08 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Mon, 18 Jul 2016 10:15:30 -0500
-Subject: [PATCH] Add-support-for-ICS-audio-blobs
+Date: Wed, 31 Aug 2016 18:37:02 -0500
+Subject: [PATCH] 009-Add-support-for-ICS-audio-blobs
 
-Change-Id: I3e102b8d8515eaef08db4debac5e480979e0a778
+Change-Id: I8064681e8e0ac4e170bee328c606196e2a78daab
 ---
- services/audioflinger/AudioFlinger.cpp             | 60 +++++++++++++++++++---
- .../service/AudioPolicyInterfaceImplLegacy.cpp     | 10 +++-
- 2 files changed, 61 insertions(+), 9 deletions(-)
+ services/audioflinger/AudioFlinger.cpp             | 41 ++++++++++++++++++----
+ .../service/AudioPolicyInterfaceImplLegacy.cpp     | 10 ++++--
+ 2 files changed, 42 insertions(+), 9 deletions(-)
 
 diff --git a/services/audioflinger/AudioFlinger.cpp b/services/audioflinger/AudioFlinger.cpp
-index fab1ef5..009fd59 100644
+index fab1ef5..6101287 100644
 --- a/services/audioflinger/AudioFlinger.cpp
 +++ b/services/audioflinger/AudioFlinger.cpp
 @@ -162,7 +162,7 @@ static int load_audio_interface(const char *if_name, audio_hw_device_t **dev)
@@ -87,40 +87,7 @@ index fab1ef5..009fd59 100644
          mHardwareStatus = AUDIO_HW_IDLE;
      }
  
-@@ -1802,6 +1807,23 @@ sp<AudioFlinger::PlaybackThread> AudioFlinger::openOutput_l(audio_module_handle_
-     }
- 
-     AudioStreamOut *outputStream = NULL;
-+#ifdef ICS_AUDIO_BLOB
-+    status_t status = outHwDev->open_output_stream(outHwDev,
-+						devices,
-+						(int *)&config.format,
-+						&config.channel_mask,
-+						&config.sample_rate,
-+						&outputStream);
-+    uint32_t newflags = flags | AUDIO_OUTPUT_FLAG_PRIMARY;
-+    flags = (audio_output_flags_t)newflags;
-+#elif defined (MR0_AUDIO_BLOB)
-+    status_t status = outHwDev->open_output_stream(outHwDev,
-+						*output,
-+						devices,
-+						config,
-+						&outputStream,
-+						address.string());
-+#else
-     status_t status = outHwDev->openOutputStream(
-             &outputStream,
-             *output,
-@@ -1809,6 +1831,8 @@ sp<AudioFlinger::PlaybackThread> AudioFlinger::openOutput_l(audio_module_handle_
-             flags,
-             config,
-             address.string());
-+#endif
-+
- 
-     mHardwareStatus = AUDIO_HW_IDLE;
- 
-@@ -1864,7 +1888,12 @@ status_t AudioFlinger::openOutput(audio_module_handle_t module,
+@@ -1864,7 +1869,12 @@ status_t AudioFlinger::openOutput(audio_module_handle_t module,
          thread->ioConfigChanged(AUDIO_OUTPUT_OPENED);
  
          // the first primary output opened designates the primary hw device
@@ -133,7 +100,7 @@ index fab1ef5..009fd59 100644
              ALOGI("Using module %d has the primary audio interface", module);
              mPrimaryHardwareDev = thread->getOutput()->audioHwDev;
  
-@@ -2053,8 +2082,17 @@ sp<AudioFlinger::RecordThread> AudioFlinger::openInput_l(audio_module_handle_t m
+@@ -2053,8 +2063,17 @@ sp<AudioFlinger::RecordThread> AudioFlinger::openInput_l(audio_module_handle_t m
      audio_config_t halconfig = *config;
      audio_hw_device_t *inHwHal = inHwDev->hwDevice();
      audio_stream_in_t *inStream = NULL;
@@ -151,7 +118,7 @@ index fab1ef5..009fd59 100644
      ALOGV("openInput_l() openInputStream returned input %p, SamplingRate %d"
             ", Format %#x, Channels %x, flags %#x, status %d addr %s",
              inStream,
-@@ -2075,8 +2113,16 @@ sp<AudioFlinger::RecordThread> AudioFlinger::openInput_l(audio_module_handle_t m
+@@ -2075,8 +2094,16 @@ sp<AudioFlinger::RecordThread> AudioFlinger::openInput_l(audio_module_handle_t m
          // FIXME describe the change proposed by HAL (save old values so we can log them here)
          ALOGV("openInput_l() reopening with proposed sampling rate and channel mask");
          inStream = NULL;
@@ -169,7 +136,7 @@ index fab1ef5..009fd59 100644
      }
  
 diff --git a/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp b/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp
-index 13af3ef..da12715 100644
+index 13af3ef..bcdc726 100644
 --- a/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp
 +++ b/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp
 @@ -359,12 +359,15 @@ status_t AudioPolicyService::setStreamVolumeIndex(audio_stream_type_t stream,
@@ -201,7 +168,7 @@ index 13af3ef..da12715 100644
                                                                  device);
 -    } else {
 +    } else 
-+#else
++#endif
 +    {
          return mpAudioPolicy->get_stream_volume_index(mpAudioPolicy, stream, index);
      }

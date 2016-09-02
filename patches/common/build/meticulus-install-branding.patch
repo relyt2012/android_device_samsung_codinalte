@@ -1,7 +1,7 @@
-diff --git a/tools/releasetools/ota_from_target_files b/tools/releasetools/ota_from_target_files
+diff --git a/tools/releasetools/ota_from_target_files b/tools/releasetools/ota_from_target_files.py
 index 34f5643..03f8fc1 100755
---- a/tools/releasetools/ota_from_target_files
-+++ b/tools/releasetools/ota_from_target_files
+--- a/tools/releasetools/ota_from_target_files.py
++++ b/tools/releasetools/ota_from_target_files.py
 @@ -585,6 +585,31 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
    #script.CopyFile("changelog.txt", "/system/etc/")
    script.Print("Creating Symlinks...") 

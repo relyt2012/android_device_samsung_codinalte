@@ -1,0 +1,28 @@
+From 349df93734e10d604777dc0052a1aefef9f21fa2 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Thu, 1 Sep 2016 13:36:37 -0500
+Subject: [PATCH] no
+
+Change-Id: I9c7ee484f42986ea98170a6bce7f2132bbe17c4d
+---
+ tools/releasetools/ota_from_target_files.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tools/releasetools/ota_from_target_files.py b/tools/releasetools/ota_from_target_files.py
+index 09eaabb..b0d1591 100755
+--- a/tools/releasetools/ota_from_target_files.py
++++ b/tools/releasetools/ota_from_target_files.py
+@@ -1742,8 +1742,8 @@ def main(argv):
+                                    compression=zipfile.ZIP_DEFLATED)
+ 
+     cache_size = OPTIONS.info_dict.get("cache_size", None)
+-    if cache_size is None:
+-      raise RuntimeError("can't determine the cache partition size")
++    #if cache_size is None:
++    #  raise RuntimeError("can't determine the cache partition size")
+     OPTIONS.cache_size = cache_size
+ 
+     if OPTIONS.incremental_source is None:
+-- 
+1.9.1
+

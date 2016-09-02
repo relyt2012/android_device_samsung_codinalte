@@ -1,14 +1,16 @@
-From bc318261dbe478fcbc01a507caea1ec9b2f190c6 Mon Sep 17 00:00:00 2001
+From 67070a3c54e4a86ca59d535f831a2b005438aae5 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Mon, 1 Dec 2014 09:50:49 -0600
-Subject: [PATCH] core patch
+Date: Fri, 2 Sep 2016 10:17:16 -0500
+Subject: [PATCH] core
 
-Change-Id: I04ef4ec08038909dddfa17ea9c9655850f54ed21
+Change-Id: I8e5f22090a42296f67114cee7c23a770ab46e06d
 ---
  include/utils/Flattenable.h | 22 ++++++++++++++++++++++
+ init/Android.mk             |  1 -
+ init/init.cpp               | 17 ++++++++++-------
  libutils/Android.mk         |  6 ++++++
  libutils/Flattenable.cpp    | 24 ++++++++++++++++++++++++
- 3 files changed, 52 insertions(+)
+ 5 files changed, 62 insertions(+), 8 deletions(-)
  create mode 100644 libutils/Flattenable.cpp
 
 diff --git a/include/utils/Flattenable.h b/include/utils/Flattenable.h
@@ -73,13 +75,87 @@ index 882a8b2..495b90d 100644
  
  /*
   * LightFlattenable is a protocol allowing object to serialize themselves out
+diff --git a/init/Android.mk b/init/Android.mk
+index b060f04..fece962 100644
+--- a/init/Android.mk
++++ b/init/Android.mk
+@@ -16,7 +16,6 @@ init_cflags += \
+     $(init_options) \
+     -Wall -Wextra \
+     -Wno-unused-parameter \
+-    -Werror \
+ 
+ init_clang := true
+ 
+diff --git a/init/init.cpp b/init/init.cpp
+index 8429802..ad50d67 100644
+--- a/init/init.cpp
++++ b/init/init.cpp
+@@ -807,7 +807,7 @@ static void export_kernel_boot_props() {
+         { "ro.boot.mode",       "ro.bootmode",   "unknown", },
+         { "ro.boot.baseband",   "ro.baseband",   "unknown", },
+         { "ro.boot.bootloader", "ro.bootloader", "unknown", },
+-        { "ro.boot.hardware",   "ro.hardware",   "unknown", },
++        { "ro.boot.hardware",   "ro.hardware",   "samsungcodina", },
+         { "ro.boot.revision",   "ro.revision",   "0", },
+     };
+     for (size_t i = 0; i < ARRAY_SIZE(prop_map); i++) {
+@@ -861,6 +861,7 @@ static void process_kernel_cmdline(void)
+     import_kernel_cmdline(false, import_kernel_nv);
+     if (qemu[0])
+         import_kernel_cmdline(true, import_kernel_nv);
++    property_set("ro.boot.hardware","samsungcodina");
+ }
+ 
+ static int queue_property_triggers_action(int nargs, char **args)
+@@ -903,7 +904,8 @@ static selinux_enforcing_status selinux_status_from_cmdline() {
+ 
+ static bool selinux_is_disabled(void)
+ {
+-    if (ALLOW_DISABLE_SELINUX) {
++    return true;
++    /*if (ALLOW_DISABLE_SELINUX) {
+         if (access("/sys/fs/selinux", F_OK) != 0) {
+             // SELinux is not compiled into the kernel, or has been disabled
+             // via the kernel command line "selinux=0".
+@@ -912,15 +914,16 @@ static bool selinux_is_disabled(void)
+         return selinux_status_from_cmdline() == SELINUX_DISABLED;
+     }
+ 
+-    return false;
++    return true;*/
+ }
+ 
+ static bool selinux_is_enforcing(void)
+ {
+-    if (ALLOW_DISABLE_SELINUX) {
++    return false;
++    /*if (ALLOW_DISABLE_SELINUX) {
+         return selinux_status_from_cmdline() == SELINUX_ENFORCING;
+     }
+-    return true;
++    return false;*/
+ }
+ 
+ int selinux_reload_policy(void)
+@@ -952,8 +955,8 @@ static int audit_callback(void *data, security_class_t /*cls*/, char *buf, size_
+ 
+ static void security_failure() {
+     ERROR("Security failure; rebooting into recovery mode...\n");
+-    android_reboot(ANDROID_RB_RESTART2, 0, "recovery");
+-    while (true) { pause(); }  // never reached
++    //android_reboot(ANDROID_RB_RESTART2, 0, "recovery");
++    //while (true) { pause(); }  // never reached
+ }
+ 
+ static void selinux_initialize(bool in_kernel_domain) {
 diff --git a/libutils/Android.mk b/libutils/Android.mk
-index b1dc1f8..44f69c1 100644
+index 23a5c59..81bd733 100644
 --- a/libutils/Android.mk
 +++ b/libutils/Android.mk
-@@ -44,6 +44,12 @@ commonSources:= \
+@@ -39,6 +39,12 @@ commonSources:= \
  	VectorImpl.cpp \
- 	misc.cpp
+ 	misc.cpp \
  
 +
 +ifeq ($(BOARD_USES_STE_HARDWARE),true)

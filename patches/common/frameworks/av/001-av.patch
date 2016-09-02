@@ -1,19 +1,21 @@
-From 589cdddc5785c0375b6a4c4217a42aa8423db158 Mon Sep 17 00:00:00 2001
+From e2619e45b2e0d1a8ad211984140429ec5f6eb332 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Wed, 31 Aug 2016 10:04:37 -0500
+Date: Thu, 1 Sep 2016 13:25:46 -0500
 Subject: [PATCH] 001-av
 
-Change-Id: I260324bc9820ba4f53879b9870e2b9ce8dea1f32
+Change-Id: I013583f02c29eb17c5355c50edbee8661ec941f5
 ---
  include/media/stagefright/ColorConverter.h         |   5 +
  include/media/stagefright/MediaDefs.h              |   6 +
  include/media/stagefright/OMXCodec.h               |   8 ++
+ media/libmediaplayerservice/Android.mk             |   2 +-
  media/libstagefright/ACodec.cpp                    |   8 ++
+ media/libstagefright/Android.mk                    |   2 +-
  media/libstagefright/CameraSource.cpp              |  15 +++
  media/libstagefright/MediaDefs.cpp                 |   6 +
  media/libstagefright/OMXCodec.cpp                  |  47 +++++++
  .../colorconversion/ColorConverter.cpp             | 145 +++++++++++++++++++++
- 8 files changed, 240 insertions(+)
+ 10 files changed, 242 insertions(+), 2 deletions(-)
  mode change 100644 => 100755 media/libstagefright/ACodec.cpp
 
 diff --git a/include/media/stagefright/ColorConverter.h b/include/media/stagefright/ColorConverter.h
@@ -77,6 +79,19 @@ index b0404aa..8767c04 100644
      };
  
      struct CodecNameAndQuirks {
+diff --git a/media/libmediaplayerservice/Android.mk b/media/libmediaplayerservice/Android.mk
+index 4d1b587..145c4da 100644
+--- a/media/libmediaplayerservice/Android.mk
++++ b/media/libmediaplayerservice/Android.mk
+@@ -54,7 +54,7 @@ LOCAL_C_INCLUDES :=                                                 \
+     $(TOP)/frameworks/native/include/media/openmax                  \
+     $(TOP)/external/tremolo/Tremolo                                 \
+ 
+-LOCAL_CFLAGS += -Werror -Wno-error=deprecated-declarations -Wall
++LOCAL_CFLAGS += -Wno-error=deprecated-declarations -Wall
+ LOCAL_CLANG := true
+ 
+ LOCAL_MODULE:= libmediaplayerservice
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
 old mode 100644
 new mode 100755
@@ -106,6 +121,19 @@ index 6399b79..e6ea508
      OMX_INDEXTYPE describeColorFormatIndex;
      if (omx->getExtensionIndex(
              node, "OMX.google.android.index.describeColorFormat",
+diff --git a/media/libstagefright/Android.mk b/media/libstagefright/Android.mk
+index 2529aa7..b9ae8db 100644
+--- a/media/libstagefright/Android.mk
++++ b/media/libstagefright/Android.mk
+@@ -127,7 +127,7 @@ LOCAL_SHARED_LIBRARIES += \
+         libdl \
+         libRScpp \
+ 
+-LOCAL_CFLAGS += -Wno-multichar -Werror -Wno-error=deprecated-declarations -Wall
++LOCAL_CFLAGS += -Wno-multichar -Wno-error=deprecated-declarations -Wall
+ 
+ # enable experiments only in userdebug and eng builds
+ ifneq (,$(filter userdebug eng,$(TARGET_BUILD_VARIANT)))
 diff --git a/media/libstagefright/CameraSource.cpp b/media/libstagefright/CameraSource.cpp
 index 66280da..504ce4b 100644
 --- a/media/libstagefright/CameraSource.cpp
@@ -147,7 +175,7 @@ index 66280da..504ce4b 100644
      return OK;
  }
 diff --git a/media/libstagefright/MediaDefs.cpp b/media/libstagefright/MediaDefs.cpp
-index 2a50692..e81475b 100644
+index 2a50692..2c8d54d 100644
 --- a/media/libstagefright/MediaDefs.cpp
 +++ b/media/libstagefright/MediaDefs.cpp
 @@ -26,8 +26,14 @@ const char *MEDIA_MIMETYPE_VIDEO_AVC = "video/avc";
@@ -159,9 +187,9 @@ index 2a50692..e81475b 100644
 +#endif
  const char *MEDIA_MIMETYPE_VIDEO_MPEG2 = "video/mpeg2";
  const char *MEDIA_MIMETYPE_VIDEO_RAW = "video/raw";
-+//#ifdef STE_HARDWARE
-+//const char *MEDIA_MIMETYPE_VIDEO_VC1 = "video/vc1";
-+//#endif
++#ifdef STE_HARDWARE
++const char *MEDIA_MIMETYPE_VIDEO_VC1 = "video/vc1";
++#endif
  
  const char *MEDIA_MIMETYPE_AUDIO_AMR_NB = "audio/3gpp";
  const char *MEDIA_MIMETYPE_AUDIO_AMR_WB = "audio/amr-wb";
