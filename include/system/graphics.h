@@ -195,6 +195,7 @@ enum {
      *    - GRALLOC_USAGE_SW_*
      *    - GRALLOC_USAGE_RENDERSCRIPT
      */
+    HAL_PIXEL_FORMAT_RAW12 = 0x26,
     HAL_PIXEL_FORMAT_RAW16 = 0x20,
     HAL_PIXEL_FORMAT_RAW_SENSOR = 0x20, // TODO(rubenbrunk): Remove RAW_SENSOR.
 
@@ -361,6 +362,16 @@ struct android_ycbcr {
     /** reserved for future use, set to 0 by gralloc's (*lock_ycbcr)() */
     uint32_t reserved[8];
 };
+
+struct android_depth_points {
+    uint32_t num_points;
+
+    /** reserved for future use, set to 0 by gralloc's (*lock)() */
+    uint32_t reserved[8];
+
+    float xyzc_points[];
+};
+
 
 /**
  * Transformation definitions
