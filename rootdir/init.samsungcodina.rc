@@ -33,6 +33,7 @@ on init
     symlink /storage/sdcard1 /external_sd
     symlink /storage/usbdisk /usbdisk
     symlink /storage/usbdisk /mnt/usbdisk
+    mkdir /mnt/runtime/default/emulated 0700 sdcard_rw sdcard_rw
 
     mkdir /modemfs 0771 system system
     mkdir /efs 0775 radio system
@@ -71,6 +72,14 @@ on fs
     swapon_all fstab.samsungcodina
     setprop ro.crypto.fuse_sdcard true
     start cspsa
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 04E8
+    write /sys/class/android_usb/android0/idProduct 6860
+    write /sys/class/android_usb/android0/f_acm/instances 1
+    write /sys/class/android_usb/android0/functions mtp,acm,adb
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+    setprop sys.usb.state mtp,adb
 
 on post-fs
     chown radio radio /modemfs
@@ -294,7 +303,7 @@ on post-fs
     insmod /system/lib/modules/bthid.ko
 
     # AB8500 Fuelgauge initialization using PARAM capacity
-    write /sys/class/power_supply/sec-fuelgauge/reinit_cap 1
+    # write /sys/class/power_supply/sec-fuelgauge/reinit_cap 1
 
 on post-fs-data
 
@@ -468,17 +477,18 @@ service charger /sbin/healthd -c
 
 
 # virtual sdcard daemon running as media_rw (1023)
-service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
+service sdcard /system/bin/sdcard -u 1023 -g 1023 /data/media /storage/emulated
     class late_start
     oneshot
 
-service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0
+service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 /mnt/media_rw/sdcard0 /storage/sdcard0
     class late_start
     disabled
 
-service sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
+service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 /mnt/media_rw/sdcard1 /storage/sdcard1
     class late_start
     oneshot
+    disabled
 
 service fuse_usbdisk /system/bin/sdcard -u 1023 -g 1023 /mnt/media_rw/usbdisk /storage/usbdisk
     class late_start
