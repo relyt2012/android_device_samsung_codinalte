@@ -1,13 +1,13 @@
-From 8300b31df2008c4dba1d413d44c6533fc6e3de08 Mon Sep 17 00:00:00 2001
+From 92cc3b7ff6367687b72d61b9c83dec777eeb9a2d Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Wed, 31 Aug 2016 18:37:02 -0500
+Date: Sat, 3 Sep 2016 14:27:57 -0500
 Subject: [PATCH] 009-Add-support-for-ICS-audio-blobs
 
-Change-Id: I8064681e8e0ac4e170bee328c606196e2a78daab
+Change-Id: I378456077d3d9152e4bec08962c723d41d67cc38
 ---
  services/audioflinger/AudioFlinger.cpp             | 41 ++++++++++++++++++----
- .../service/AudioPolicyInterfaceImplLegacy.cpp     | 10 ++++--
- 2 files changed, 42 insertions(+), 9 deletions(-)
+ .../service/AudioPolicyInterfaceImplLegacy.cpp     | 22 +++++-------
+ 2 files changed, 43 insertions(+), 20 deletions(-)
 
 diff --git a/services/audioflinger/AudioFlinger.cpp b/services/audioflinger/AudioFlinger.cpp
 index fab1ef5..6101287 100644
@@ -136,7 +136,7 @@ index fab1ef5..6101287 100644
      }
  
 diff --git a/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp b/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp
-index 13af3ef..bcdc726 100644
+index 13af3ef..e6b475d 100644
 --- a/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp
 +++ b/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp
 @@ -359,12 +359,15 @@ status_t AudioPolicyService::setStreamVolumeIndex(audio_stream_type_t stream,
@@ -173,6 +173,25 @@ index 13af3ef..bcdc726 100644
          return mpAudioPolicy->get_stream_volume_index(mpAudioPolicy, stream, index);
      }
  }
+@@ -510,17 +516,7 @@ status_t AudioPolicyService::queryDefaultPreProcessing(int audioSession,
+ 
+ bool AudioPolicyService::isOffloadSupported(const audio_offload_info_t& info)
+ {
+-    if (mpAudioPolicy == NULL) {
+-        ALOGV("mpAudioPolicy == NULL");
+-        return false;
+-    }
+-
+-    if (mpAudioPolicy->is_offload_supported == NULL) {
+-        ALOGV("HAL does not implement is_offload_supported");
+-        return false;
+-    }
+-
+-    return mpAudioPolicy->is_offload_supported(mpAudioPolicy, &info);
++    return false;
+ }
+ 
+ status_t AudioPolicyService::listAudioPorts(audio_port_role_t role __unused,
 -- 
 1.9.1
 

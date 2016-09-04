@@ -1,16 +1,18 @@
-From 67070a3c54e4a86ca59d535f831a2b005438aae5 Mon Sep 17 00:00:00 2001
+From 02a6a60e5d196913b173b2b0fef037f64741e25c Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Fri, 2 Sep 2016 10:17:16 -0500
+Date: Sat, 3 Sep 2016 14:23:43 -0500
 Subject: [PATCH] core
 
-Change-Id: I8e5f22090a42296f67114cee7c23a770ab46e06d
+Change-Id: I2240e2a22ae490b0a32eb8ca023142881c5cb11a
 ---
  include/utils/Flattenable.h | 22 ++++++++++++++++++++++
+ include/utils/VectorImpl.h  | 24 ++++++++++++++++++++++++
  init/Android.mk             |  1 -
  init/init.cpp               | 17 ++++++++++-------
  libutils/Android.mk         |  6 ++++++
  libutils/Flattenable.cpp    | 24 ++++++++++++++++++++++++
- 5 files changed, 62 insertions(+), 8 deletions(-)
+ libutils/VectorImpl.cpp     | 22 ++++++++++++++++++++++
+ 7 files changed, 108 insertions(+), 8 deletions(-)
  create mode 100644 libutils/Flattenable.cpp
 
 diff --git a/include/utils/Flattenable.h b/include/utils/Flattenable.h
@@ -75,6 +77,48 @@ index 882a8b2..495b90d 100644
  
  /*
   * LightFlattenable is a protocol allowing object to serialize themselves out
+diff --git a/include/utils/VectorImpl.h b/include/utils/VectorImpl.h
+index 21ad71c..8adf8fa 100644
+--- a/include/utils/VectorImpl.h
++++ b/include/utils/VectorImpl.h
+@@ -124,6 +124,18 @@ private:
+ 
+     const   uint32_t    mFlags;
+     const   size_t      mItemSize;
++#ifdef NEEDS_VECTORIMPL_SYMBOLS
++    // take care of FBC...
++    virtual void            reservedVectorImpl1();
++    virtual void            reservedVectorImpl2();
++    virtual void            reservedVectorImpl3();
++    virtual void            reservedVectorImpl4();
++    virtual void            reservedVectorImpl5();
++    virtual void            reservedVectorImpl6();
++    virtual void            reservedVectorImpl7();
++    virtual void            reservedVectorImpl8();
++#endif
++
+ };
+ 
+ 
+@@ -155,6 +167,18 @@ public:
+         
+ protected:
+     virtual int             do_compare(const void* lhs, const void* rhs) const = 0;
++#ifdef NEEDS_VECTORIMPL_SYMBOLS
++    // take care of FBC...
++    virtual void            reservedSortedVectorImpl1();
++    virtual void            reservedSortedVectorImpl2();
++    virtual void            reservedSortedVectorImpl3();
++    virtual void            reservedSortedVectorImpl4();
++    virtual void            reservedSortedVectorImpl5();
++    virtual void            reservedSortedVectorImpl6();
++    virtual void            reservedSortedVectorImpl7();
++    virtual void            reservedSortedVectorImpl8();
++#endif
++
+ 
+ private:
+             ssize_t         _indexOrderOf(const void* item, size_t* order = 0) const;
 diff --git a/init/Android.mk b/init/Android.mk
 index b060f04..fece962 100644
 --- a/init/Android.mk
@@ -196,6 +240,46 @@ index 0000000..1f2ffaa
 +}
 +
 +}; // namespace android
+diff --git a/libutils/VectorImpl.cpp b/libutils/VectorImpl.cpp
+index de65a6c..c321c6c 100644
+--- a/libutils/VectorImpl.cpp
++++ b/libutils/VectorImpl.cpp
+@@ -554,6 +554,17 @@ void VectorImpl::_do_move_backward(void* dest, const void* from, size_t num) con
+ 
+ /*****************************************************************************/
+ 
++#ifdef NEEDS_VECTORIMPL_SYMBOLS
++void VectorImpl::reservedVectorImpl1() { } 
++void VectorImpl::reservedVectorImpl2() { } 
++void VectorImpl::reservedVectorImpl3() { } 
++void VectorImpl::reservedVectorImpl4() { } 
++void VectorImpl::reservedVectorImpl5() { } 
++void VectorImpl::reservedVectorImpl6() { } 
++void VectorImpl::reservedVectorImpl7() { } 
++void VectorImpl::reservedVectorImpl8() { } 
++#endif
++
+ SortedVectorImpl::SortedVectorImpl(size_t itemSize, uint32_t flags)
+     : VectorImpl(itemSize, flags)
+ {
+@@ -667,6 +678,17 @@ ssize_t SortedVectorImpl::remove(const void* item)
+     return i;
+ }
+ 
++#ifdef NEEDS_VECTORIMPL_SYMBOLS
++void SortedVectorImpl::reservedSortedVectorImpl1() { };
++void SortedVectorImpl::reservedSortedVectorImpl2() { };
++void SortedVectorImpl::reservedSortedVectorImpl3() { };
++void SortedVectorImpl::reservedSortedVectorImpl4() { };
++void SortedVectorImpl::reservedSortedVectorImpl5() { };
++void SortedVectorImpl::reservedSortedVectorImpl6() { };
++void SortedVectorImpl::reservedSortedVectorImpl7() { };
++void SortedVectorImpl::reservedSortedVectorImpl8() { };
++#endif
++
+ /*****************************************************************************/
+ 
+ }; // namespace android
 -- 
 1.9.1
 

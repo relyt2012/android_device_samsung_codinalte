@@ -26,9 +26,17 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 # Inherit from codinalte device
 $(call inherit-product, device/samsung/codinalte/codinalte.mk)
 
+# Inherit Carbon common Phone stuff.
+$(call inherit-product, vendor/carbon/config/common.mk)
+$(call inherit-product, vendor/carbon/config/gsm.mk)
+
+
 # Set those variables here to overwrite the inherited values.
 PRODUCT_NAME := carbon_codinalte
 PRODUCT_DEVICE := codinalte
 PRODUCT_BRAND := samsung
 PRODUCT_MANUFACTURER := samsung
 PRODUCT_MODEL := SAMSUNG-SGH-T599X
+
+TARGET_SCREEN_HEIGHT := 800
+TARGET_SCREEN_WIDTH := 480

@@ -1,15 +1,15 @@
-From 689e896ebbe4ef3583d4648584c7050a5c45a118 Mon Sep 17 00:00:00 2001
+From 8ec4547cabbd7c8c7dedcb438b11819351b4c077 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Wed, 31 Aug 2016 12:45:30 -0500
+Date: Fri, 2 Sep 2016 16:28:32 -0500
 Subject: [PATCH] 0001-Reenable-support-for-non-PIE-executables
 
-Change-Id: Ic4134991e0cb1a04869e321dc5318353b7aa35db
+Change-Id: Iacb1a2fdd2661f4f321ebf69ae408ae39005e4d6
 ---
- linker/linker.cpp | 122 ++++++++++++++++++++++++++++++++++++++++++------------
- 1 file changed, 96 insertions(+), 26 deletions(-)
+ linker/linker.cpp | 126 ++++++++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 98 insertions(+), 28 deletions(-)
 
 diff --git a/linker/linker.cpp b/linker/linker.cpp
-index 364ecd5..65acb6f 100644
+index 364ecd5..f5ef477 100644
 --- a/linker/linker.cpp
 +++ b/linker/linker.cpp
 @@ -1925,10 +1925,10 @@ bool soinfo::relocate(const VersionTracker& version_tracker, ElfRelIteratorT&& r
@@ -154,6 +154,24 @@ index 364ecd5..65acb6f 100644
  #elif defined(__i386__)
        case R_386_32:
          count_relocation(kRelocRelative);
+@@ -3011,7 +3081,7 @@ bool soinfo::link_image(const soinfo_list_t& global_group, const soinfo_list_t&
+         && get_application_target_sdk_version() > 22) {
+       PRINT("%s: has text relocations", get_realpath());
+       DL_ERR("%s: has text relocations", get_realpath());
+-      return false;
++      //return false;
+     }
+     // Make segments writable to allow text relocations to work properly. We will later call
+     // phdr_table_protect_segments() after all of them are applied and all constructors are run.
+@@ -3020,7 +3090,7 @@ bool soinfo::link_image(const soinfo_list_t& global_group, const soinfo_list_t&
+     if (phdr_table_unprotect_segments(phdr, phnum, load_bias) < 0) {
+       DL_ERR("can't unprotect loadable segments for \"%s\": %s",
+              get_realpath(), strerror(errno));
+-      return false;
++      //return false;
+     }
+   }
+ #endif
 @@ -3276,13 +3346,13 @@ static ElfW(Addr) __linker_init_post_relocation(KernelArgumentBlock& args, ElfW(
      }
    }

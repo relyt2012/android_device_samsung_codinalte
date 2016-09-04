@@ -1,9 +1,9 @@
-From e2619e45b2e0d1a8ad211984140429ec5f6eb332 Mon Sep 17 00:00:00 2001
+From 8dbfbdaae998b6aaa7db7e9613f07bc0542d5176 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Thu, 1 Sep 2016 13:25:46 -0500
+Date: Sat, 3 Sep 2016 14:44:38 -0500
 Subject: [PATCH] 001-av
 
-Change-Id: I013583f02c29eb17c5355c50edbee8661ec941f5
+Change-Id: I5296fb96fdba970491679fcb42da88226dff523c
 ---
  include/media/stagefright/ColorConverter.h         |   5 +
  include/media/stagefright/MediaDefs.h              |   6 +
@@ -12,10 +12,11 @@ Change-Id: I013583f02c29eb17c5355c50edbee8661ec941f5
  media/libstagefright/ACodec.cpp                    |   8 ++
  media/libstagefright/Android.mk                    |   2 +-
  media/libstagefright/CameraSource.cpp              |  15 +++
+ media/libstagefright/MediaBufferGroup.cpp          |   7 +
  media/libstagefright/MediaDefs.cpp                 |   6 +
  media/libstagefright/OMXCodec.cpp                  |  47 +++++++
  .../colorconversion/ColorConverter.cpp             | 145 +++++++++++++++++++++
- 10 files changed, 242 insertions(+), 2 deletions(-)
+ 11 files changed, 249 insertions(+), 2 deletions(-)
  mode change 100644 => 100755 media/libstagefright/ACodec.cpp
 
 diff --git a/include/media/stagefright/ColorConverter.h b/include/media/stagefright/ColorConverter.h
@@ -174,6 +175,24 @@ index 66280da..504ce4b 100644
      mMeta->setInt32(kKeyFrameRate,   mVideoFrameRate);
      return OK;
  }
+diff --git a/media/libstagefright/MediaBufferGroup.cpp b/media/libstagefright/MediaBufferGroup.cpp
+index 6ac6d4a..9e8c953 100644
+--- a/media/libstagefright/MediaBufferGroup.cpp
++++ b/media/libstagefright/MediaBufferGroup.cpp
+@@ -55,6 +55,13 @@ void MediaBufferGroup::add_buffer(MediaBuffer *buffer) {
+     mLastBuffer = buffer;
+ }
+ 
++#ifdef ADD_LEGACY_ACQUIRE_BUFFER_SYMBOL
++extern "C" status_t _ZN7android16MediaBufferGroup14acquire_bufferEPPNS_11MediaBufferE(
++    MediaBufferGroup* group, MediaBuffer **out) {
++    return group->acquire_buffer(out, false);
++}
++#endif
++
+ status_t MediaBufferGroup::acquire_buffer(
+         MediaBuffer **out, bool nonBlocking) {
+     Mutex::Autolock autoLock(mLock);
 diff --git a/media/libstagefright/MediaDefs.cpp b/media/libstagefright/MediaDefs.cpp
 index 2a50692..2c8d54d 100644
 --- a/media/libstagefright/MediaDefs.cpp
