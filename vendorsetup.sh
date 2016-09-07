@@ -1,3 +1,3 @@
-add_lunch_combo carbon_codinalte-eng
-add_lunch_combo carbon_codinalte-userdebug
-add_lunch_combo carbon_codinalte-user
+add_lunch_combo cm_codinalte-eng
+add_lunch_combo cm_codinalte-userdebug
+add_lunch_combo cm_codinalte-user
