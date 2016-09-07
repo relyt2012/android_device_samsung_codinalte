@@ -34,6 +34,7 @@ on init
     symlink /storage/usbdisk /usbdisk
     symlink /storage/usbdisk /mnt/usbdisk
     mkdir /mnt/runtime/default/emulated 0700 sdcard_rw sdcard_rw
+    mkdir /mnt/runtime/default/sdcard1 0700 sdcard_rw sdcard_rw
 
     mkdir /modemfs 0771 system system
     mkdir /efs 0775 radio system
