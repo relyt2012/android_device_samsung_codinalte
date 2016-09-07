@@ -1,9 +1,9 @@
-From 0e9161b1c817d9d57d3c7ad8b24a9fdb456f3e67 Mon Sep 17 00:00:00 2001
+From 910c9fb134e232b06ac20bf7e85888efe567b31a Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Thu, 1 Sep 2016 13:31:11 -0500
+Date: Tue, 6 Sep 2016 18:59:10 -0500
 Subject: [PATCH] native
 
-Change-Id: I5cd3e2759590d0dc482976ed2d5971c97ff8b07f
+Change-Id: I21a9c600424ce2a4e92bc3ab7673ab756c051812
 ---
  include/binder/MemoryBase.h                |   3 +
  include/binder/Parcel.h                    |  32 +++++-
@@ -17,8 +17,9 @@ Change-Id: I5cd3e2759590d0dc482976ed2d5971c97ff8b07f
  include/ui/GraphicBuffer.h                 |  10 +-
  include/ui/PixelFormat.h                   |   9 ++
  include/ui/Region.h                        |  24 ++++
+ libs/binder/Android.mk                     |   2 +-
  libs/binder/MemoryBase.cpp                 |  27 +++++
- libs/binder/Parcel.cpp                     |  14 +++
+ libs/binder/Parcel.cpp                     |  16 +++
  libs/gui/Android.mk                        |   3 +-
  libs/gui/BufferQueueProducer.cpp           |   4 +-
  libs/gui/ConsumerBase.cpp                  |   2 +-
@@ -31,7 +32,7 @@ Change-Id: I5cd3e2759590d0dc482976ed2d5971c97ff8b07f
  services/surfaceflinger/DisplayDevice.cpp  |  23 +++-
  services/surfaceflinger/DisplayDevice.h    |   2 +
  services/surfaceflinger/SurfaceFlinger.cpp |   3 +
- 26 files changed, 393 insertions(+), 19 deletions(-)
+ 27 files changed, 396 insertions(+), 20 deletions(-)
  mode change 100644 => 100755 services/surfaceflinger/DisplayDevice.cpp
 
 diff --git a/include/binder/MemoryBase.h b/include/binder/MemoryBase.h
@@ -424,6 +425,19 @@ index 2a14918..afefed5 100644
  }; // namespace android
  
  #endif // ANDROID_UI_REGION_H
+diff --git a/libs/binder/Android.mk b/libs/binder/Android.mk
+index d5860ef..539241f 100644
+--- a/libs/binder/Android.mk
++++ b/libs/binder/Android.mk
+@@ -49,7 +49,7 @@ ifneq ($(TARGET_IS_64_BIT),true)
+ LOCAL_CFLAGS += -DBINDER_IPC_32BIT=1
+ endif
+ endif
+-LOCAL_CFLAGS += -Werror
++#LOCAL_CFLAGS += -Werror
+ include $(BUILD_SHARED_LIBRARY)
+ 
+ include $(CLEAR_VARS)
 diff --git a/libs/binder/MemoryBase.cpp b/libs/binder/MemoryBase.cpp
 index 033066b..e6d6401 100644
 --- a/libs/binder/MemoryBase.cpp
@@ -469,10 +483,19 @@ index 033066b..e6d6401 100644
 +}
 +#endif
 diff --git a/libs/binder/Parcel.cpp b/libs/binder/Parcel.cpp
-index 22d7ef3..331fefb 100644
+index 22d7ef3..f47b084 100644
 --- a/libs/binder/Parcel.cpp
 +++ b/libs/binder/Parcel.cpp
-@@ -990,6 +990,13 @@ status_t Parcel::writeDupImmutableBlobFileDescriptor(int fd)
+@@ -340,6 +340,8 @@ status_t unflatten_binder(const sp<ProcessState>& proc,
+ 
+ // ---------------------------------------------------------------------------
+ 
++extern "C" status_t _ZN7android6Parcel13writeString16EPKtj() __attribute__((alias("_ZN7android6Parcel13writeString16EPKDsj")));
++
+ Parcel::Parcel()
+ {
+     LOG_ALLOC("Parcel %p: constructing", this);
+@@ -990,6 +992,13 @@ status_t Parcel::writeDupImmutableBlobFileDescriptor(int fd)
      return writeDupFileDescriptor(fd);
  }
  
@@ -486,7 +509,7 @@ index 22d7ef3..331fefb 100644
  status_t Parcel::write(const FlattenableHelperInterface& val)
  {
      status_t err;
-@@ -1430,6 +1437,13 @@ status_t Parcel::readBlob(size_t len, ReadableBlob* outBlob) const
+@@ -1430,6 +1439,13 @@ status_t Parcel::readBlob(size_t len, ReadableBlob* outBlob) const
      return NO_ERROR;
  }
  
