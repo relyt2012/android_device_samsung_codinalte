@@ -1,15 +1,15 @@
-From 8ec4547cabbd7c8c7dedcb438b11819351b4c077 Mon Sep 17 00:00:00 2001
+From 3205a005c929f259b2a4b332069fd2839b07e7d4 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Fri, 2 Sep 2016 16:28:32 -0500
+Date: Tue, 6 Sep 2016 18:48:52 -0500
 Subject: [PATCH] 0001-Reenable-support-for-non-PIE-executables
 
-Change-Id: Iacb1a2fdd2661f4f321ebf69ae408ae39005e4d6
+Change-Id: Ia3661e6fed377dbe749dc7bd4acaff290aa15f3a
 ---
- linker/linker.cpp | 126 ++++++++++++++++++++++++++++++++++++++++++------------
- 1 file changed, 98 insertions(+), 28 deletions(-)
+ linker/linker.cpp | 140 ++++++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 105 insertions(+), 35 deletions(-)
 
 diff --git a/linker/linker.cpp b/linker/linker.cpp
-index 364ecd5..f5ef477 100644
+index 364ecd5..8056087 100644
 --- a/linker/linker.cpp
 +++ b/linker/linker.cpp
 @@ -1925,10 +1925,10 @@ bool soinfo::relocate(const VersionTracker& version_tracker, ElfRelIteratorT&& r
@@ -154,16 +154,28 @@ index 364ecd5..f5ef477 100644
  #elif defined(__i386__)
        case R_386_32:
          count_relocation(kRelocRelative);
-@@ -3011,7 +3081,7 @@ bool soinfo::link_image(const soinfo_list_t& global_group, const soinfo_list_t&
-         && get_application_target_sdk_version() > 22) {
-       PRINT("%s: has text relocations", get_realpath());
-       DL_ERR("%s: has text relocations", get_realpath());
+@@ -3007,20 +3077,20 @@ bool soinfo::link_image(const soinfo_list_t& global_group, const soinfo_list_t&
+   if (has_text_relocations) {
+     // Fail if app is targeting sdk version > 22
+     // TODO (dimitry): remove != __ANDROID_API__ check once http://b/20020312 is fixed
+-    if (get_application_target_sdk_version() != __ANDROID_API__
+-        && get_application_target_sdk_version() > 22) {
+-      PRINT("%s: has text relocations", get_realpath());
+-      DL_ERR("%s: has text relocations", get_realpath());
 -      return false;
+-    }
++    //if (get_application_target_sdk_version() != __ANDROID_API__
++    //    && get_application_target_sdk_version() > 22) {
++    //  PRINT("%s: has text relocations", get_realpath());
++    //  DL_ERR("%s: has text relocations", get_realpath());
 +      //return false;
-     }
++    //}
      // Make segments writable to allow text relocations to work properly. We will later call
      // phdr_table_protect_segments() after all of them are applied and all constructors are run.
-@@ -3020,7 +3090,7 @@ bool soinfo::link_image(const soinfo_list_t& global_group, const soinfo_list_t&
+-    DL_WARN("%s has text relocations. This is wasting memory and prevents "
+-            "security hardening. Please fix.", get_realpath());
++    //DL_WARN("%s has text relocations. This is wasting memory and prevents "
++    //        "security hardening. Please fix.", get_realpath());
      if (phdr_table_unprotect_segments(phdr, phnum, load_bias) < 0) {
        DL_ERR("can't unprotect loadable segments for \"%s\": %s",
               get_realpath(), strerror(errno));
