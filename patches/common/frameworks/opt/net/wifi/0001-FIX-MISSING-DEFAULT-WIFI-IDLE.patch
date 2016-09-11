@@ -1,23 +1,23 @@
-From ffd70d056ded2d63f9ba18b922c2532547f69ebd Mon Sep 17 00:00:00 2001
+From 99510e625c78c5c7303503a49e9b3d088c88849d Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Mon, 18 Jul 2016 10:47:34 -0500
-Subject: [PATCH] FIX-MISSING-DEFAULT-WIFI-IDLE
+Date: Wed, 7 Sep 2016 08:39:50 -0500
+Subject: [PATCH] 0001-FIX-MISSING-DEFAULT-WIFI-IDLE
 
-Change-Id: I2426a0d9bbe06c0d8836eb7a94a9ea87097c09df
+Change-Id: I24c09806b9f481f0315d8b5bce907caab4852848
 ---
  service/java/com/android/server/wifi/WifiController.java | 3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/service/java/com/android/server/wifi/WifiController.java b/service/java/com/android/server/wifi/WifiController.java
-index 9a8967b..553f48f 100644
+index a22f985..16cbf93 100644
 --- a/service/java/com/android/server/wifi/WifiController.java
 +++ b/service/java/com/android/server/wifi/WifiController.java
-@@ -220,8 +220,7 @@ class WifiController extends StateMachine {
+@@ -221,8 +221,7 @@ class WifiController extends StateMachine {
      }
  
      private void readWifiIdleTime() {
 -        mIdleMillis = Settings.Global.getLong(mContext.getContentResolver(),
--                Settings.Global.WIFI_IDLE_MS, DEFAULT_IDLE_MS);
+-                Settings.Global.WIFI_IDLE_MS, mDefaultWifiIdleMs);
 +        mIdleMillis = 10;
      }
  

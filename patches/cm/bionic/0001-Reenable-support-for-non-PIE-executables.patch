@@ -1,18 +1,18 @@
-From 3205a005c929f259b2a4b332069fd2839b07e7d4 Mon Sep 17 00:00:00 2001
+From 66b5d48f5988e12ac8749b922baba162e69df980 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Tue, 6 Sep 2016 18:48:52 -0500
+Date: Wed, 7 Sep 2016 08:16:21 -0500
 Subject: [PATCH] 0001-Reenable-support-for-non-PIE-executables
 
-Change-Id: Ia3661e6fed377dbe749dc7bd4acaff290aa15f3a
+Change-Id: I8ff9c3ca22b939062b495e20f7460234c323c479
 ---
- linker/linker.cpp | 140 ++++++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 105 insertions(+), 35 deletions(-)
+ linker/linker.cpp | 124 ++++++++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 97 insertions(+), 27 deletions(-)
 
 diff --git a/linker/linker.cpp b/linker/linker.cpp
-index 364ecd5..8056087 100644
+index 99c02d8..53370fe 100644
 --- a/linker/linker.cpp
 +++ b/linker/linker.cpp
-@@ -1925,10 +1925,10 @@ bool soinfo::relocate(const VersionTracker& version_tracker, ElfRelIteratorT&& r
+@@ -1931,10 +1931,10 @@ bool soinfo::relocate(const VersionTracker& version_tracker, ElfRelIteratorT&& r
  
      const ElfW(Sym)* s = nullptr;
      soinfo* lsi = nullptr;
@@ -24,7 +24,7 @@ index 364ecd5..8056087 100644
  
        if (!lookup_version_info(version_tracker, sym, sym_name, &vi)) {
          return false;
-@@ -2176,18 +2176,55 @@ bool soinfo::relocate(const VersionTracker& version_tracker, ElfRelIteratorT&& r
+@@ -2182,18 +2182,55 @@ bool soinfo::relocate(const VersionTracker& version_tracker, ElfRelIteratorT&& r
          }
          break;
  
@@ -92,7 +92,7 @@ index 364ecd5..8056087 100644
        case R_AARCH64_TLS_TPREL64:
          TRACE_TYPE(RELO, "RELO TLS_TPREL64 *** %16llx <- %16llx - %16llx\n",
                     reloc, (sym_addr + addend), rel->r_offset);
-@@ -2234,17 +2271,50 @@ bool soinfo::relocate(const VersionTracker& version_tracker, ElfRelIteratorT&& r
+@@ -2240,17 +2277,50 @@ bool soinfo::relocate(const VersionTracker& version_tracker, ElfRelIteratorT&& r
          *reinterpret_cast<ElfW(Addr)*>(reloc) += sym_addr - rel->r_offset;
          break;
        case R_ARM_COPY:
@@ -154,37 +154,16 @@ index 364ecd5..8056087 100644
  #elif defined(__i386__)
        case R_386_32:
          count_relocation(kRelocRelative);
-@@ -3007,20 +3077,20 @@ bool soinfo::link_image(const soinfo_list_t& global_group, const soinfo_list_t&
+@@ -3013,7 +3083,7 @@ bool soinfo::link_image(const soinfo_list_t& global_group, const soinfo_list_t&
    if (has_text_relocations) {
      // Fail if app is targeting sdk version > 22
      // TODO (dimitry): remove != __ANDROID_API__ check once http://b/20020312 is fixed
--    if (get_application_target_sdk_version() != __ANDROID_API__
--        && get_application_target_sdk_version() > 22) {
--      PRINT("%s: has text relocations", get_realpath());
--      DL_ERR("%s: has text relocations", get_realpath());
--      return false;
--    }
-+    //if (get_application_target_sdk_version() != __ANDROID_API__
-+    //    && get_application_target_sdk_version() > 22) {
-+    //  PRINT("%s: has text relocations", get_realpath());
-+    //  DL_ERR("%s: has text relocations", get_realpath());
-+      //return false;
-+    //}
-     // Make segments writable to allow text relocations to work properly. We will later call
-     // phdr_table_protect_segments() after all of them are applied and all constructors are run.
--    DL_WARN("%s has text relocations. This is wasting memory and prevents "
--            "security hardening. Please fix.", get_realpath());
-+    //DL_WARN("%s has text relocations. This is wasting memory and prevents "
-+    //        "security hardening. Please fix.", get_realpath());
-     if (phdr_table_unprotect_segments(phdr, phnum, load_bias) < 0) {
-       DL_ERR("can't unprotect loadable segments for \"%s\": %s",
-              get_realpath(), strerror(errno));
--      return false;
-+      //return false;
-     }
-   }
- #endif
-@@ -3276,13 +3346,13 @@ static ElfW(Addr) __linker_init_post_relocation(KernelArgumentBlock& args, ElfW(
+-#if !defined(__i386__) // ffmpeg says that they require text relocations on x86
++#if 0 // ffmpeg says that they require text relocations on x86
+     if (get_application_target_sdk_version() != __ANDROID_API__
+         && get_application_target_sdk_version() > 22) {
+       PRINT("%s: has text relocations", get_realpath());
+@@ -3288,13 +3358,13 @@ static ElfW(Addr) __linker_init_post_relocation(KernelArgumentBlock& args, ElfW(
      }
    }
    si->dynamic = nullptr;

@@ -1,23 +1,22 @@
-From d8862b3cc4117cc20ea62887a3b966f0e8f113ad Mon Sep 17 00:00:00 2001
+From 9bf54d79035c070762c8f28cf40d6595a4bc9057 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Mon, 18 Jul 2016 09:04:25 -0500
-Subject: [PATCH] NO-BLOCK-OTA
+Date: Wed, 7 Sep 2016 08:25:50 -0500
+Subject: [PATCH] 0001-NO-BLOCK-OTA
 
-Change-Id: I8068fdea96914b38122e84e134e20b739762d59d
+Change-Id: Ia9d24e0528b42b2458a96a46a6aee1f7eec1e029
 ---
- core/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ core/Makefile | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/core/Makefile b/core/Makefile
-index efaa73a..bc98b62 100644
+index 3ac9b0d..7d04660 100644
 --- a/core/Makefile
 +++ b/core/Makefile
-@@ -1716,7 +1716,7 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
- 	@echo -e ${PRT_HST}"Package OTA: $@"${CL_RST}
- 	$(hide) PATH=$(foreach p,$(INTERNAL_USERIMAGES_BINARY_PATHS),$(p):)$$PATH MKBOOTIMG=$(BOARD_CUSTOM_BOOTIMG_MK) \
+@@ -1914,7 +1914,6 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
+ 	@echo -e ${CL_YLW}"Package OTA:"${CL_RST}" $@"
+ 	$(hide) PATH=$(foreach p,$(INTERNAL_USERIMAGES_BINARY_PATHS),$(p):)$$PATH MKBOOTIMG=$(MKBOOTIMG) \
  	   $(OTA_FROM_TARGET_SCRIPT) -v \
--	   $(if $(CARBON_BUILD),, --block) \
-+	   $(if $(CARBON_BUILD),, ) \
+-	   $(block_based) \
  	   -p $(HOST_OUT) \
  	   -k $(KEY_CERT_PAIR) \
  	   --backup=$(backuptool) \

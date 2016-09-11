@@ -1,8 +1,18 @@
+From 5f1ac566833da59fe657b9830b12341ada25ac6a Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Wed, 7 Sep 2016 17:45:28 -0500
+Subject: [PATCH] low-incall-volume-experimental
+
+Change-Id: I16adeb3242b29a426c6a7bb6b4cfa39e0cf541ca
+---
+ src/com/android/phone/PhoneUtils.java | 37 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
+
 diff --git a/src/com/android/phone/PhoneUtils.java b/src/com/android/phone/PhoneUtils.java
-index 7190d86..ea34090 100644
+index e032097..46ce638 100644
 --- a/src/com/android/phone/PhoneUtils.java
 +++ b/src/com/android/phone/PhoneUtils.java
-@@ -1859,6 +1859,39 @@ public class PhoneUtils {
+@@ -1865,6 +1865,39 @@ public class PhoneUtils {
          }
      }
  
@@ -18,13 +28,13 @@ index 7190d86..ea34090 100644
 +     */
 +    static void resetAudioStreamVolume() {
 +        PhoneGlobals app = PhoneGlobals.getInstance();
-+        BluetoothManager btManager = app.getBluetoothManager();
++        //BluetoothManager btManager = app.getBluetoothManager();
 +        AudioManager audioManager = (AudioManager) app.getSystemService(Context.AUDIO_SERVICE);
 +        // determine actual streamType
 +        int streamType = AudioManager.STREAM_VOICE_CALL;
-+        if (btManager.isBluetoothHeadsetAudioOn()) {
-+            streamType = AudioManager.STREAM_BLUETOOTH_SCO;
-+        }
++        //if (btManager.isBluetoothHeadsetAudioOn()) {
++        //    streamType = AudioManager.STREAM_BLUETOOTH_SCO;
++        //}
 +        // determine volume and 1 level lower volume (lowest level can be 0)
 +        int volume = audioManager.getStreamVolume(streamType);
 +        int lowerVolume = volume - 1;
@@ -42,7 +52,7 @@ index 7190d86..ea34090 100644
      static boolean isInEmergencyCall(CallManager cm) {
          for (Connection cn : cm.getActiveFgCall().getConnections()) {
              if (PhoneNumberUtils.isLocalEmergencyNumber(PhoneGlobals.getInstance(),
-@@ -1878,12 +1911,16 @@ public class PhoneUtils {
+@@ -1884,12 +1917,16 @@ public class PhoneUtils {
      }
  
      /* package */ static void setAudioMode() {
@@ -59,3 +69,6 @@ index 7190d86..ea34090 100644
      }
  
      /**
+-- 
+1.9.1
+

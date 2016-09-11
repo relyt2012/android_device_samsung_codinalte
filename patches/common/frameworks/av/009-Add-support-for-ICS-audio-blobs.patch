@@ -1,19 +1,19 @@
-From 92cc3b7ff6367687b72d61b9c83dec777eeb9a2d Mon Sep 17 00:00:00 2001
+From 6df34e9ba4a6111a5858e754a32287e430c364ec Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Sat, 3 Sep 2016 14:27:57 -0500
+Date: Wed, 7 Sep 2016 08:33:00 -0500
 Subject: [PATCH] 009-Add-support-for-ICS-audio-blobs
 
-Change-Id: I378456077d3d9152e4bec08962c723d41d67cc38
+Change-Id: I6406aa8e49ba4752b38be6fcb0b51b58be2bb647
 ---
  services/audioflinger/AudioFlinger.cpp             | 41 ++++++++++++++++++----
- .../service/AudioPolicyInterfaceImplLegacy.cpp     | 22 +++++-------
- 2 files changed, 43 insertions(+), 20 deletions(-)
+ .../service/AudioPolicyInterfaceImplLegacy.cpp     | 10 ++++--
+ 2 files changed, 42 insertions(+), 9 deletions(-)
 
 diff --git a/services/audioflinger/AudioFlinger.cpp b/services/audioflinger/AudioFlinger.cpp
-index fab1ef5..6101287 100644
+index 23215dd..3353d88 100644
 --- a/services/audioflinger/AudioFlinger.cpp
 +++ b/services/audioflinger/AudioFlinger.cpp
-@@ -162,7 +162,7 @@ static int load_audio_interface(const char *if_name, audio_hw_device_t **dev)
+@@ -192,7 +192,7 @@ static int load_audio_interface(const char *if_name, audio_hw_device_t **dev)
      return 0;
  
  out:
@@ -22,7 +22,7 @@ index fab1ef5..6101287 100644
      return rc;
  }
  
-@@ -862,7 +862,7 @@ status_t AudioFlinger::setMasterMute(bool muted)
+@@ -892,7 +892,7 @@ status_t AudioFlinger::setMasterMute(bool muted)
  
      Mutex::Autolock _l(mLock);
      mMasterMute = muted;
@@ -31,7 +31,7 @@ index fab1ef5..6101287 100644
      // Set master mute in the HALs which support it.
      for (size_t i = 0; i < mAudioHwDevs.size(); i++) {
          AutoMutex lock(mHardwareLock);
-@@ -885,7 +885,7 @@ status_t AudioFlinger::setMasterMute(bool muted)
+@@ -915,7 +915,7 @@ status_t AudioFlinger::setMasterMute(bool muted)
          }
          mPlaybackThreads.valueAt(i)->setMasterMute(muted);
      }
@@ -40,7 +40,7 @@ index fab1ef5..6101287 100644
      return NO_ERROR;
  }
  
-@@ -1174,7 +1174,12 @@ size_t AudioFlinger::getInputBufferSize(uint32_t sampleRate, audio_format_t form
+@@ -1229,7 +1229,12 @@ size_t AudioFlinger::getInputBufferSize(uint32_t sampleRate, audio_format_t form
          // Note: config is currently a const parameter for get_input_buffer_size()
          // but we use a copy from proposed in case config changes from the call.
          config = proposed;
@@ -53,7 +53,7 @@ index fab1ef5..6101287 100644
          if (frames != 0) {
              break; // hal success, config is the result
          }
-@@ -1593,7 +1598,7 @@ audio_module_handle_t AudioFlinger::loadHwModule_l(const char *name)
+@@ -1654,7 +1659,7 @@ audio_module_handle_t AudioFlinger::loadHwModule_l(const char *name)
      AudioHwDevice::Flags flags = static_cast<AudioHwDevice::Flags>(0);
      {  // scope for auto-lock pattern
          AutoMutex lock(mHardwareLock);
@@ -62,7 +62,7 @@ index fab1ef5..6101287 100644
          if (0 == mAudioHwDevs.size()) {
              mHardwareStatus = AUDIO_HW_GET_MASTER_VOLUME;
              if (NULL != dev->get_master_volume) {
-@@ -1611,21 +1616,21 @@ audio_module_handle_t AudioFlinger::loadHwModule_l(const char *name)
+@@ -1672,21 +1677,21 @@ audio_module_handle_t AudioFlinger::loadHwModule_l(const char *name)
                  }
              }
          }
@@ -87,7 +87,7 @@ index fab1ef5..6101287 100644
          mHardwareStatus = AUDIO_HW_IDLE;
      }
  
-@@ -1864,7 +1869,12 @@ status_t AudioFlinger::openOutput(audio_module_handle_t module,
+@@ -1929,7 +1934,12 @@ status_t AudioFlinger::openOutput(audio_module_handle_t module,
          thread->ioConfigChanged(AUDIO_OUTPUT_OPENED);
  
          // the first primary output opened designates the primary hw device
@@ -100,7 +100,7 @@ index fab1ef5..6101287 100644
              ALOGI("Using module %d has the primary audio interface", module);
              mPrimaryHardwareDev = thread->getOutput()->audioHwDev;
  
-@@ -2053,8 +2063,17 @@ sp<AudioFlinger::RecordThread> AudioFlinger::openInput_l(audio_module_handle_t m
+@@ -2118,8 +2128,17 @@ sp<AudioFlinger::RecordThread> AudioFlinger::openInput_l(audio_module_handle_t m
      audio_config_t halconfig = *config;
      audio_hw_device_t *inHwHal = inHwDev->hwDevice();
      audio_stream_in_t *inStream = NULL;
@@ -118,7 +118,7 @@ index fab1ef5..6101287 100644
      ALOGV("openInput_l() openInputStream returned input %p, SamplingRate %d"
             ", Format %#x, Channels %x, flags %#x, status %d addr %s",
              inStream,
-@@ -2075,8 +2094,16 @@ sp<AudioFlinger::RecordThread> AudioFlinger::openInput_l(audio_module_handle_t m
+@@ -2140,8 +2159,16 @@ sp<AudioFlinger::RecordThread> AudioFlinger::openInput_l(audio_module_handle_t m
          // FIXME describe the change proposed by HAL (save old values so we can log them here)
          ALOGV("openInput_l() reopening with proposed sampling rate and channel mask");
          inStream = NULL;
@@ -136,10 +136,10 @@ index fab1ef5..6101287 100644
      }
  
 diff --git a/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp b/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp
-index 13af3ef..e6b475d 100644
+index da7f45d..b5aba2b 100644
 --- a/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp
 +++ b/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp
-@@ -359,12 +359,15 @@ status_t AudioPolicyService::setStreamVolumeIndex(audio_stream_type_t stream,
+@@ -382,12 +382,15 @@ status_t AudioPolicyService::setStreamVolumeIndex(audio_stream_type_t stream,
          return BAD_VALUE;
      }
      Mutex::Autolock _l(mLock);
@@ -156,7 +156,7 @@ index 13af3ef..e6b475d 100644
          return mpAudioPolicy->set_stream_volume_index(mpAudioPolicy, stream, index);
      }
  }
-@@ -380,12 +383,15 @@ status_t AudioPolicyService::getStreamVolumeIndex(audio_stream_type_t stream,
+@@ -403,12 +406,15 @@ status_t AudioPolicyService::getStreamVolumeIndex(audio_stream_type_t stream,
          return BAD_VALUE;
      }
      Mutex::Autolock _l(mLock);
@@ -173,25 +173,6 @@ index 13af3ef..e6b475d 100644
          return mpAudioPolicy->get_stream_volume_index(mpAudioPolicy, stream, index);
      }
  }
-@@ -510,17 +516,7 @@ status_t AudioPolicyService::queryDefaultPreProcessing(int audioSession,
- 
- bool AudioPolicyService::isOffloadSupported(const audio_offload_info_t& info)
- {
--    if (mpAudioPolicy == NULL) {
--        ALOGV("mpAudioPolicy == NULL");
--        return false;
--    }
--
--    if (mpAudioPolicy->is_offload_supported == NULL) {
--        ALOGV("HAL does not implement is_offload_supported");
--        return false;
--    }
--
--    return mpAudioPolicy->is_offload_supported(mpAudioPolicy, &info);
-+    return false;
- }
- 
- status_t AudioPolicyService::listAudioPorts(audio_port_role_t role __unused,
 -- 
 1.9.1
 

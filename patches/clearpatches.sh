@@ -5,9 +5,9 @@ UNATTENDED=${2}
 TOPDIR="$THISDIR/../../../../"
 echo $TOPDIR
 if [[ "$ROM" == "" ]]; then
-	echo "ROM not specified, assuming carbon!"
+	echo "ROM not specified, assuming cm!"
 	sleep 1
-	ROM="carbon"
+	ROM="cm"
 fi
 cd $ROM
 for LINE in $(echo $(find -name *.patch); echo $(find -name *.apply))

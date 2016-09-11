@@ -1,9 +1,9 @@
-From 02a6a60e5d196913b173b2b0fef037f64741e25c Mon Sep 17 00:00:00 2001
+From e98a4d426e160f1bbeb4ac1957304aa27e0b4490 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Sat, 3 Sep 2016 14:23:43 -0500
+Date: Sun, 11 Sep 2016 06:27:07 -0500
 Subject: [PATCH] core
 
-Change-Id: I2240e2a22ae490b0a32eb8ca023142881c5cb11a
+Change-Id: Ie8f6913ab0f7ffeaafb51ea6f7f5f91ed9261c2b
 ---
  include/utils/Flattenable.h | 22 ++++++++++++++++++++++
  include/utils/VectorImpl.h  | 24 ++++++++++++++++++++++++
@@ -11,8 +11,9 @@ Change-Id: I2240e2a22ae490b0a32eb8ca023142881c5cb11a
  init/init.cpp               | 17 ++++++++++-------
  libutils/Android.mk         |  6 ++++++
  libutils/Flattenable.cpp    | 24 ++++++++++++++++++++++++
+ libutils/Threads.cpp        |  9 +++++++++
  libutils/VectorImpl.cpp     | 22 ++++++++++++++++++++++
- 7 files changed, 108 insertions(+), 8 deletions(-)
+ 8 files changed, 117 insertions(+), 8 deletions(-)
  create mode 100644 libutils/Flattenable.cpp
 
 diff --git a/include/utils/Flattenable.h b/include/utils/Flattenable.h
@@ -120,7 +121,7 @@ index 21ad71c..8adf8fa 100644
  private:
              ssize_t         _indexOrderOf(const void* item, size_t* order = 0) const;
 diff --git a/init/Android.mk b/init/Android.mk
-index b060f04..fece962 100644
+index 85dfbfc..7afe762 100644
 --- a/init/Android.mk
 +++ b/init/Android.mk
 @@ -16,7 +16,6 @@ init_cflags += \
@@ -132,19 +133,19 @@ index b060f04..fece962 100644
  init_clang := true
  
 diff --git a/init/init.cpp b/init/init.cpp
-index 8429802..ad50d67 100644
+index 58d7d34..402c2c5 100644
 --- a/init/init.cpp
 +++ b/init/init.cpp
-@@ -807,7 +807,7 @@ static void export_kernel_boot_props() {
+@@ -817,7 +817,7 @@ static void export_kernel_boot_props() {
          { "ro.boot.mode",       "ro.bootmode",   "unknown", },
          { "ro.boot.baseband",   "ro.baseband",   "unknown", },
          { "ro.boot.bootloader", "ro.bootloader", "unknown", },
 -        { "ro.boot.hardware",   "ro.hardware",   "unknown", },
 +        { "ro.boot.hardware",   "ro.hardware",   "samsungcodina", },
+ #ifndef IGNORE_RO_BOOT_REVISION
          { "ro.boot.revision",   "ro.revision",   "0", },
-     };
-     for (size_t i = 0; i < ARRAY_SIZE(prop_map); i++) {
-@@ -861,6 +861,7 @@ static void process_kernel_cmdline(void)
+ #endif
+@@ -873,6 +873,7 @@ static void process_kernel_cmdline(void)
      import_kernel_cmdline(false, import_kernel_nv);
      if (qemu[0])
          import_kernel_cmdline(true, import_kernel_nv);
@@ -152,7 +153,7 @@ index 8429802..ad50d67 100644
  }
  
  static int queue_property_triggers_action(int nargs, char **args)
-@@ -903,7 +904,8 @@ static selinux_enforcing_status selinux_status_from_cmdline() {
+@@ -915,7 +916,8 @@ static selinux_enforcing_status selinux_status_from_cmdline() {
  
  static bool selinux_is_disabled(void)
  {
@@ -162,7 +163,7 @@ index 8429802..ad50d67 100644
          if (access("/sys/fs/selinux", F_OK) != 0) {
              // SELinux is not compiled into the kernel, or has been disabled
              // via the kernel command line "selinux=0".
-@@ -912,15 +914,16 @@ static bool selinux_is_disabled(void)
+@@ -924,15 +926,16 @@ static bool selinux_is_disabled(void)
          return selinux_status_from_cmdline() == SELINUX_DISABLED;
      }
  
@@ -182,7 +183,7 @@ index 8429802..ad50d67 100644
  }
  
  int selinux_reload_policy(void)
-@@ -952,8 +955,8 @@ static int audit_callback(void *data, security_class_t /*cls*/, char *buf, size_
+@@ -964,8 +967,8 @@ static int audit_callback(void *data, security_class_t /*cls*/, char *buf, size_
  
  static void security_failure() {
      ERROR("Security failure; rebooting into recovery mode...\n");
@@ -240,6 +241,26 @@ index 0000000..1f2ffaa
 +}
 +
 +}; // namespace android
+diff --git a/libutils/Threads.cpp b/libutils/Threads.cpp
+index 1e014c6..9f37ddf 100644
+--- a/libutils/Threads.cpp
++++ b/libutils/Threads.cpp
+@@ -301,6 +301,15 @@ void androidSetCreateThreadFunc(android_create_thread_fn func)
+     gCreateThreadFn = func;
+ }
+ 
++extern "C" pid_t androidGetTid()
++{
++#ifdef HAVE_GETTID
++    return gettid();
++#else
++    return getpid();
++#endif
++}
++
+ #ifdef HAVE_ANDROID_OS
+ int androidSetThreadPriority(pid_t tid, int pri)
+ {
 diff --git a/libutils/VectorImpl.cpp b/libutils/VectorImpl.cpp
 index de65a6c..c321c6c 100644
 --- a/libutils/VectorImpl.cpp

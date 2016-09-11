@@ -1,9 +1,9 @@
-From 910c9fb134e232b06ac20bf7e85888efe567b31a Mon Sep 17 00:00:00 2001
+From 6a357ed6b60b65657abb81b67aec63a26350afc0 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Tue, 6 Sep 2016 18:59:10 -0500
+Date: Wed, 7 Sep 2016 08:37:01 -0500
 Subject: [PATCH] native
 
-Change-Id: I21a9c600424ce2a4e92bc3ab7673ab756c051812
+Change-Id: I38cee5b04b37ea41171e48fb55255fee83aac7cc
 ---
  include/binder/MemoryBase.h                |   3 +
  include/binder/Parcel.h                    |  32 +++++-
@@ -29,10 +29,10 @@ Change-Id: I21a9c600424ce2a4e92bc3ab7673ab756c051812
  opengl/libs/EGL/eglApi.cpp                 |   7 +-
  opengl/libs/EGL/egl_entries.in             |   2 +
  services/surfaceflinger/Android.mk         |   6 +-
- services/surfaceflinger/DisplayDevice.cpp  |  23 +++-
+ services/surfaceflinger/DisplayDevice.cpp  |  25 ++++-
  services/surfaceflinger/DisplayDevice.h    |   2 +
  services/surfaceflinger/SurfaceFlinger.cpp |   3 +
- 27 files changed, 396 insertions(+), 20 deletions(-)
+ 27 files changed, 397 insertions(+), 21 deletions(-)
  mode change 100644 => 100755 services/surfaceflinger/DisplayDevice.cpp
 
 diff --git a/include/binder/MemoryBase.h b/include/binder/MemoryBase.h
@@ -50,7 +50,7 @@ index 463e26d..5bf104b 100644
  private:
      size_t          mSize;
 diff --git a/include/binder/Parcel.h b/include/binder/Parcel.h
-index 16cd6cf..30959c5 100644
+index 91ffae0..44dbd99 100644
 --- a/include/binder/Parcel.h
 +++ b/include/binder/Parcel.h
 @@ -28,8 +28,12 @@
@@ -134,7 +134,7 @@ index 16cd6cf..30959c5 100644
          }
      };
      status_t write(const FlattenableHelperInterface& val);
-@@ -351,11 +373,13 @@ public:
+@@ -353,11 +375,13 @@ public:
  
  // ---------------------------------------------------------------------------
  
@@ -148,7 +148,7 @@ index 16cd6cf..30959c5 100644
  
  template<typename T>
  status_t Parcel::write(const LightFlattenable<T>& val) {
-@@ -375,11 +399,13 @@ status_t Parcel::write(const LightFlattenable<T>& val) {
+@@ -377,11 +401,13 @@ status_t Parcel::write(const LightFlattenable<T>& val) {
      return NO_ERROR;
  }
  
@@ -426,10 +426,10 @@ index 2a14918..afefed5 100644
  
  #endif // ANDROID_UI_REGION_H
 diff --git a/libs/binder/Android.mk b/libs/binder/Android.mk
-index d5860ef..539241f 100644
+index b12eda8..531f01b 100644
 --- a/libs/binder/Android.mk
 +++ b/libs/binder/Android.mk
-@@ -49,7 +49,7 @@ ifneq ($(TARGET_IS_64_BIT),true)
+@@ -69,7 +69,7 @@ ifneq ($(TARGET_IS_64_BIT),true)
  LOCAL_CFLAGS += -DBINDER_IPC_32BIT=1
  endif
  endif
@@ -483,10 +483,10 @@ index 033066b..e6d6401 100644
 +}
 +#endif
 diff --git a/libs/binder/Parcel.cpp b/libs/binder/Parcel.cpp
-index 22d7ef3..f47b084 100644
+index 65e67d6..1a66b65 100644
 --- a/libs/binder/Parcel.cpp
 +++ b/libs/binder/Parcel.cpp
-@@ -340,6 +340,8 @@ status_t unflatten_binder(const sp<ProcessState>& proc,
+@@ -380,6 +380,8 @@ status_t unflatten_binder(const sp<ProcessState>& proc,
  
  // ---------------------------------------------------------------------------
  
@@ -495,7 +495,7 @@ index 22d7ef3..f47b084 100644
  Parcel::Parcel()
  {
      LOG_ALLOC("Parcel %p: constructing", this);
-@@ -990,6 +992,13 @@ status_t Parcel::writeDupImmutableBlobFileDescriptor(int fd)
+@@ -1034,6 +1036,13 @@ status_t Parcel::writeDupImmutableBlobFileDescriptor(int fd)
      return writeDupFileDescriptor(fd);
  }
  
@@ -509,7 +509,7 @@ index 22d7ef3..f47b084 100644
  status_t Parcel::write(const FlattenableHelperInterface& val)
  {
      status_t err;
-@@ -1430,6 +1439,13 @@ status_t Parcel::readBlob(size_t len, ReadableBlob* outBlob) const
+@@ -1484,6 +1493,13 @@ status_t Parcel::readBlob(size_t len, ReadableBlob* outBlob) const
      return NO_ERROR;
  }
  
@@ -524,7 +524,7 @@ index 22d7ef3..f47b084 100644
  {
      // size
 diff --git a/libs/gui/Android.mk b/libs/gui/Android.mk
-index 8a965dd..80f348c 100644
+index 76aec6e..7a7de42 100644
 --- a/libs/gui/Android.mk
 +++ b/libs/gui/Android.mk
 @@ -16,7 +16,7 @@ LOCAL_PATH := $(call my-dir)
@@ -545,7 +545,7 @@ index 8a965dd..80f348c 100644
  
  
 diff --git a/libs/gui/BufferQueueProducer.cpp b/libs/gui/BufferQueueProducer.cpp
-index 87e5b4d..083f3aa 100644
+index a941e2d..5cbd74e 100644
 --- a/libs/gui/BufferQueueProducer.cpp
 +++ b/libs/gui/BufferQueueProducer.cpp
 @@ -281,7 +281,9 @@ status_t BufferQueueProducer::dequeueBuffer(int *outSlot,
@@ -815,7 +815,7 @@ index 757e08a..2000190 100644
      out[0] = a[0]*b[0] + a[4]*b[1] + a[8]*b[2] + a[12]*b[3];
      out[1] = a[1]*b[0] + a[5]*b[1] + a[9]*b[2] + a[13]*b[3];
 diff --git a/libs/ui/Android.mk b/libs/ui/Android.mk
-index 1ce8626..d5dbeb1 100644
+index a8eb67b..4e1704d 100644
 --- a/libs/ui/Android.mk
 +++ b/libs/ui/Android.mk
 @@ -16,7 +16,7 @@ LOCAL_PATH := $(call my-dir)
@@ -848,7 +848,7 @@ index b2abdb1..16fb3e4 100644
  #if KHRONOS_SUPPORT_INT64 /* EGLuint64KHR requires 64-bit uint support */
  #ifndef EGL_KHR_stream
 diff --git a/opengl/libs/EGL/eglApi.cpp b/opengl/libs/EGL/eglApi.cpp
-index cdec565..e4b93ce 100644
+index 2f6bc79..0b72384 100644
 --- a/opengl/libs/EGL/eglApi.cpp
 +++ b/opengl/libs/EGL/eglApi.cpp
 @@ -151,11 +151,13 @@ static const extention_map_t sExtensionMap[] = {
@@ -882,7 +882,7 @@ index cdec565..e4b93ce 100644
  
      { "eglCreateStreamKHR",
              (__eglMustCastToProperFunctionPointerType)&eglCreateStreamKHR },
-@@ -1817,6 +1820,7 @@ EGLBoolean eglPresentationTimeANDROID(EGLDisplay dpy, EGLSurface surface,
+@@ -1835,6 +1838,7 @@ EGLBoolean eglPresentationTimeANDROID(EGLDisplay dpy, EGLSurface surface,
  // ----------------------------------------------------------------------------
  // NVIDIA extensions
  // ----------------------------------------------------------------------------
@@ -890,7 +890,7 @@ index cdec565..e4b93ce 100644
  EGLuint64NV eglGetSystemTimeFrequencyNV()
  {
      clearError();
-@@ -1881,3 +1885,4 @@ EGLBoolean eglSetDamageRegionKHR(EGLDisplay dpy, EGLSurface surface,
+@@ -1899,3 +1903,4 @@ EGLBoolean eglSetDamageRegionKHR(EGLDisplay dpy, EGLSurface surface,
  
      return EGL_FALSE;
  }
@@ -911,10 +911,10 @@ index 498b2fc..2be43cb 100644
  /* IMG extensions */
  
 diff --git a/services/surfaceflinger/Android.mk b/services/surfaceflinger/Android.mk
-index 1901ef9..5969ef0 100644
+index 25fa503..301356e 100644
 --- a/services/surfaceflinger/Android.mk
 +++ b/services/surfaceflinger/Android.mk
-@@ -108,7 +108,7 @@ LOCAL_SHARED_LIBRARIES := \
+@@ -152,7 +152,7 @@ endif
  
  LOCAL_MODULE := libsurfaceflinger
  
@@ -923,7 +923,7 @@ index 1901ef9..5969ef0 100644
  
  include $(BUILD_SHARED_LIBRARY)
  
-@@ -145,7 +145,7 @@ ifdef TARGET_32_BIT_SURFACEFLINGER
+@@ -189,7 +189,7 @@ ifdef TARGET_32_BIT_SURFACEFLINGER
  LOCAL_32_BIT_ONLY := true
  endif
  
@@ -932,7 +932,7 @@ index 1901ef9..5969ef0 100644
  
  include $(BUILD_EXECUTABLE)
  
-@@ -169,7 +169,7 @@ LOCAL_SHARED_LIBRARIES := \
+@@ -213,7 +213,7 @@ LOCAL_SHARED_LIBRARIES := \
  
  LOCAL_MODULE := libsurfaceflinger_ddmconnection
  
@@ -944,7 +944,7 @@ index 1901ef9..5969ef0 100644
 diff --git a/services/surfaceflinger/DisplayDevice.cpp b/services/surfaceflinger/DisplayDevice.cpp
 old mode 100644
 new mode 100755
-index 13d44f3..6a14a00
+index b83149b..54e030e
 --- a/services/surfaceflinger/DisplayDevice.cpp
 +++ b/services/surfaceflinger/DisplayDevice.cpp
 @@ -26,6 +26,9 @@
@@ -957,20 +957,21 @@ index 13d44f3..6a14a00
  
  #include <gui/Surface.h>
  
-@@ -88,8 +91,12 @@ DisplayDevice::DisplayDevice(
-       mPowerMode(HWC_POWER_MODE_OFF),
+@@ -89,8 +92,12 @@ DisplayDevice::DisplayDevice(
        mActiveConfig(0)
  {
+     Surface* surface;
+-    mNativeWindow = surface = new Surface(producer, false);
 +#ifndef STE_HARDWARE
-     mNativeWindow = new Surface(producer, false);
++    mNativeWindow = new Surface(producer, false);
      ANativeWindow* const window = mNativeWindow.get();
 +#else
 +    ANativeWindow* const window = new FramebufferNativeWindow();
 +#endif
+     char property[PROPERTY_VALUE_MAX];
  
      /*
-      * Create our display's surface
-@@ -416,7 +423,12 @@ void DisplayDevice::setDisplaySize(const int newWidth, const int newHeight) {
+@@ -446,7 +453,12 @@ void DisplayDevice::setDisplaySize(const int newWidth, const int newHeight) {
  
      mDisplaySurface->resizeBuffers(newWidth, newHeight);
  
@@ -983,7 +984,7 @@ index 13d44f3..6a14a00
      mSurface = eglCreateWindowSurface(mDisplay, mConfig, window, NULL);
      eglQuerySurface(mDisplay, mSurface, EGL_WIDTH,  &mDisplayWidth);
      eglQuerySurface(mDisplay, mSurface, EGL_HEIGHT, &mDisplayHeight);
-@@ -500,12 +512,19 @@ void DisplayDevice::dump(String8& result) const {
+@@ -538,12 +550,19 @@ void DisplayDevice::dump(String8& result) const {
      const Transform& tr(mGlobalTransform);
      result.appendFormat(
          "+ DisplayDevice: %s\n"
@@ -1006,10 +1007,10 @@ index 13d44f3..6a14a00
          mIsSecure, mSecureLayerVisible, mPowerMode, mActiveConfig,
          mVisibleLayersSortedByZ.size(),
 diff --git a/services/surfaceflinger/DisplayDevice.h b/services/surfaceflinger/DisplayDevice.h
-index 8695a44..d349e44 100644
+index 9023ce9..6540bf8 100644
 --- a/services/surfaceflinger/DisplayDevice.h
 +++ b/services/surfaceflinger/DisplayDevice.h
-@@ -180,7 +180,9 @@ private:
+@@ -184,7 +184,9 @@ private:
      wp<IBinder> mDisplayToken;
  
      // ANativeWindow this display is rendering into
@@ -1020,10 +1021,10 @@ index 8695a44..d349e44 100644
  
      EGLConfig       mConfig;
 diff --git a/services/surfaceflinger/SurfaceFlinger.cpp b/services/surfaceflinger/SurfaceFlinger.cpp
-index fdc3650..2bffa1b 100644
+index 441bad8..e21a85a 100644
 --- a/services/surfaceflinger/SurfaceFlinger.cpp
 +++ b/services/surfaceflinger/SurfaceFlinger.cpp
-@@ -3074,6 +3074,7 @@ class GraphicProducerWrapper : public BBinder, public MessageHandler {
+@@ -3269,6 +3269,7 @@ class GraphicProducerWrapper : public BBinder, public MessageHandler {
      uint32_t code;
      Parcel const* data;
      Parcel* reply;
@@ -1031,7 +1032,7 @@ index fdc3650..2bffa1b 100644
  
      enum {
          MSG_API_CALL,
-@@ -3087,6 +3088,7 @@ class GraphicProducerWrapper : public BBinder, public MessageHandler {
+@@ -3282,6 +3283,7 @@ class GraphicProducerWrapper : public BBinder, public MessageHandler {
       */
      virtual status_t transact(uint32_t code,
              const Parcel& data, Parcel* reply, uint32_t /* flags */) {
@@ -1039,7 +1040,7 @@ index fdc3650..2bffa1b 100644
          this->code = code;
          this->data = &data;
          this->reply = reply;
-@@ -3104,6 +3106,7 @@ class GraphicProducerWrapper : public BBinder, public MessageHandler {
+@@ -3299,6 +3301,7 @@ class GraphicProducerWrapper : public BBinder, public MessageHandler {
              looper->sendMessage(this, Message(MSG_API_CALL));
              barrier.wait();
          }
