@@ -105,6 +105,8 @@ BOARD_BLUEDROID_VENDOR_CONF := device/samsung/codinalte/bluetooth/vnd_codinalte.
 # RIL
 BOARD_RIL_CLASS := ../../../device/samsung/codinalte/ril/
 COMMON_GLOBAL_CFLAGS += -DSAMSUNG_PROPRIETARY_RIL_WORKAROUND
+BOARD_PROVIDES_LIBRIL := true
+BOARD_PROVIDES_RILD := true
 
 # Browser
 ENABLE_WEBGL := true
@@ -128,8 +130,8 @@ TARGET_USES_EXFAT: = true
 # libutils
 COMMON_GLOBAL_CFLAGS += -DREFBASE_JB_MR1_COMPAT_SYMBOLS
 
-# Meticulus patches switch
-COMMON_GLOBAL_CFLAGS += -DMETICULUS_CODINALTE
+#libbinder
+COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING
 
 #init
 BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
