@@ -50,12 +50,3 @@ on post-fs
     chmod 0660 /sys/module/board_codina_sdi/parameters/wlan_mac
 
     # PerformanceControl
-
-# Meticulus:
-# Little hack to restart the ril in MM.
-# There is some sort of timing issue with
-# Reading getting the status of the SIM
-# during boot but works fine like this.
-on property:sys.boot_completed=1
-   stop ril-daemon
-   start ril-daemon
