@@ -1,58 +1,58 @@
-From ad4419a5e6562d365a2a997f16ee8e9e7f5897fb Mon Sep 17 00:00:00 2001
+From a3db46ea3041853614909961fc43ec228abcfc9b Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Sat, 14 Mar 2015 09:54:33 -0500
-Subject: [PATCH] CodinalteParts Integration
+Date: Mon, 12 Sep 2016 10:47:01 -0500
+Subject: [PATCH 1/2] CodinalteParts Integration
 
-Change-Id: I205b3dc8f0a837aab3cc6bd2dbfea8fa7d705e99
+Change-Id: Iee6cb86c00c6541f2204dace0733f969c7b4379f
 ---
- Android.mk                         |   9 ++++++---
- AndroidManifest.xml                |  33 +++++++++++++++++++++++++++++++++
+ Android.mk                         |  10 ++++++++--
+ AndroidManifest.xml                |  32 ++++++++++++++++++++++++++++++++
  res/drawable-hdpi/ic_meticulus.png | Bin 0 -> 1400 bytes
  res/drawable-hdpi/ic_sponsors.png  | Bin 0 -> 1031 bytes
  res/values/meticulus_string.xml    |  22 ++++++++++++++++++++++
  res/xml/dashboard_categories.xml   |  26 ++++++++++++++++++++++++++
- 6 files changed, 87 insertions(+), 3 deletions(-)
+ 6 files changed, 88 insertions(+), 2 deletions(-)
  create mode 100644 res/drawable-hdpi/ic_meticulus.png
  create mode 100644 res/drawable-hdpi/ic_sponsors.png
  create mode 100644 res/values/meticulus_string.xml
 
 diff --git a/Android.mk b/Android.mk
-index 62703f1..91cc983 100644
+index 78c561c..6c25979 100644
 --- a/Android.mk
 +++ b/Android.mk
-@@ -12,10 +12,12 @@ LOCAL_MODULE_TAGS := optional
+@@ -13,9 +13,12 @@ LOCAL_MODULE_TAGS := optional
  
  LOCAL_SRC_FILES := \
          $(call all-java-files-under, src) \
 -        src/com/android/settings/EventLogTags.logtags
 +        src/com/android/settings/EventLogTags.logtags \
 +	$(call all-java-files-under, ../CodinalteParts/java)
- 
- LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res \
--    frameworks/support/v7/cardview/res
-+    frameworks/support/v7/cardview/res \
++
++LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res \
 +    packages/apps/CodinalteParts/res
  
- LOCAL_SRC_FILES += \
-         src/com/android/location/XT/IXTSrv.aidl \
-@@ -32,7 +34,8 @@ LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
  
- LOCAL_AAPT_FLAGS := \
-     --auto-add-overlay \
--    --extra-packages android.support.v7.cardview
-+    --extra-packages android.support.v7.cardview \
+ LOCAL_PACKAGE_NAME := Settings
+ LOCAL_CERTIFICATE := platform
+@@ -28,6 +31,9 @@ ifneq ($(INCREMENTAL_BUILDS),)
+     LOCAL_JACK_ENABLED := incremental
+ endif
+ 
++LOCAL_AAPT_FLAGS := \
 +    --extra-packages com.meticulus.codinalteparts.app
- 
++
  include frameworks/opt/setupwizard/navigationbar/common.mk
- include $(BUILD_PACKAGE)
+ include frameworks/opt/setupwizard/library/common.mk
+ include frameworks/base/packages/SettingsLib/common.mk
 diff --git a/AndroidManifest.xml b/AndroidManifest.xml
-index ee1e50a..ae30aaf 100644
+index 700c93c..af81a3b 100755
 --- a/AndroidManifest.xml
 +++ b/AndroidManifest.xml
-@@ -85,6 +85,39 @@
-             android:supportsRtl="true"
-             android:allowBackup="false">
- 
+@@ -2939,6 +2939,38 @@
+                 <category android:name="com.android.settings.SHORTCUT" />
+             </intent-filter>
+         </activity>
 +        <!-- Meticulus Application Methods -->
 +        <activity android:name="com.meticulus.codinalteparts.app.MainActivity" />
 +	<activity android:name="com.meticulus.codinalteparts.app.Sponsors" />
@@ -85,10 +85,9 @@ index ee1e50a..ae30aaf 100644
 +            android:enabled="true"
 +            android:exported="true" >
 +        </service>
-+
-         <!-- Screen color Settings Controls -->
-         <activity android:name=".ScreenColorSettings" android:label="@string/screencolor"
-             android:configChanges="orientation|keyboardHidden|screenSize"
+ 
+     </application>
+ </manifest>
 diff --git a/res/drawable-hdpi/ic_meticulus.png b/res/drawable-hdpi/ic_meticulus.png
 new file mode 100644
 index 0000000000000000000000000000000000000000..61ace9d0dd7137474506a493eb12fc2a7c9f7e1b
@@ -185,11 +184,11 @@ index 0000000..b371915
 +
 +</resources>
 diff --git a/res/xml/dashboard_categories.xml b/res/xml/dashboard_categories.xml
-index 304f9df..d75ebcb 100644
+index 24deb20..bffed12 100644
 --- a/res/xml/dashboard_categories.xml
 +++ b/res/xml/dashboard_categories.xml
-@@ -107,6 +107,32 @@
- 
+@@ -93,6 +93,32 @@
+         </dashboard-tile>
      </dashboard-category>
  
 +    <!-- Meticulus Development -->

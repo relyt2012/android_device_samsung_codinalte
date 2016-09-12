@@ -1,0 +1,35 @@
+From c9881dc56ca6d99c6a3bd18fa86df67ab5d8807e Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sun, 11 Sep 2016 20:09:00 -0500
+Subject: [PATCH] Show spn instead of plmn
+
+Change-Id: I19d77d2ce2ecd1d0ac6c3bcb21ef1f6124def94b
+---
+ .../android/internal/telephony/gsm/GsmServiceStateTracker.java | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/src/java/com/android/internal/telephony/gsm/GsmServiceStateTracker.java b/src/java/com/android/internal/telephony/gsm/GsmServiceStateTracker.java
+index 24eea49..d6227e2 100644
+--- a/src/java/com/android/internal/telephony/gsm/GsmServiceStateTracker.java
++++ b/src/java/com/android/internal/telephony/gsm/GsmServiceStateTracker.java
+@@ -640,9 +640,15 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
+         //    EXTRA_DATA_SPN = dataSpn
+         String spn = (iccRecords != null) ? iccRecords.getServiceProviderName() : "";
+         String dataSpn = spn;
++	boolean plmnIsNumeric = false;
++        try {
++		Integer.valueOf(plmn);
++		plmnIsNumeric = true;
++	} catch(Exception ex) { plmnIsNumeric = false; }
+         boolean showSpn = !TextUtils.isEmpty(spn)
+-                && ((rule & SIMRecords.SPN_RULE_SHOW_SPN)
+-                        == SIMRecords.SPN_RULE_SHOW_SPN);
++                && showPlmn && plmnIsNumeric;
++	if(showSpn)
++	    showPlmn = false;
+ 
+         if (mPhone.getImsPhone() != null
+                 && ((ImsPhone) mPhone.getImsPhone()).isVowifiEnabled()) {
+-- 
+1.9.1
+

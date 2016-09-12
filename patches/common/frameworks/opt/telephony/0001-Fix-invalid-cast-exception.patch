@@ -1,0 +1,36 @@
+From e3889410369c95eff7f40c831407138f3c106b77 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sun, 11 Sep 2016 15:57:27 -0500
+Subject: [PATCH] Fix-invalid-cast exception
+
+Change-Id: Icc004477957ced4942e01e7cde5e5a662ec63cee
+---
+ .../com/android/internal/telephony/gsm/GsmCallTracker.java   | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/src/java/com/android/internal/telephony/gsm/GsmCallTracker.java b/src/java/com/android/internal/telephony/gsm/GsmCallTracker.java
+index 0601002..727d31d 100644
+--- a/src/java/com/android/internal/telephony/gsm/GsmCallTracker.java
++++ b/src/java/com/android/internal/telephony/gsm/GsmCallTracker.java
+@@ -976,9 +976,15 @@ public final class GsmCallTracker extends CallTracker {
+                     Rlog.i(LOG_TAG,
+                             "Exception during getLastCallFailCause, assuming normal disconnect");
+                 } else {
+-                    LastCallFailCause failCause = (LastCallFailCause)ar.result;
+-                    causeCode = failCause.causeCode;
+-                    vendorCause = failCause.vendorCause;
++		    try {
++                    	LastCallFailCause failCause = (LastCallFailCause)ar.result;
++                    	causeCode = failCause.causeCode;
++                    	vendorCause = failCause.vendorCause;
++		    } catch (Exception ex) { ex.printStackTrace(); }
++		    finally {
++			causeCode = ((int[]) ar.result)[0];
++			vendorCause = "Unknown";
++		    }
+                 }
+                 // Log the causeCode if its not normal
+                 if (causeCode == CallFailCause.NO_CIRCUIT_AVAIL ||
+-- 
+1.9.1
+

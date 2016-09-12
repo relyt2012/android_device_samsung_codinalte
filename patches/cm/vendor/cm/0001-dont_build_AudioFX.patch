@@ -1,0 +1,46 @@
+From 57e40e5102b2a8e05a9b609486fef7f0a6088bf6 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Mon, 12 Sep 2016 08:45:18 -0500
+Subject: [PATCH] 0001-dont_build_AudioFX
+
+Change-Id: Ifeb52c10e2e45e4ae910b8ef3cf4d1c6dfa21d8a
+---
+ config/common.mk      | 3 ---
+ config/common_full.mk | 3 +--
+ 2 files changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/config/common.mk b/config/common.mk
+index ea5dcaa..d7a8d9a 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -151,13 +151,10 @@ PRODUCT_PACKAGES += \
+ PRODUCT_PACKAGES += \
+     Launcher3 \
+     Trebuchet \
+-    AudioFX \
+     CMWallpapers \
+     CMFileManager \
+     Eleven \
+     LockClock \
+-    CMUpdater \
+-    CyanogenSetupWizard \
+     CMSettingsProvider \
+     ExactCalculator \
+     LiveLockScreenService \
+diff --git a/config/common_full.mk b/config/common_full.mk
+index 0312560..6a5913e 100644
+--- a/config/common_full.mk
++++ b/config/common_full.mk
+@@ -17,8 +17,7 @@ PRODUCT_PACKAGES += \
+     PhaseBeam \
+     PhotoTable \
+     SoundRecorder \
+-    PhotoPhase \
+-    Screencast
++    PhotoPhase
+ 
+ # Extra tools in CM
+ PRODUCT_PACKAGES += \
+-- 
+1.9.1
+

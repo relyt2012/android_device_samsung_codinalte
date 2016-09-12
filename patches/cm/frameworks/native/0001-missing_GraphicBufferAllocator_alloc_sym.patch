@@ -1,0 +1,28 @@
+From 436dd69ad86b119eaf6f0a470dd2ec5d9955d170 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sun, 11 Sep 2016 13:03:32 -0500
+Subject: [PATCH] 0001-missing_GraphicBufferAllocator_alloc_sym
+
+Change-Id: I72d05627269423c3da11c38cdd9d6e4560375a9d
+---
+ libs/ui/GraphicBufferAllocator.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/libs/ui/GraphicBufferAllocator.cpp b/libs/ui/GraphicBufferAllocator.cpp
+index 9b265af..a31bbf5 100644
+--- a/libs/ui/GraphicBufferAllocator.cpp
++++ b/libs/ui/GraphicBufferAllocator.cpp
+@@ -132,6 +132,10 @@ status_t GraphicBufferAllocator::alloc(uint32_t width, uint32_t height,
+ 
+     return err;
+ }
++extern "C" status_t _ZN7android22GraphicBufferAllocator5allocEjjiiPPK13native_handlePi(void * obj,uint32_t width, uint32_t height,
++          PixelFormat format, uint32_t usage, buffer_handle_t* handle,uint32_t* stride) {
++	return static_cast<GraphicBufferAllocator *>(obj) ->alloc(width,height,format, usage, handle, stride);
++}
+ 
+ status_t GraphicBufferAllocator::free(buffer_handle_t handle)
+ {
+-- 
+1.9.1
+

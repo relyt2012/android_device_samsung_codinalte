@@ -1,0 +1,28 @@
+From 6ff52a244829c6407f54fb800911d441a094d766 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sun, 11 Sep 2016 15:56:01 -0500
+Subject: [PATCH] dont_crash_because_call_mesg_is_null
+
+Change-Id: I7de45b857345ff2df54befe6a99c459826313834
+---
+ src/com/android/dialer/DialtactsActivity.java | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/com/android/dialer/DialtactsActivity.java b/src/com/android/dialer/DialtactsActivity.java
+index 6f445aa..36a2c8b 100644
+--- a/src/com/android/dialer/DialtactsActivity.java
++++ b/src/com/android/dialer/DialtactsActivity.java
+@@ -303,8 +303,8 @@ public class DialtactsActivity extends TransactionSafeActivity implements View.O
+     @Override
+     public void onCallMethodChangedListener(CallMethodInfo cmi) {
+         if (cmi == null) {
+-            Log.e(TAG, "Somehow our CallMethod is Null. This should never happen.",
+-                    new Exception());
++            //Log.e(TAG, "Somehow our CallMethod is Null. This should never happen.",
++            //        new Exception());
+             return;
+         }
+         mLastKnownCallMethod = CallMethodSpinnerAdapter.getCallMethodKey(cmi);
+-- 
+1.9.1
+

@@ -1,0 +1,37 @@
+From 701b648d816f31df94252dda52acc13085e1ea2a Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Mon, 12 Sep 2016 10:16:59 -0500
+Subject: [PATCH] 0001-GpsLocationProvider-Force-use-AGpsInterfacev1
+
+Change-Id: Id9273e677651e36def29eec598096bea88e72cf8
+---
+ .../core/jni/com_android_server_location_GpsLocationProvider.cpp  | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/services/core/jni/com_android_server_location_GpsLocationProvider.cpp b/services/core/jni/com_android_server_location_GpsLocationProvider.cpp
+index 91eeb8b..95df046 100644
+--- a/services/core/jni/com_android_server_location_GpsLocationProvider.cpp
++++ b/services/core/jni/com_android_server_location_GpsLocationProvider.cpp
+@@ -761,15 +761,15 @@ static void android_location_GpsLocationProvider_agps_data_conn_open(
+     }
+ 
+     const char *apnStr = env->GetStringUTFChars(apn, NULL);
+-
++/*
+     size_t interface_size = sAGpsInterface->size;
+     if (interface_size == sizeof(AGpsInterface_v2)) {
+         sAGpsInterface->data_conn_open_with_apn_ip_type(apnStr, apnIpType);
+-    } else if (interface_size == sizeof(AGpsInterface_v1)) {
++    } else if (interface_size == sizeof(AGpsInterface_v1)) {*/
+         sAGpsInterface->data_conn_open(apnStr);
+-    } else {
++    /*} else {
+         ALOGE("Invalid size of AGpsInterface found: %zd.", interface_size);
+-    }
++    }*/
+ 
+     env->ReleaseStringUTFChars(apn, apnStr);
+ }
+-- 
+1.9.1
+
