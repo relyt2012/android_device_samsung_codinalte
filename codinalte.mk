@@ -76,6 +76,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.sys.use_dithering=2 \
     persist.sys.strictmode.disable=1
 
+# Ril
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/etc/spn-conf.xml:system/etc/spn-conf.xml
+
 # Media
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/etc/media_profiles.xml:system/etc/media_profiles.xml \
