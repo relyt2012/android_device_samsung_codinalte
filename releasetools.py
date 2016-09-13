@@ -90,6 +90,14 @@ def FullOTA_InstallEnd(info):
   info.script.AppendExtra('assert(run_program("/tmp/blobinstaller.sh") == 0);')
   info.script.AppendExtra('assert(run_program("/tmp/restorecon.sh") == 0);')
 
+# Symlink some dependencies of libcscall.so
+ 
+  info.script.AppendExtra('symlink("/system/lib/ste_omxcomponents/libste_dec_amr.so", "/system/lib/libste_dec_amr.so");')
+  info.script.AppendExtra('symlink("/system/lib/ste_omxcomponents/libste_enc_amr.so", "/system/lib/libste_enc_amr.so");')
+  info.script.AppendExtra('symlink("/system/lib/ste_omxcomponents/libste_dec_amrwb.so", "/system/lib/libste_dec_amrwb.so");')
+  info.script.AppendExtra('symlink("/system/lib/ste_omxcomponents/libste_enc_amrwb.so", "/system/lib/libste_enc_amrwb.so");')
+
+
 # We have to reset all permissions after install blobs on system and this is the only way I could find to do it.
 # It would be better if FullOTA_InstallEnd(info) was called before system permissions are set
 # But I am unsure what "other" consequences of doing that would be.
