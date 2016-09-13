@@ -1,9 +1,9 @@
-From 6a357ed6b60b65657abb81b67aec63a26350afc0 Mon Sep 17 00:00:00 2001
+From 32d5480548f066036babbf5650bdbca32b550c3d Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Wed, 7 Sep 2016 08:37:01 -0500
+Date: Mon, 12 Sep 2016 23:26:06 -0500
 Subject: [PATCH] native
 
-Change-Id: I38cee5b04b37ea41171e48fb55255fee83aac7cc
+Change-Id: I88bca3ee5065d1be93bb87c2b2918ad53741a010
 ---
  include/binder/MemoryBase.h                |   3 +
  include/binder/Parcel.h                    |  32 +++++-
@@ -21,7 +21,7 @@ Change-Id: I38cee5b04b37ea41171e48fb55255fee83aac7cc
  libs/binder/MemoryBase.cpp                 |  27 +++++
  libs/binder/Parcel.cpp                     |  16 +++
  libs/gui/Android.mk                        |   3 +-
- libs/gui/BufferQueueProducer.cpp           |   4 +-
+ libs/gui/BufferQueueProducer.cpp           |  14 ++-
  libs/gui/ConsumerBase.cpp                  |   2 +-
  libs/gui/GLConsumer.cpp                    | 175 ++++++++++++++++++++++++++++-
  libs/ui/Android.mk                         |   2 +-
@@ -32,7 +32,7 @@ Change-Id: I38cee5b04b37ea41171e48fb55255fee83aac7cc
  services/surfaceflinger/DisplayDevice.cpp  |  25 ++++-
  services/surfaceflinger/DisplayDevice.h    |   2 +
  services/surfaceflinger/SurfaceFlinger.cpp |   3 +
- 27 files changed, 397 insertions(+), 21 deletions(-)
+ 27 files changed, 402 insertions(+), 26 deletions(-)
  mode change 100644 => 100755 services/surfaceflinger/DisplayDevice.cpp
 
 diff --git a/include/binder/MemoryBase.h b/include/binder/MemoryBase.h
@@ -545,7 +545,7 @@ index 76aec6e..7a7de42 100644
  
  
 diff --git a/libs/gui/BufferQueueProducer.cpp b/libs/gui/BufferQueueProducer.cpp
-index a941e2d..5cbd74e 100644
+index a941e2d..6a58caf 100644
 --- a/libs/gui/BufferQueueProducer.cpp
 +++ b/libs/gui/BufferQueueProducer.cpp
 @@ -281,7 +281,9 @@ status_t BufferQueueProducer::dequeueBuffer(int *outSlot,
@@ -558,6 +558,24 @@ index a941e2d..5cbd74e 100644
 +        }
          // Enable the usage bits the consumer requested
          usage |= mCore->mConsumerUsageBits;
+ 
+@@ -983,12 +985,12 @@ void BufferQueueProducer::allocateBuffers(bool async, uint32_t width,
+                     ++currentBufferCount;
+                 } else {
+                     if (mSlots[slot].mBufferState != BufferSlot::FREE) {
+-                        BQ_LOGE("allocateBuffers: slot %d without buffer is not FREE",
+-                                slot);
+-                        continue;
++			//cancelBuffer(slot,mSlots[slot].mFence);
++                        /*BQ_LOGE("allocateBuffers: slot %d without buffer is not FREE",
++                                slot);*/
++                        //continue;
+                     }
+-
+-                    freeSlots.push_back(slot);
++	    	    freeSlots.push_back(slot);
+                 }
+             }
  
 diff --git a/libs/gui/ConsumerBase.cpp b/libs/gui/ConsumerBase.cpp
 index 04ab06b..b3e2e55 100644
