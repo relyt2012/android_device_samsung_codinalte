@@ -68,6 +68,10 @@ then
 			then
 				CODENAME="codinatmo"
 				VERSION="SGH-T599"
+			elif [[ "$VALUE" == "T599WXAMJ1" ]]
+			then
+				CODENAME="codinatmo"
+				VERSION="SGH-T599"
 			elif [[ "$VALUE" == "T599VVLAME3" ]]
 			then
 				CODENAME="codinavid"
