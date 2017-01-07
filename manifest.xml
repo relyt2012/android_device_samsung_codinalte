@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+     <project path="device/samsung/codinalte" name="relyt2012/android_device_samsung_codinalte" remote="github" revision="rr-6.0" />
+     <project path="kernel/samsung/codina" name="relyt2012/android_kernel_samsung_codina" remote="github" revision="kk44" />
+     <project path="vendor/samsung/codinavid" name="relyt2012/android_vendor_samsung_codinavid" remote="github" revision="kk44" />
+     <project path="vendor/samsung/codinatmo" name="relyt2012/android_vendor_samsung_codinatmo" remote="github" revision="kk44" />
+     <project path="vendor/samsung/codinamtr" name="relyt2012/android_vendor_samsung_codinamtr" remote="github" revision="kk44" />
+</manifest>
